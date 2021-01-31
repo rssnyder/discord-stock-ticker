@@ -42,7 +42,7 @@ class Ticker(discord.Client):
                 )
             )
 
-            await asyncio.sleep(600)
+            await asyncio.sleep(3605)
 
 
 client = Ticker()
