@@ -2,6 +2,7 @@ import discord
 from os import getenv
 import yfinance as yf
 import asyncio
+from sys import stdout
 
 
 class Ticker(discord.Client):
@@ -17,6 +18,7 @@ class Ticker(discord.Client):
     async def on_ready(self):
 
         print('Logged in as', self.user.name)
+        stdout.flush()
 
 
     async def update_name(self):
@@ -26,6 +28,7 @@ class Ticker(discord.Client):
         while not self.is_closed():            
             
             print(f'Updating price for {getenv("TICKER")}')
+            stdout.flush()
 
             ticker = yf.Ticker(getenv('TICKER'))
 
@@ -43,6 +46,7 @@ class Ticker(discord.Client):
         while not self.is_closed():            
             
             print(f'Updating activity for {getenv("TICKER")}')
+            stdout.flush()
 
             ticker = yf.Ticker(getenv('TICKER'))
 
@@ -53,7 +57,7 @@ class Ticker(discord.Client):
             await self.change_presence(
                 activity=discord.Activity(
                     type=discord.ActivityType.watching,
-                    name=f'{ticker.info["regularMarketPrice"]} - {diff}'
+                    name=f'${ticker.info["regularMarketPrice"]} - {diff}'
                 )
             )
 
