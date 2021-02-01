@@ -83,7 +83,7 @@ class Ticker(discord.Client):
             await self.change_presence(
                 activity=discord.Activity(
                     type=discord.ActivityType.watching,
-                    name=f'${data.info["bid"]} - {diff}'
+                    name=f'${data.info["bid"]} / {diff}'
                 )
             )
 
