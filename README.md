@@ -1,6 +1,6 @@
 # discord-stock-ticker
 
-live stock tickers for your discord server. due to discord limitations the prices in the usernames will be updated every hour.
+Live stock tickers for your discord server. Due to discord limitations the prices in the usernames will be updated every hour.
 
 ## Add tickers to your servers
 
@@ -13,3 +13,9 @@ live stock tickers for your discord server. due to discord limitations the price
 [nok](https://discord.com/api/oauth2/authorize?client_id=805294107962245120&permissions=0&scope=bot)
 
 [pfg](https://discord.com/api/oauth2/authorize?client_id=805466470930055189&permissions=0&scope=bot)
+
+## Self-Hosted
+
+To run for youself, simply set DISCORD_BOT_TOKEN and TICKER in your environment, and run `main.py`.
+
+If you want to watch a crypto, you must also set CRYPTO_NAME.
