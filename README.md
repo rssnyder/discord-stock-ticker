@@ -2,6 +2,8 @@
 
 Live stock tickers for your discord server. Due to discord limitations the prices in the usernames will be updated every hour.
 
+![Discord Sidebar w/ Bots](/assets/sidebar.png)
+
 ## Add tickers to your servers
 
 ### Stock
