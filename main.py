@@ -42,6 +42,9 @@ class Ticker(discord.Client):
         name = self.user.name.split(' ')
         logging.info(f'{name[0]}: logged in')
 
+        servers = [x.name for x in list(self.guilds)]
+        logging.info(servers)
+
 
     async def stock_update_name(self):
         '''
