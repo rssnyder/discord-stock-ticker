@@ -55,7 +55,7 @@ class Ticker(discord.Client):
             data = yf.Ticker(ticker)
 
             await self.user.edit(
-                username=f'{ticker} - ${data.info["regularMarketPrice"]}'
+                username=f'{ticker} - ${data.info["bid"]}'
             )
 
             await asyncio.sleep(3605)
@@ -76,14 +76,14 @@ class Ticker(discord.Client):
 
             data = yf.Ticker(ticker)
 
-            diff = data.info['regularMarketPrice'] - data.info['open']
+            diff = data.info['bid'] - data.info['open']
             if diff > 0:
                 diff = '+' + str(diff)
 
             await self.change_presence(
                 activity=discord.Activity(
                     type=discord.ActivityType.watching,
-                    name=f'${data.info["regularMarketPrice"]} - {diff}'
+                    name=f'${data.info["bid"]} - {diff}'
                 )
             )
 
@@ -131,13 +131,10 @@ class Ticker(discord.Client):
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
             price = data.get(name, {}).get(CURRENCY)
 
-            # TODO
-            diff = 0.0
-
             await self.change_presence(
                 activity=discord.Activity(
                     type=discord.ActivityType.watching,
-                    name=f'${price} - {diff}'
+                    name=f'${price}'
                 )
             )
 
