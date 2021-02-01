@@ -77,6 +77,7 @@ class Ticker(discord.Client):
             data = yf.Ticker(ticker)
 
             diff = data.info['bid'] - data.info['open']
+            diff = round(diff, 2)
             if diff > 0:
                 diff = '+' + str(diff)
 
