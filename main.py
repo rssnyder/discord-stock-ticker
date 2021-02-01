@@ -1,6 +1,7 @@
 '''discord-stock-ticker'''
 from os import getenv
 from sys import stdout
+import logging
 import asyncio
 import discord
 import yfinance as yf
@@ -19,13 +20,16 @@ class Ticker(discord.Client):
         super().__init__(*args, **kwargs)
 
         if not getenv("TICKER"):
+            logging.error('TICKET not set!')
             return
 
         if getenv('CRYPTO_NAME'):
+            logging.info('crypo ticket')
             api = CoinGeckoAPI()
             self.sm_task = self.loop.create_task(self.crypto_update_name(api))
             self.bg_task = self.loop.create_task(self.crypto_update_activity(api))
         else:
+            logging.info('stock ticket')
             self.sm_task = self.loop.create_task(self.stock_update_name())
             self.bg_task = self.loop.create_task(self.stock_update_activity())
 
@@ -35,8 +39,8 @@ class Ticker(discord.Client):
         Log that we have successfully connected
         '''
 
-        print('Logged in as', self.user.name)
-        stdout.flush()
+        name = self.user.name.split(' ')
+        logging.info(f'{name[0]}: logged in')
 
 
     async def stock_update_name(self):
@@ -49,14 +53,13 @@ class Ticker(discord.Client):
         while not self.is_closed():            
             
             ticker = getenv("TICKER")
-            print(f'Updating price for {ticker}')
-            stdout.flush()
 
             data = yf.Ticker(ticker)
 
             await self.user.edit(
                 username=f'{ticker} - ${data.info["bid"]}'
             )
+            logging.info(f'{ticker}: name update')
 
             await asyncio.sleep(3605)
     
@@ -71,8 +74,6 @@ class Ticker(discord.Client):
         while not self.is_closed():            
             
             ticker = getenv("TICKER")
-            print(f'Updating price for {ticker}')
-            stdout.flush()
 
             data = yf.Ticker(ticker)
 
@@ -87,6 +88,7 @@ class Ticker(discord.Client):
                     name=f'${data.info["bid"]} / {diff}'
                 )
             )
+            logging.info(f'{ticker}: activity update')
 
             await asyncio.sleep(60)
     
@@ -101,8 +103,6 @@ class Ticker(discord.Client):
         while not self.is_closed():            
             
             ticker = getenv("TICKER")
-            print(f'Updating price for {ticker}')
-            stdout.flush()
 
             name = getenv('CRYPTO_NAME')
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
@@ -111,6 +111,7 @@ class Ticker(discord.Client):
             await self.user.edit(
                 username=f'{ticker} - ${price}'
             )
+            logging.info(f'{name}: name update')
 
             await asyncio.sleep(3605)
     
@@ -123,10 +124,6 @@ class Ticker(discord.Client):
         await self.wait_until_ready()
 
         while not self.is_closed():            
-            
-            ticker = getenv("TICKER")
-            print(f'Updating price for {ticker}')
-            stdout.flush()
 
             name = getenv('CRYPTO_NAME')
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
@@ -138,9 +135,19 @@ class Ticker(discord.Client):
                     name=f'${price}'
                 )
             )
+            logging.info(f'{name}: activity update')
 
             await asyncio.sleep(60)
 
 
-client = Ticker()
-client.run(getenv('DISCORD_BOT_TOKEN'))
+if __name__ == "__main__":
+
+    logging.basicConfig(
+        filename='discord-stock-ticker.log',
+        level=logging.INFO,
+        datefmt='%Y-%m-%d %H:%M:%S',
+        format='%(asctime)s %(levelname)-8s %(message)s',
+    )
+
+    client = Ticker()
+    client.run(getenv('DISCORD_BOT_TOKEN'))
