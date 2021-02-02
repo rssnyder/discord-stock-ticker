@@ -43,7 +43,7 @@ class Ticker(discord.Client):
         logging.info(f'{name[0]}: logged in')
 
         servers = [x.name for x in list(self.guilds)]
-        logging.info(servers)
+        logging.info('installed:' + servers)
 
 
     async def stock_update_name(self):
@@ -51,12 +51,15 @@ class Ticker(discord.Client):
         Update the bot name based on stock price
         '''
 
+        ticker = getenv("TICKER")
+
         await self.wait_until_ready()
+        logging.info(f'{ticker}: name ready')
 
-        while not self.is_closed():            
+        while not self.is_closed():
+
+            logging.info(f'{ticker}: name started')
             
-            ticker = getenv("TICKER")
-
             data = yf.Ticker(ticker)
 
             await self.user.edit(
@@ -65,6 +68,7 @@ class Ticker(discord.Client):
             logging.info(f'{ticker}: name update')
 
             await asyncio.sleep(3605)
+            logging.info(f'{ticker}: name sleep ended')
     
 
     async def stock_update_activity(self):
@@ -72,12 +76,15 @@ class Ticker(discord.Client):
         Update the bot activity based on stock price
         '''
 
+        ticker = getenv("TICKER")
+
         await self.wait_until_ready()
+        logging.info(f'{ticker}: activity ready')
 
-        while not self.is_closed():            
+        while not self.is_closed():
+
+            logging.info(f'{ticker}: activity started')
             
-            ticker = getenv("TICKER")
-
             data = yf.Ticker(ticker)
 
             diff = data.info['bid'] - data.info['open']
@@ -94,6 +101,7 @@ class Ticker(discord.Client):
             logging.info(f'{ticker}: activity update')
 
             await asyncio.sleep(60)
+            logging.info(f'{ticker}: activity sleep ended')
     
 
     async def crypto_update_name(self, gapi: CoinGeckoAPI):
@@ -101,13 +109,16 @@ class Ticker(discord.Client):
         Update the bot name based on crypto price
         '''
 
+        name = getenv('CRYPTO_NAME')
+        ticker = getenv("TICKER")
+
         await self.wait_until_ready()
+        logging.info(f'{name}: name ready')
 
-        while not self.is_closed():            
-            
-            ticker = getenv("TICKER")
+        while not self.is_closed():
 
-            name = getenv('CRYPTO_NAME')
+            logging.info(f'{name}: name started')
+
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
             price = data.get(name, {}).get(CURRENCY)
 
@@ -117,6 +128,7 @@ class Ticker(discord.Client):
             logging.info(f'{name}: name update')
 
             await asyncio.sleep(3605)
+            logging.info(f'{name}: name sleep ended')
     
 
     async def crypto_update_activity(self, gapi: CoinGeckoAPI):
@@ -124,11 +136,15 @@ class Ticker(discord.Client):
         Update the bot activity based on crypto price
         '''
 
+        name = getenv('CRYPTO_NAME')
+
         await self.wait_until_ready()
+        logging.info(f'{name}: activity ready')
 
-        while not self.is_closed():            
+        while not self.is_closed():
 
-            name = getenv('CRYPTO_NAME')
+            logging.info(f'{name}: activity started')       
+
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
             price = data.get(name, {}).get(CURRENCY)
 
@@ -141,7 +157,7 @@ class Ticker(discord.Client):
             logging.info(f'{name}: activity update')
 
             await asyncio.sleep(60)
-
+            logging.info(f'{name}: activity sleep ended')
 
 if __name__ == "__main__":
 
