@@ -1,6 +1,8 @@
 # discord-stock-ticker
 
-Live stock tickers for your discord server. Due to discord limitations the prices in the usernames will be updated every hour.
+Live stock tickers for your discord server.
+
+Due to discord limitations the prices in the usernames will be updated every hour while the prices in the activity section update every 60 seconds.
 
 ![Discord Sidebar w/ Bots](/assets/sidebar.png)
 
@@ -28,11 +30,15 @@ Live stock tickers for your discord server. Due to discord limitations the price
 
 [Dogecoin](https://discord.com/api/oauth2/authorize?client_id=805605888387186699&permissions=0&scope=bot)
 
-## Self-Hosted
+## Hosting
 
 To run for youself, simply set DISCORD_BOT_TOKEN and TICKER in your environment, and run `main.py`.
 
-If you want to watch a crypto, you must also set CRYPTO_NAME, where TICKER is the abbriviaton (eg. BTC).
+If you want to watch a crypto, you must also set CRYPTO_NAME, where CRYPTO_NAME is the full name (eg. Bitcoin) and TICKER is how you want the coin to appear (eg. BTC).
+
+The bots above are hosted using [piku](https://github.com/piku/piku) on a local server. The logging stack includes loki & promtail with grafana for visualization.
+
+![Really cool grafana dashboard](/assets/grafana.png)
 
 ## Support
 
