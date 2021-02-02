@@ -127,7 +127,7 @@ class Ticker(discord.Client):
             )
             logging.info(f'{name}: name update')
 
-            await asyncio.sleep(3605)
+            await asyncio.sleep(3600)
             logging.info(f'{name}: name sleep ended')
     
 
