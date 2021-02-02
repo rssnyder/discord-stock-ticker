@@ -43,7 +43,7 @@ class Ticker(discord.Client):
         logging.info(f'{name[0]}: logged in')
 
         servers = [x.name for x in list(self.guilds)]
-        logging.info('installed:' + servers)
+        logging.info('installed: ' + servers)
 
 
     async def stock_update_name(self):
@@ -67,7 +67,7 @@ class Ticker(discord.Client):
             )
             logging.info(f'{ticker}: name update')
 
-            await asyncio.sleep(3605)
+            await asyncio.sleep(3598)
             logging.info(f'{ticker}: name sleep ended')
     
 
@@ -100,7 +100,7 @@ class Ticker(discord.Client):
             )
             logging.info(f'{ticker}: activity update')
 
-            await asyncio.sleep(60)
+            await asyncio.sleep(58)
             logging.info(f'{ticker}: activity sleep ended')
     
 
