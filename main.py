@@ -148,8 +148,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         filename='discord-stock-ticker.log',
         level=logging.INFO,
-        datefmt='%Y-%m-%d %H:%M:%S',
-        format='%(asctime)s %(levelname)-8s %(message)s',
+        format='%(levelname)-8s %(message)s'
     )
 
     client = Ticker()
