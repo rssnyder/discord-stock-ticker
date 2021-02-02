@@ -14,7 +14,7 @@ Stock | Crypto
 [![Blackberry](https://logo.clearbit.com/blackberry.com)](https://discord.com/api/oauth2/authorize?client_id=805289769272999986&permissions=0&scope=bot) | [![Bitcoin Cash](https://logo.clearbit.com/bitcoin.com)](https://discord.com/api/oauth2/authorize?client_id=805604560013230170&permissions=0&scope=bot)
 [![AMC Theatres](https://logo.clearbit.com/amctheatres.com)](https://discord.com/api/oauth2/authorize?client_id=805294017441038357&permissions=0&scope=bot) | [![Ethereum](https://logo.clearbit.com/ethereum.org)](https://discord.com/api/oauth2/authorize?client_id=805605209522962452&permissions=0&scope=bot)
 [![Nokia](https://logo.clearbit.com/nokia.com)](https://discord.com/api/oauth2/authorize?client_id=805294107962245120&permissions=0&scope=bot) | [![Dogecoin](https://logo.clearbit.com/dogecoin.com)](https://discord.com/api/oauth2/authorize?client_id=805605888387186699&permissions=0&scope=bot)
-[![Principal Financial Group](https://logo.clearbit.com/principal.com)](https://discord.com/api/oauth2/authorize?client_id=805466470930055189&permissions=0&scope=bot) | 
+[![Principal Financial Group](https://logo.clearbit.com/principal.com)](https://discord.com/api/oauth2/authorize?client_id=805466470930055189&permissions=0&scope=bot) | [![Monero](https://logo.clearbit.com/getmonero.org)](https://discord.com/api/oauth2/authorize?client_id=806282848045629451&permissions=0&scope=bot)
 
 ## Hosting
 

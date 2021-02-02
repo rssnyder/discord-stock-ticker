@@ -1,4 +1,4 @@
 discord
 requests
-iexfinance
+yfinance
 pycoingecko
