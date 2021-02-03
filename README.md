@@ -15,6 +15,12 @@ Stock | Crypto
 [![AMC Theatres](https://logo.clearbit.com/amctheatres.com)](https://discord.com/api/oauth2/authorize?client_id=805294017441038357&permissions=0&scope=bot) | [![Ethereum](https://logo.clearbit.com/ethereum.org)](https://discord.com/api/oauth2/authorize?client_id=805605209522962452&permissions=0&scope=bot)
 [![Nokia](https://logo.clearbit.com/nokia.com)](https://discord.com/api/oauth2/authorize?client_id=805294107962245120&permissions=0&scope=bot) | [![Dogecoin](https://logo.clearbit.com/dogecoin.com)](https://discord.com/api/oauth2/authorize?client_id=805605888387186699&permissions=0&scope=bot)
 [![Principal Financial Group](https://logo.clearbit.com/principal.com)](https://discord.com/api/oauth2/authorize?client_id=805466470930055189&permissions=0&scope=bot) | [![Monero](https://logo.clearbit.com/getmonero.org)](https://discord.com/api/oauth2/authorize?client_id=806282848045629451&permissions=0&scope=bot)
+[![Apple](https://logo.clearbit.com/apple.com)](https://discord.com/api/oauth2/authorize?client_id=806569145184550922&permissions=0&scope=bot) | [![Litecoin](https://logo.clearbit.com/litecoin.com)](https://discord.com/api/oauth2/authorize?client_id=806635240482668574&permissions=0&scope=bot)
+[![Amazon](https://logo.clearbit.com/amazon.com)](https://discord.com/api/oauth2/authorize?client_id=806570287042002945&permissions=0&scope=bot) | [![Ripple](https://logo.clearbit.com/ripple.com)](https://discord.com/api/oauth2/authorize?client_id=806634757168693258&permissions=0&scope=bot)
+[![Alphabet](https://logo.clearbit.com/apple.com)](https://discord.com/api/oauth2/authorize?client_id=806570628156882945&permissions=0&scope=bot) | [![Polkadot](https://logo.clearbit.com/polkadot.network)](https://discord.com/api/oauth2/authorize?client_id=806633568787890217&permissions=0&scope=bot)
+
+
+
 
 ## Hosting
 
@@ -28,4 +34,4 @@ The bots above are hosted using [piku](https://github.com/piku/piku) on a local 
 
 ## Support
 
-If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111`.
+If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111` or [join the support server](https://discord.gg/CQqnCYEtG7).
