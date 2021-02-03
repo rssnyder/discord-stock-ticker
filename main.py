@@ -5,7 +5,7 @@ import asyncio
 import discord
 from pycoingecko import CoinGeckoAPI
 
-from util.yahoo import get_stock_price_async
+from utils.yahoo import get_stock_price_async
 
 
 CURRENCY = 'usd'
@@ -66,8 +66,8 @@ class Ticker(discord.Client):
             
             # Grab the current price data
             data = await get_stock_price_async(ticker)
-            data = data.get('chart', {}).get('result', []).pop().get('meta', {})
-            price = data.get('regularMarketPrice', 0.00)
+            data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
+            price = data.get('regularMarketPrice', {}).get('raw', 0.00)
             logging.info(f'name price retrived {price}')
 
             # Only update on price change
@@ -102,9 +102,9 @@ class Ticker(discord.Client):
             
             # Grab the current price data w/ day difference
             data = await get_stock_price_async(ticker)
-            data = data.get('chart', {}).get('result', []).pop().get('meta', {})
-            price = data.get('regularMarketPrice', 0.00)
-            diff = price - data.get('previousClose', 0.00)
+            data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
+            price = data.get('regularMarketPrice', {}).get('raw', 0.00)
+            diff = price - data.get('regularMarketPreviousClose', {}).get('raw', 0.00)
             diff = round(diff, 2)
             if diff > 0:
                 diff = '+' + str(diff)
