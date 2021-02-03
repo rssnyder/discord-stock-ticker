@@ -1,5 +1,7 @@
 '''discord-stock-ticker'''
 from os import getenv
+from datetime import datetime
+from random import choice
 import logging
 import asyncio
 import discord
@@ -9,6 +11,12 @@ from utils.yahoo import get_stock_price_async
 
 
 CURRENCY = 'usd'
+
+ALERTS = [
+    'discord.gg/CQqnCYEtG7',
+    'markets be closed',
+    'gme to the moon'
+]
 
 
 class Ticker(discord.Client):
@@ -62,6 +70,12 @@ class Ticker(discord.Client):
 
         while not self.is_closed():
 
+            # Dont bother updating if markets closed
+            if (datetime.now().hour >= 17) or (datetime.now().hour < 8):
+                logging.info('markets are closed')
+                await asyncio.sleep(3600)
+                continue
+
             logging.info('name started')
             
             # Grab the current price data
@@ -97,6 +111,18 @@ class Ticker(discord.Client):
         logging.info('activity ready')
 
         while not self.is_closed():
+
+            # If markets are closed, utilize activity for other messages
+            if (datetime.now().hour >= 16) or (datetime.now().hour < 7):
+                logging.info('markets are closed')
+                await self.change_presence(
+                    activity=discord.Activity(
+                        type=discord.ActivityType.watching,
+                        name=choice(ALERTS)
+                    )
+                )
+                await asyncio.sleep(3600)
+                continue
 
             logging.info('activity started')
             
