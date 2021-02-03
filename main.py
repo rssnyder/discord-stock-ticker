@@ -61,11 +61,12 @@ class Ticker(discord.Client):
             logging.info(f'{ticker}: name started')
             
             data = yf.Ticker(ticker)
+            logging.info(f'{ticker}: price retrived')
 
             await self.user.edit(
                 username=f'{ticker} - ${data.info["bid"]}'
             )
-            logging.info(f'{ticker}: name update')
+            logging.info(f'{ticker}: name updated')
 
             await asyncio.sleep(3598)
             logging.info(f'{ticker}: name sleep ended')
@@ -91,6 +92,7 @@ class Ticker(discord.Client):
             diff = round(diff, 2)
             if diff > 0:
                 diff = '+' + str(diff)
+            logging.info(f'{ticker}: price retrived')
 
             await self.change_presence(
                 activity=discord.Activity(
@@ -98,7 +100,7 @@ class Ticker(discord.Client):
                     name=f'${data.info["bid"]} / {diff}'
                 )
             )
-            logging.info(f'{ticker}: activity update')
+            logging.info(f'{ticker}: activity updated')
 
             await asyncio.sleep(58)
             logging.info(f'{ticker}: activity sleep ended')
@@ -121,11 +123,12 @@ class Ticker(discord.Client):
 
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
             price = data.get(name, {}).get(CURRENCY)
+            logging.info(f'{name}: price retrived')
 
             await self.user.edit(
                 username=f'{ticker} - ${price}'
             )
-            logging.info(f'{name}: name update')
+            logging.info(f'{name}: name updated')
 
             await asyncio.sleep(3600)
             logging.info(f'{name}: name sleep ended')
@@ -147,6 +150,7 @@ class Ticker(discord.Client):
 
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
             price = data.get(name, {}).get(CURRENCY)
+            logging.info(f'{name}: price retrived')
 
             await self.change_presence(
                 activity=discord.Activity(
@@ -154,7 +158,7 @@ class Ticker(discord.Client):
                     name=f'${price}'
                 )
             )
-            logging.info(f'{name}: activity update')
+            logging.info(f'{name}: activity updated')
 
             await asyncio.sleep(60)
             logging.info(f'{name}: activity sleep ended')
