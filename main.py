@@ -44,9 +44,7 @@ class Ticker(discord.Client):
         logging.info('logged in')
 
         # We want to know where we are running
-        servers = []
-        async for guild in client.fetch_guilds(limit=150):
-            servers.append(guild.name)
+        servers = [x.name for x in list(self.guilds)]
         logging.info('installed: ' + servers)
 
 
