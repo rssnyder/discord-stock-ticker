@@ -3,8 +3,9 @@ from os import getenv
 import logging
 import asyncio
 import discord
-import yfinance as yf
 from pycoingecko import CoinGeckoAPI
+
+from util.yahoo import get_stock_price_async
 
 
 CURRENCY = 'usd'
@@ -45,7 +46,7 @@ class Ticker(discord.Client):
 
         # We want to know where we are running
         servers = [x.name for x in list(self.guilds)]
-        logging.info('installed: ' + servers)
+        logging.info('installed: ' + str(servers))
 
 
     async def stock_update_name(self):
@@ -64,8 +65,9 @@ class Ticker(discord.Client):
             logging.info('name started')
             
             # Grab the current price data
-            data = yf.Ticker(ticker)
-            price = data.info['bid']
+            data = await get_stock_price_async(ticker)
+            data = data.get('chart', {}).get('result', []).pop().get('meta', {})
+            price = data.get('regularMarketPrice', 0.00)
             logging.info(f'name price retrived {price}')
 
             # Only update on price change
@@ -99,9 +101,10 @@ class Ticker(discord.Client):
             logging.info('activity started')
             
             # Grab the current price data w/ day difference
-            data = yf.Ticker(ticker)
-            price = data.info['bid']
-            diff = price - data.info['open']
+            data = await get_stock_price_async(ticker)
+            data = data.get('chart', {}).get('result', []).pop().get('meta', {})
+            price = data.get('regularMarketPrice', 0.00)
+            diff = price - data.get('previousClose', 0.00)
             diff = round(diff, 2)
             if diff > 0:
                 diff = '+' + str(diff)
