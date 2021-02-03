@@ -77,13 +77,11 @@ class Ticker(discord.Client):
                 )
                 logging.info(f'{ticker}: name updated')
                 old_price = price
-                sleep_time = 3598
             else:
                 logging.info(f'{ticker}: no price change')
-                sleep_time = 3600
 
             # Only update every hour
-            await asyncio.sleep(sleep_time)
+            await asyncio.sleep(3596)
             logging.info(f'{ticker}: name sleep ended')
     
 
@@ -121,13 +119,11 @@ class Ticker(discord.Client):
                 )
                 logging.info(f'{ticker}: activity updated')
                 old_price = price
-                sleep_time = 58
             else:
                 logging.info(f'{ticker}: no price change')
-                sleep_time = 60
 
             # Only update every min
-            await asyncio.sleep(sleep_time)
+            await asyncio.sleep(56)
             logging.info(f'{ticker}: activity sleep ended')
     
 
