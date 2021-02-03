@@ -1,6 +1,6 @@
 '''discord-stock-ticker'''
 from os import getenv
-from sys import stdout
+import time
 import logging
 import asyncio
 import discord
@@ -63,6 +63,7 @@ class Ticker(discord.Client):
 
         while not self.is_closed():
 
+            start = time.time()
             logging.info(f'{ticker}: name started')
             
             # Grab the current price data
@@ -81,7 +82,8 @@ class Ticker(discord.Client):
                 logging.info(f'{ticker}: no price change')
 
             # Only update every hour
-            await asyncio.sleep(3596)
+            end = time.time()
+            await asyncio.sleep(3600 - int(end - start))
             logging.info(f'{ticker}: name sleep ended')
     
 
@@ -98,6 +100,7 @@ class Ticker(discord.Client):
 
         while not self.is_closed():
 
+            start = time.time()
             logging.info(f'{ticker}: activity started')
             
             # Grab the current price data w/ day difference
@@ -123,7 +126,8 @@ class Ticker(discord.Client):
                 logging.info(f'{ticker}: no price change')
 
             # Only update every min
-            await asyncio.sleep(56)
+            end = time.time()
+            await asyncio.sleep(60 - int(end - start))
             logging.info(f'{ticker}: activity sleep ended')
     
 
@@ -141,6 +145,7 @@ class Ticker(discord.Client):
 
         while not self.is_closed():
 
+            start = time.time()
             logging.info(f'{name}: name started')
 
             # Grab the current price data
@@ -159,7 +164,8 @@ class Ticker(discord.Client):
                 logging.info(f'{name}: no price change')
 
             # Only update every hour
-            await asyncio.sleep(3600)
+            end = time.time()
+            await asyncio.sleep(3600 - int(end - start))
             logging.info(f'{name}: name sleep ended')
     
 
@@ -176,6 +182,7 @@ class Ticker(discord.Client):
 
         while not self.is_closed():
 
+            start = time.time()
             logging.info(f'{name}: activity started')       
 
             # Grab the current price data
@@ -197,7 +204,8 @@ class Ticker(discord.Client):
                 logging.info(f'{name}: no price change')
 
             # Only update every min
-            await asyncio.sleep(60)
+            end = time.time()
+            await asyncio.sleep(60 - int(end - start))
             logging.info(f'{name}: activity sleep ended')
 
 if __name__ == "__main__":
