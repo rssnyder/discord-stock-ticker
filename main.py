@@ -1,6 +1,5 @@
 '''discord-stock-ticker'''
 from os import getenv
-from sys import stdout
 import logging
 import asyncio
 import discord
@@ -19,10 +18,12 @@ class Ticker(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Check that at least a ticker is set
         if not getenv("TICKER"):
             logging.error('TICKET not set!')
             return
 
+        # Use different updates based on security type
         if getenv('CRYPTO_NAME'):
             logging.info('crypo ticket')
             api = CoinGeckoAPI()
@@ -39,9 +40,10 @@ class Ticker(discord.Client):
         Log that we have successfully connected
         '''
 
-        name = self.user.name.split(' ')
-        logging.info(f'{name[0]}: logged in')
+        # Connect to discord
+        logging.info('logged in')
 
+        # We want to know where we are running
         servers = [x.name for x in list(self.guilds)]
         logging.info('installed: ' + servers)
 
@@ -52,23 +54,33 @@ class Ticker(discord.Client):
         '''
 
         ticker = getenv("TICKER")
+        old_price = ''
 
         await self.wait_until_ready()
-        logging.info(f'{ticker}: name ready')
+        logging.info('name ready')
 
         while not self.is_closed():
 
-            logging.info(f'{ticker}: name started')
+            logging.info('name started')
             
+            # Grab the current price data
             data = yf.Ticker(ticker)
+            price = data.info['bid']
+            logging.info(f'name price retrived {price}')
 
-            await self.user.edit(
-                username=f'{ticker} - ${data.info["bid"]}'
-            )
-            logging.info(f'{ticker}: name update')
+            # Only update on price change
+            if old_price != price:
+                await self.user.edit(
+                    username=f'{ticker} - ${price}'
+                )
+                logging.info('name updated')
+                old_price = price
+            else:
+                logging.info('no price change')
 
-            await asyncio.sleep(3598)
-            logging.info(f'{ticker}: name sleep ended')
+            # Only update every hour
+            await asyncio.sleep(3600)
+            logging.info('name sleep ended')
     
 
     async def stock_update_activity(self):
@@ -77,31 +89,40 @@ class Ticker(discord.Client):
         '''
 
         ticker = getenv("TICKER")
+        old_price = ''
 
         await self.wait_until_ready()
-        logging.info(f'{ticker}: activity ready')
+        logging.info('activity ready')
 
         while not self.is_closed():
 
-            logging.info(f'{ticker}: activity started')
+            logging.info('activity started')
             
+            # Grab the current price data w/ day difference
             data = yf.Ticker(ticker)
-
-            diff = data.info['bid'] - data.info['open']
+            price = data.info['bid']
+            diff = price - data.info['open']
             diff = round(diff, 2)
             if diff > 0:
                 diff = '+' + str(diff)
+            logging.info(f'activity price retrived {price}')
 
-            await self.change_presence(
-                activity=discord.Activity(
-                    type=discord.ActivityType.watching,
-                    name=f'${data.info["bid"]} / {diff}'
+            # Only update on price change
+            if old_price != price:
+                await self.change_presence(
+                    activity=discord.Activity(
+                        type=discord.ActivityType.watching,
+                        name=f'${price} / {diff}'
+                    )
                 )
-            )
-            logging.info(f'{ticker}: activity update')
+                logging.info('activity updated')
+                old_price = price
+            else:
+                logging.info('no price change')
 
-            await asyncio.sleep(58)
-            logging.info(f'{ticker}: activity sleep ended')
+            # Only update every min
+            await asyncio.sleep(60)
+            logging.info('activity sleep ended')
     
 
     async def crypto_update_name(self, gapi: CoinGeckoAPI):
@@ -111,24 +132,33 @@ class Ticker(discord.Client):
 
         name = getenv('CRYPTO_NAME')
         ticker = getenv("TICKER")
+        old_price = ''
 
         await self.wait_until_ready()
-        logging.info(f'{name}: name ready')
+        logging.info('name ready')
 
         while not self.is_closed():
 
-            logging.info(f'{name}: name started')
+            logging.info('name started')
 
+            # Grab the current price data
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
             price = data.get(name, {}).get(CURRENCY)
+            logging.info(f'name price retrived {price}')
 
-            await self.user.edit(
-                username=f'{ticker} - ${price}'
-            )
-            logging.info(f'{name}: name update')
+            # Only update on price change
+            if old_price != price:
+                await self.user.edit(
+                    username=f'{ticker} - ${price}'
+                )
+                logging.info('name updated')
+                old_price = price
+            else:
+                logging.info('no price change')
 
+            # Only update every hour
             await asyncio.sleep(3600)
-            logging.info(f'{name}: name sleep ended')
+            logging.info('name sleep ended')
     
 
     async def crypto_update_activity(self, gapi: CoinGeckoAPI):
@@ -137,27 +167,36 @@ class Ticker(discord.Client):
         '''
 
         name = getenv('CRYPTO_NAME')
+        old_price = ''
 
         await self.wait_until_ready()
-        logging.info(f'{name}: activity ready')
+        logging.info('activity ready')
 
         while not self.is_closed():
 
-            logging.info(f'{name}: activity started')       
+            logging.info('activity started')       
 
+            # Grab the current price data
             data = gapi.get_price(ids=name, vs_currencies=CURRENCY)
             price = data.get(name, {}).get(CURRENCY)
+            logging.info(f'activity price retrived {price}')
 
-            await self.change_presence(
-                activity=discord.Activity(
-                    type=discord.ActivityType.watching,
-                    name=f'${price}'
+            # Only update on price change
+            if old_price != price:
+                await self.change_presence(
+                    activity=discord.Activity(
+                        type=discord.ActivityType.watching,
+                        name=f'${price}'
+                    )
                 )
-            )
-            logging.info(f'{name}: activity update')
+                logging.info('activity updated')
+                old_price = price
+            else:
+                logging.info('no price change')
 
+            # Only update every min
             await asyncio.sleep(60)
-            logging.info(f'{name}: activity sleep ended')
+            logging.info('activity sleep ended')
 
 if __name__ == "__main__":
 
