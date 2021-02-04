@@ -35,3 +35,5 @@ The bots above are hosted using [piku](https://github.com/piku/piku) on a local 
 ## Support
 
 If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111` or [join the support server](https://discord.gg/CQqnCYEtG7).
+
+Love these bots? Maybe [buy me a coffee!](https://ko-fi.com/rileysnyder)

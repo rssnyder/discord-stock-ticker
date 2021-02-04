@@ -15,7 +15,8 @@ CURRENCY = 'usd'
 ALERTS = [
     'discord.gg/CQqnCYEtG7',
     'markets be closed',
-    'gme to the moon'
+    'gme to the moon',
+    'what about second breakfast'
 ]
 
 
@@ -121,7 +122,7 @@ class Ticker(discord.Client):
                         name=choice(ALERTS)
                     )
                 )
-                await asyncio.sleep(3600)
+                await asyncio.sleep(600)
                 continue
 
             logging.info('activity started')
