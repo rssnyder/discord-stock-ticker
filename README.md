@@ -44,8 +44,11 @@ You will need one bot for every ticker you want to add to your server.
 ```
 git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
 
+pip install -r requirements.txt
+
 export DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 export TICKER=AAPL
+
 python main.py
 ```
 
@@ -56,9 +59,12 @@ If you want to watch a crypto, you must also set CRYPTO_NAME, where CRYPTO_NAME 
 ```
 git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
 
+pip install -r requirements.txt
+
 export DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 export TICKER=BTC
 export CRYPTO_NAME=bitcoin
+
 python main.py
 ```
 
