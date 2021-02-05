@@ -2,9 +2,11 @@
 
 Live stock tickers for your discord server.
 
+![Discord Sidebar w/ Bots](/assets/sidebar.png)
+
 Due to discord limitations the prices in the usernames will be updated every hour while the prices in the activity section update every 60 seconds.
 
-![Discord Sidebar w/ Bots](/assets/sidebar.png)
+Use the free bots listed below or see options to host some yourself!
 
 ## Add tickers to your servers
 
@@ -24,16 +26,51 @@ Stock | Crypto
 
 ## Hosting
 
-To run for youself, simply set DISCORD_BOT_TOKEN and TICKER in your environment, and run `main.py`.
+### Hosted by rssnyder
 
-If you want to watch a crypto, you must also set CRYPTO_NAME, where CRYPTO_NAME is the full name (eg. Bitcoin) and TICKER is how you want the coin to appear (eg. BTC).
+The bots above are hosted using [piku](https://github.com/piku/piku) on a Ubuntu 20.04 server. They are free to use and should have little to no downtime. There is a full logging stack that includes loki & promtail with grafana for visualization.
 
-The bots above are hosted using [piku](https://github.com/piku/piku) on a local server. The logging stack includes loki & promtail with grafana for visualization.
+If you encounter any issues with the bots listed above please see the support options at the bottom of this page.
 
 ![Really cool grafana dashboard](/assets/grafana.png)
+
+### Self-Hosting
+
+To run for youself, simply set DISCORD_BOT_TOKEN and TICKER in your environment, and run `main.py`.
+
+You will need one bot for every ticker you want to add to your server.
+
+#### Stocks
+
+```
+git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
+
+export DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+export TICKER=AAPL
+python main.py
+```
+
+#### Crypto
+
+If you want to watch a crypto, you must also set CRYPTO_NAME, where CRYPTO_NAME is the full name (eg. bitcoin) and TICKER is how you want the coin to appear (eg. BTC).
+
+```
+git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
+
+export DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+export TICKER=BTC
+export CRYPTO_NAME=bitcoin
+python main.py
+```
+
+To see a list of cryptos avalible (we are using the coingecko API):
+
+```
+curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" | jq '.[].id'
+```
 
 ## Support
 
 If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111` or [join the support server](https://discord.gg/CQqnCYEtG7).
 
-Love these bots? Maybe [buy me a coffee!](https://ko-fi.com/rileysnyder)
+Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder)!
