@@ -74,6 +74,27 @@ To see a list of cryptos avalible (we are using the coingecko API):
 curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" | jq '.[].id'
 ```
 
+### Docker
+
+You can also run these bots using docker.
+
+---
+version: "2"
+services:
+  swag:
+    image: ghcr.io/rssnyder/discord-stock-ticker
+    container_name: discord-stock-ticker
+    environment:
+      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - TICKER=PFG
+      - CRYPTO_NAME=bitcoin # optional
+    restart: unless-stopped
+```
+
+```
+docker-compose-up -d
+```
+
 ## Support
 
 If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111` or [join the support server](https://discord.gg/CQqnCYEtG7).
