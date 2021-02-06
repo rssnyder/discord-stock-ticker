@@ -30,7 +30,7 @@ class Ticker(discord.Client):
 
         # Check that at least a ticker is set
         if not getenv("TICKER"):
-            logging.error('TICKET not set!')
+            logging.error('TICKER not set!')
             return
 
         # Use different updates based on security type
