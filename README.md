@@ -2,7 +2,7 @@
 
 Live stock tickers for your discord server.
 
-![Discord Sidebar w/ Bots](/assets/sidebar.png)
+![Discord Sidebar w/ Bots](https://s3.oc0.rileysnyder.org/public/assets/sidebar.png)
 
 Due to discord limitations the prices in the usernames will be updated every hour while the prices in the activity section update every 60 seconds.
 
@@ -20,7 +20,9 @@ Stock | Crypto
 [![Apple](https://logo.clearbit.com/apple.com)](https://discord.com/api/oauth2/authorize?client_id=806569145184550922&permissions=0&scope=bot) | [![Litecoin](https://logo.clearbit.com/litecoin.com)](https://discord.com/api/oauth2/authorize?client_id=806635240482668574&permissions=0&scope=bot)
 [![Amazon](https://logo.clearbit.com/amazon.com)](https://discord.com/api/oauth2/authorize?client_id=806570287042002945&permissions=0&scope=bot) | [![Ripple](https://logo.clearbit.com/ripple.com)](https://discord.com/api/oauth2/authorize?client_id=806634757168693258&permissions=0&scope=bot)
 [![Alphabet](https://logo.clearbit.com/google.com)](https://discord.com/api/oauth2/authorize?client_id=806570628156882945&permissions=0&scope=bot) | [![Polkadot](https://logo.clearbit.com/polkadot.network)](https://discord.com/api/oauth2/authorize?client_id=806633568787890217&permissions=0&scope=bot)
-[![](https://logo.clearbit.com/)](https://discord.com/api/oauth2/authorize?client_id=&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/cardano.com)](https://discord.com/api/oauth2/authorize?client_id=807311315055542272&permissions=0&scope=bot)
+[![S&P 500](https://s3.oc0.rileysnyder.org/public/assets/sp500.jpg)](https://discord.com/api/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/cardano.com)](https://discord.com/api/oauth2/authorize?client_id=807311315055542272&permissions=0&scope=bot)
+[![Dow Jones Industrial Average](https://s3.oc0.rileysnyder.org/public/assets/dow30.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot) | [![Chainlink](https://logo.clearbit.com/chain.link)](https://discord.com/api/oauth2/authorize?client_id=808407486860230747&permissions=0&scope=bot)
+[![NASDAQ Composite](https://s3.oc0.rileysnyder.org/public/assets/nasdaq.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/stellar.org)](https://discord.com/api/oauth2/authorize?client_id=808409647731179534&permissions=0&scope=bot)
 
 
 ## Hosting
@@ -31,7 +33,7 @@ The bots above are hosted using [piku](https://github.com/piku/piku) on a Ubuntu
 
 If you encounter any issues with the bots listed above please see the support options at the bottom of this page.
 
-![Really cool grafana dashboard](/assets/grafana.png)
+![Really cool grafana dashboard](https://s3.oc0.rileysnyder.org/public/assets/grafana.png)
 
 ### Self-Hosting
 
