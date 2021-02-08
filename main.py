@@ -53,9 +53,9 @@ class Ticker(discord.Client):
         # Connect to discord
         logging.info('logged in')
 
-        # We want to know where we are running
+        # We want to know some stats
         servers = [x.name for x in list(self.guilds)]
-        logging.info('installed: ' + str(servers))
+        logging.info('servers: ' + str(servers))
 
 
     async def stock_update_name(self):
@@ -64,6 +64,7 @@ class Ticker(discord.Client):
         '''
 
         ticker = getenv("TICKER")
+        name = getenv("STOCK_NAME", ticker)
         old_price = ''
 
         await self.wait_until_ready()
@@ -88,7 +89,7 @@ class Ticker(discord.Client):
             # Only update on price change
             if old_price != price:
                 await self.user.edit(
-                    username=f'{ticker} - ${price}'
+                    username=f'{name} - ${price}'
                 )
                 logging.info('name updated')
                 old_price = price
