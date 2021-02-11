@@ -23,6 +23,8 @@ Stock | Crypto
 [![S&P 500](https://s3.oc0.rileysnyder.org/public/assets/sp500.jpg)](https://discord.com/api/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/cardano.com)](https://discord.com/api/oauth2/authorize?client_id=807311315055542272&permissions=0&scope=bot)
 [![Dow Jones Industrial Average](https://s3.oc0.rileysnyder.org/public/assets/dow30.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot) | [![Chainlink](https://logo.clearbit.com/chain.link)](https://discord.com/api/oauth2/authorize?client_id=808407486860230747&permissions=0&scope=bot)
 [![NASDAQ Composite](https://s3.oc0.rileysnyder.org/public/assets/nasdaq.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/stellar.org)](https://discord.com/api/oauth2/authorize?client_id=808409647731179534&permissions=0&scope=bot)
+[![Tesla](https://logo.clearbit.com/tesla.com)](https://discord.com/api/oauth2/authorize?client_id=808723743069306882&permissions=0&scope=bot) | [![](https://logo.clearbit.com/)]()
+[![Draftkings](https://logo.clearbit.com/draftkings.com)](https://discord.com/api/oauth2/authorize?client_id=808724381608968202&permissions=0&scope=bot) | [![](https://logo.clearbit.com/)]()
 
 
 ## Hosting
@@ -101,4 +103,9 @@ docker-compose-up -d
 
 If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111` or [join the support server](https://discord.gg/CQqnCYEtG7).
 
-Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder)!
+Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder)! Or send some crypto to help keep these bots running:
+
+eth: 0x27B6896cC68838bc8adE6407C8283a214ecD4ffE
+doge: DTWkUvFakt12yUEssTbdCe2R7TepExBA2G
+bch: bitcoincash:qrnmprfh5e77lzdpalczdu839uhvrravlvfr5nwupr
+btc: bitcoin:1N84bLSVKPZBHKYjHp8QtvPgRJfRbtNKHQ
