@@ -82,6 +82,7 @@ curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: applicati
 
 You can also run these bots using docker.
 
+```
 ---
 version: "2"
 services:
