@@ -6,6 +6,7 @@ import logging
 import asyncio
 import discord
 from pycoingecko import CoinGeckoAPI
+from redis import Redis, exceptions
 
 from utils.yahoo import get_stock_price_async
 
@@ -50,11 +51,18 @@ class Ticker(discord.Client):
         Log that we have successfully connected
         '''
 
+        r = Redis()
+
         # Connect to discord
         logging.info('logged in')
 
         # We want to know some stats
         servers = [x.name for x in list(self.guilds)]
+        try:
+            for server in servers:
+                r.set(server, 1)
+        except exceptions.ConnectionError:
+            logging.info('No redis server found, not storing stats')
         logging.info('servers: ' + str(servers))
 
 
