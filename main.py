@@ -60,7 +60,7 @@ class Ticker(discord.Client):
         servers = [x.name for x in list(self.guilds)]
         try:
             for server in servers:
-                r.set(server, 1)
+                r.incr(server)
         except exceptions.ConnectionError:
             logging.info('No redis server found, not storing stats')
         logging.info('servers: ' + str(servers))
