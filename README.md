@@ -25,6 +25,7 @@ Stock | Crypto
 [![NASDAQ Composite](https://s3.oc0.rileysnyder.org/public/assets/nasdaq.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/stellar.org)](https://discord.com/api/oauth2/authorize?client_id=808409647731179534&permissions=0&scope=bot)
 [![Tesla](https://logo.clearbit.com/tesla.com)](https://discord.com/api/oauth2/authorize?client_id=808723743069306882&permissions=0&scope=bot) | [![0x](https://s3.oc0.rileysnyder.org/public/assets/0x.jpg)](https://discord.com/api/oauth2/authorize?client_id=810892119362895872&permissions=0&scope=bot)
 [![Draftkings](https://logo.clearbit.com/draftkings.com)](https://discord.com/api/oauth2/authorize?client_id=808724381608968202&permissions=0&scope=bot) | [![Balance](https://logo.clearbit.com/balancer.finance)](https://discord.com/api/oauth2/authorize?client_id=810894385360535572&permissions=0&scope=bot)
+[![SPY](https://s3.oc0.rileysnyder.org/public/assets/spy.jpg)](https://discord.com/api/oauth2/authorize?client_id=811418568846737500&permissions=0&scope=bot) | [![]()]()
 
 
 ## Hosting
