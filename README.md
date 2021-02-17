@@ -33,13 +33,15 @@ Stock | Crypto
 
 The bots above are hosted using [piku](https://github.com/piku/piku) on a Ubuntu 20.04 server. They are free to use and should have little to no downtime. There is a full logging stack that includes loki & promtail with grafana for visualization.
 
+For a version that updates more frequently than 60 seconds, or where the name updates along with the activity (at a faster frequency), I can host instances for you for a small fee (contact below).
+
 If you encounter any issues with the bots listed above please see the support options at the bottom of this page.
 
 ![Really cool grafana dashboard](https://s3.oc0.rileysnyder.org/public/assets/grafana.png)
 
 ### Self-Hosting
 
-To run for youself, simply set DISCORD_BOT_TOKEN and TICKER in your environment, and run `main.py`.
+To run for youself, simply set `DISCORD_BOT_TOKEN` and `TICKER` in your environment, and run `main.py`.
 
 You will need one bot for every ticker you want to add to your server.
 
@@ -56,9 +58,11 @@ export TICKER=AAPL
 python main.py
 ```
 
+You can also set `STOCK_NAME` to overwrite the bot's name.
+
 #### Crypto
 
-If you want to watch a crypto, you must also set CRYPTO_NAME, where CRYPTO_NAME is the full name (eg. bitcoin) and TICKER is how you want the coin to appear (eg. BTC).
+If you want to watch a crypto, you must also set `CRYPTO_NAME`, where `CRYPTO_NAME` is the full name (eg. bitcoin) and `TICKER` is how you want the coin to appear (eg. BTC).
 
 ```
 git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
@@ -72,11 +76,16 @@ export CRYPTO_NAME=bitcoin
 python main.py
 ```
 
+You can also set `SET_NICKNAME=1`  to enable changing the bot's nickname to the price to get name updates more often than once per hour.
+
+To modify the update frequency of the activity/nickname, set `FREQUENCY` (eg. `FREQUENCY=10`).
+
 To see a list of cryptos avalible (we are using the coingecko API):
 
 ```
 curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" | jq '.[].id'
 ```
+
 
 ### Docker
 
@@ -92,7 +101,6 @@ services:
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       - TICKER=PFG
-      - CRYPTO_NAME=bitcoin # optional
     restart: unless-stopped
 ```
 

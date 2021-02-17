@@ -10,7 +10,6 @@ from redis import Redis, exceptions
 
 from utils.yahoo import get_stock_price_async
 
-
 CURRENCY = 'usd'
 
 ALERTS = [
@@ -36,12 +35,12 @@ class Ticker(discord.Client):
 
         # Use different updates based on security type
         if getenv('CRYPTO_NAME'):
-            logging.info('crypo ticket')
+            logging.info('crypo ticker')
             api = CoinGeckoAPI()
             self.sm_task = self.loop.create_task(self.crypto_update_name(api))
             self.bg_task = self.loop.create_task(self.crypto_update_activity(api))
         else:
-            logging.info('stock ticket')
+            logging.info('stock ticker')
             self.sm_task = self.loop.create_task(self.stock_update_name())
             self.bg_task = self.loop.create_task(self.stock_update_activity())
 
@@ -51,18 +50,20 @@ class Ticker(discord.Client):
         Log that we have successfully connected
         '''
 
-        r = Redis()
-
-        # Connect to discord
         logging.info('logged in')
+
+        # Use redis to store stats
+        r = Redis()
 
         # We want to know some stats
         servers = [x.name for x in list(self.guilds)]
+
         try:
             for server in servers:
                 r.incr(server)
         except exceptions.ConnectionError:
             logging.info('No redis server found, not storing stats')
+
         logging.info('servers: ' + str(servers))
 
 
@@ -71,6 +72,7 @@ class Ticker(discord.Client):
         Update the bot name based on stock price
         '''
 
+        # Get config
         ticker = getenv("TICKER")
         name = getenv("STOCK_NAME", ticker)
         old_price = ''
@@ -78,6 +80,7 @@ class Ticker(discord.Client):
         await self.wait_until_ready()
         logging.info('name ready')
 
+        # Loop as long as the bot is running
         while not self.is_closed():
 
             # Dont bother updating if markets closed
@@ -96,16 +99,20 @@ class Ticker(discord.Client):
 
             # Only update on price change
             if old_price != price:
+
                 await self.user.edit(
                     username=f'{name} - ${price}'
                 )
-                logging.info('name updated')
+
                 old_price = price
+                logging.info('name updated')
+
             else:
                 logging.info('no price change')
 
             # Only update every hour
             await asyncio.sleep(3600)
+
             logging.info('name sleep ended')
     
 
@@ -114,12 +121,14 @@ class Ticker(discord.Client):
         Update the bot activity based on stock price
         '''
 
+        # Get config
         ticker = getenv("TICKER")
         old_price = ''
 
         await self.wait_until_ready()
         logging.info('activity ready')
 
+        # Loop as long as the bot is running
         while not self.is_closed():
 
             # If markets are closed, utilize activity for other messages
@@ -144,23 +153,38 @@ class Ticker(discord.Client):
             diff = round(diff, 2)
             if diff > 0:
                 diff = '+' + str(diff)
+
             logging.info(f'activity price retrived {price}')
 
             # Only update on price change
             if old_price != price:
+
+                # Change activity
                 await self.change_presence(
                     activity=discord.Activity(
                         type=discord.ActivityType.watching,
                         name=f'${price} / {diff}'
                     )
                 )
+
                 logging.info('activity updated')
+
+                # Change name via nickname if set
+                if getenv('SET_NICKNAME'):
+                    
+                    for server in self.guilds:
+                        await server.me.edit(
+                            nick=f'{ticker} - ${price}'
+                        )
+                        logging.info(f'updated nick in {server.name}')
+
                 old_price = price
+
             else:
                 logging.info('no price change')
 
             # Only update every min
-            await asyncio.sleep(60)
+            await asyncio.sleep(int(getenv('FREQUENCY', 60)))
             logging.info('activity sleep ended')
     
 
@@ -169,6 +193,7 @@ class Ticker(discord.Client):
         Update the bot name based on crypto price
         '''
 
+        # Get config
         name = getenv('CRYPTO_NAME')
         ticker = getenv("TICKER")
         old_price = ''
@@ -176,6 +201,7 @@ class Ticker(discord.Client):
         await self.wait_until_ready()
         logging.info('name ready')
 
+        # Loop as long as the bot is running
         while not self.is_closed():
 
             logging.info('name started')
@@ -187,11 +213,14 @@ class Ticker(discord.Client):
 
             # Only update on price change
             if old_price != price:
+
                 await self.user.edit(
                     username=f'{ticker} - ${price}'
                 )
-                logging.info('name updated')
+                
                 old_price = price
+                logging.info('name updated')
+
             else:
                 logging.info('no price change')
 
@@ -205,12 +234,15 @@ class Ticker(discord.Client):
         Update the bot activity based on crypto price
         '''
 
+        # Get config
         name = getenv('CRYPTO_NAME')
+        ticker = getenv("TICKER")
         old_price = ''
 
         await self.wait_until_ready()
         logging.info('activity ready')
 
+        # Loop as long as the bot is running
         while not self.is_closed():
 
             logging.info('activity started')       
@@ -222,20 +254,35 @@ class Ticker(discord.Client):
 
             # Only update on price change
             if old_price != price:
+
+                # Change activity
                 await self.change_presence(
                     activity=discord.Activity(
                         type=discord.ActivityType.watching,
                         name=f'${price}'
                     )
                 )
+
                 logging.info('activity updated')
+
+                # Change name via nickname if set
+                if getenv('SET_NICKNAME'):
+                    
+                    for server in self.guilds:
+                        await server.me.edit(
+                            nick=f'{ticker} - ${price}'
+                        )
+                        logging.info(f'updated nick in {server.name}')
+
                 old_price = price
+
             else:
                 logging.info('no price change')
 
             # Only update every min
-            await asyncio.sleep(60)
+            await asyncio.sleep(int(getenv('FREQUENCY', 60)))
             logging.info('activity sleep ended')
+
 
 if __name__ == "__main__":
 
