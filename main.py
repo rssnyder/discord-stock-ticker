@@ -16,7 +16,8 @@ ALERTS = [
     'discord.gg/CQqnCYEtG7',
     'markets be closed',
     'gme to the moon',
-    'what about second breakfast'
+    'what about second breakfast',
+    'subscribe for real time prices!'
 ]
 
 

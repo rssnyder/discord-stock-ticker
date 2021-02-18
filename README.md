@@ -4,39 +4,65 @@ Live stock tickers for your discord server.
 
 ![Discord Sidebar w/ Bots](https://s3.oc0.rileysnyder.org/public/assets/sidebar.png)
 
-Due to discord limitations the prices in the usernames will be updated every hour while the prices in the activity section update every 60 seconds.
+Public (free) Version: Updates activity every 60 seconds and Name updates every hour.
 
-Use the free bots listed below or see options to host some yourself!
+Paid Version: Updates near real time.
 
-## Add tickers to your servers
+You can also host yourself for free! See instructions below.
 
-Stock | Crypto
------------- | -------------
-[![GameStop](https://logo.clearbit.com/gamestop.com)](https://discord.com/api/oauth2/authorize?client_id=805268557994262529&permissions=0&scope=bot) | [![Bitcoin](https://logo.clearbit.com/bitcoin.org)](https://discord.com/api/oauth2/authorize?client_id=805599050871210014&permissions=0&scope=bot)
-[![Blackberry](https://logo.clearbit.com/blackberry.com)](https://discord.com/api/oauth2/authorize?client_id=805289769272999986&permissions=0&scope=bot) | [![Bitcoin Cash](https://logo.clearbit.com/bitcoin.com)](https://discord.com/api/oauth2/authorize?client_id=805604560013230170&permissions=0&scope=bot)
-[![AMC Theatres](https://logo.clearbit.com/amctheatres.com)](https://discord.com/api/oauth2/authorize?client_id=805294017441038357&permissions=0&scope=bot) | [![Ethereum](https://logo.clearbit.com/ethereum.org)](https://discord.com/api/oauth2/authorize?client_id=805605209522962452&permissions=0&scope=bot)
-[![Nokia](https://logo.clearbit.com/nokia.com)](https://discord.com/api/oauth2/authorize?client_id=805294107962245120&permissions=0&scope=bot) | [![Dogecoin](https://logo.clearbit.com/dogecoin.com)](https://discord.com/api/oauth2/authorize?client_id=805605888387186699&permissions=0&scope=bot)
-[![Principal Financial Group](https://logo.clearbit.com/principal.com)](https://discord.com/api/oauth2/authorize?client_id=805466470930055189&permissions=0&scope=bot) | [![Monero](https://logo.clearbit.com/getmonero.org)](https://discord.com/api/oauth2/authorize?client_id=806282848045629451&permissions=0&scope=bot)
-[![Apple](https://logo.clearbit.com/apple.com)](https://discord.com/api/oauth2/authorize?client_id=806569145184550922&permissions=0&scope=bot) | [![Litecoin](https://logo.clearbit.com/litecoin.com)](https://discord.com/api/oauth2/authorize?client_id=806635240482668574&permissions=0&scope=bot)
-[![Amazon](https://logo.clearbit.com/amazon.com)](https://discord.com/api/oauth2/authorize?client_id=806570287042002945&permissions=0&scope=bot) | [![Ripple](https://logo.clearbit.com/ripple.com)](https://discord.com/api/oauth2/authorize?client_id=806634757168693258&permissions=0&scope=bot)
-[![Alphabet](https://logo.clearbit.com/google.com)](https://discord.com/api/oauth2/authorize?client_id=806570628156882945&permissions=0&scope=bot) | [![Polkadot](https://logo.clearbit.com/polkadot.network)](https://discord.com/api/oauth2/authorize?client_id=806633568787890217&permissions=0&scope=bot)
-[![S&P 500](https://s3.oc0.rileysnyder.org/public/assets/sp500.jpg)](https://discord.com/api/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/cardano.com)](https://discord.com/api/oauth2/authorize?client_id=807311315055542272&permissions=0&scope=bot)
-[![Dow Jones Industrial Average](https://s3.oc0.rileysnyder.org/public/assets/dow30.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot) | [![Chainlink](https://logo.clearbit.com/chain.link)](https://discord.com/api/oauth2/authorize?client_id=808407486860230747&permissions=0&scope=bot)
-[![NASDAQ Composite](https://s3.oc0.rileysnyder.org/public/assets/nasdaq.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot) | [![Cardano](https://logo.clearbit.com/stellar.org)](https://discord.com/api/oauth2/authorize?client_id=808409647731179534&permissions=0&scope=bot)
-[![Tesla](https://logo.clearbit.com/tesla.com)](https://discord.com/api/oauth2/authorize?client_id=808723743069306882&permissions=0&scope=bot) | [![0x](https://s3.oc0.rileysnyder.org/public/assets/0x.jpg)](https://discord.com/api/oauth2/authorize?client_id=810892119362895872&permissions=0&scope=bot)
-[![Draftkings](https://logo.clearbit.com/draftkings.com)](https://discord.com/api/oauth2/authorize?client_id=808724381608968202&permissions=0&scope=bot) | [![Balance](https://logo.clearbit.com/balancer.finance)](https://discord.com/api/oauth2/authorize?client_id=810894385360535572&permissions=0&scope=bot)
-[![SPY](https://s3.oc0.rileysnyder.org/public/assets/spy.jpg)](https://discord.com/api/oauth2/authorize?client_id=811418568846737500&permissions=0&scope=bot) | [![]()]()
+## Add public tickers to your servers
 
+### Stocks
+
+[![GameStop](https://logo.clearbit.com/gamestop.com)](https://discord.com/api/oauth2/authorize?client_id=805268557994262529&permissions=0&scope=bot)
+[![Blackberry](https://logo.clearbit.com/blackberry.com)](https://discord.com/api/oauth2/authorize?client_id=805289769272999986&permissions=0&scope=bot)
+[![AMC Theatres](https://logo.clearbit.com/amctheatres.com)](https://discord.com/api/oauth2/authorize?client_id=805294017441038357&permissions=0&scope=bot)
+[![Nokia](https://logo.clearbit.com/nokia.com)](https://discord.com/api/oauth2/authorize?client_id=805294107962245120&permissions=0&scope=bot)
+[![Principal Financial Group](https://logo.clearbit.com/principal.com)](https://discord.com/api/oauth2/authorize?client_id=805466470930055189&permissions=0&scope=bot)
+[![Apple](https://logo.clearbit.com/apple.com)](https://discord.com/api/oauth2/authorize?client_id=806569145184550922&permissions=0&scope=bot)
+[![Amazon](https://s3.oc0.rileysnyder.org/public/assets/amzn.jpg)](https://discord.com/api/oauth2/authorize?client_id=806570287042002945&permissions=0&scope=bot)
+[![Alphabet](https://logo.clearbit.com/google.com)](https://discord.com/api/oauth2/authorize?client_id=806570628156882945&permissions=0&scope=bot)
+[![S&P 500](https://s3.oc0.rileysnyder.org/public/assets/sp500.jpg)](https://discord.com/api/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot)
+[![Dow Jones Industrial Average](https://s3.oc0.rileysnyder.org/public/assets/dow30.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot)
+[![NASDAQ Composite](https://s3.oc0.rileysnyder.org/public/assets/nasdaq.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot)
+[![Tesla](https://logo.clearbit.com/tesla.com)](https://discord.com/api/oauth2/authorize?client_id=808723743069306882&permissions=0&scope=bot)
+[![Draftkings](https://logo.clearbit.com/draftkings.com)](https://discord.com/api/oauth2/authorize?client_id=808724381608968202&permissions=0&scope=bot)
+[![SPY](https://s3.oc0.rileysnyder.org/public/assets/spy.jpg)](https://discord.com/api/oauth2/authorize?client_id=811418568846737500&permissions=0&scope=bot)
+[![SPRQ](https://s3.oc0.rileysnyder.org/public/assets/sprq.png)](https://discord.com/api/oauth2/authorize?client_id=812041982980521995&permissions=0&scope=bot)
+[![ACIC](https://s3.oc0.rileysnyder.org/public/assets/acic.jpg)](https://discord.com/api/oauth2/authorize?client_id=812041922499706890&permissions=0&scope=bot)
+[![BMBL](https://logo.clearbit.com/bumble.com)](https://discord.com/api/oauth2/authorize?client_id=812041842903482378&permissions=0&scope=bot)
+[![PLUG](https://logo.clearbit.com/plugpower.com)](https://discord.com/api/oauth2/authorize?client_id=812041750528000031&permissions=0&scope=bot)
+[![FCEL](https://logo.clearbit.com/fuelcellenergy.com)](https://discord.com/api/oauth2/authorize?client_id=812041645008093186&permissions=0&scope=bot)
+
+### Crypto
+
+[![Bitcoin](https://logo.clearbit.com/bitcoin.org)](https://discord.com/api/oauth2/authorize?client_id=805599050871210014&permissions=0&scope=bot)
+[![Bitcoin Cash](https://logo.clearbit.com/bitcoin.com)](https://discord.com/api/oauth2/authorize?client_id=805604560013230170&permissions=0&scope=bot)
+[![Ethereum](https://logo.clearbit.com/ethereum.org)](https://discord.com/api/oauth2/authorize?client_id=805605209522962452&permissions=0&scope=bot)
+[![Dogecoin](https://logo.clearbit.com/dogecoin.com)](https://discord.com/api/oauth2/authorize?client_id=805605888387186699&permissions=0&scope=bot)
+[![Monero](https://logo.clearbit.com/getmonero.org)](https://discord.com/api/oauth2/authorize?client_id=806282848045629451&permissions=0&scope=bot)
+[![Litecoin](https://logo.clearbit.com/litecoin.com)](https://discord.com/api/oauth2/authorize?client_id=806635240482668574&permissions=0&scope=bot)
+[![Ripple](https://logo.clearbit.com/ripple.com)](https://discord.com/api/oauth2/authorize?client_id=806634757168693258&permissions=0&scope=bot)
+[![Polkadot](https://logo.clearbit.com/polkadot.network)](https://discord.com/api/oauth2/authorize?client_id=806633568787890217&permissions=0&scope=bot)
+[![Cardano](https://logo.clearbit.com/cardano.com)](https://discord.com/api/oauth2/authorize?client_id=807311315055542272&permissions=0&scope=bot)
+[![Chainlink](https://logo.clearbit.com/chain.link)](https://discord.com/api/oauth2/authorize?client_id=808407486860230747&permissions=0&scope=bot)
+[![Cardano](https://logo.clearbit.com/stellar.org)](https://discord.com/api/oauth2/authorize?client_id=808409647731179534&permissions=0&scope=bot)
+[![0x](https://s3.oc0.rileysnyder.org/public/assets/0x.jpg)](https://discord.com/api/oauth2/authorize?client_id=810892119362895872&permissions=0&scope=bot)
+[![Balance](https://logo.clearbit.com/balancer.finance)](https://discord.com/api/oauth2/authorize?client_id=810894385360535572&permissions=0&scope=bot)
 
 ## Hosting
 
 ### Hosted by rssnyder
 
-The bots above are hosted using [piku](https://github.com/piku/piku) on a Ubuntu 20.04 server. They are free to use and should have little to no downtime. There is a full logging stack that includes loki & promtail with grafana for visualization.
+#### Public (free)
 
-For a version that updates more frequently than 60 seconds, or where the name updates along with the activity (at a faster frequency), I can host instances for you for a small fee (contact below).
+The bots above are hosted in bulk. They are free to use and should have little to no downtime.
 
-If you encounter any issues with the bots listed above please see the support options at the bottom of this page.
+#### Private (paid)
+
+You can have private instances only for your servers, with real time price updates. There is a full logging stack that includes loki & promtail with grafana for visualization. See contact info below for private bot inquiries. 
+
+If you encounter any issues with the bots please see the support options at the bottom of this page.
 
 ![Really cool grafana dashboard](https://s3.oc0.rileysnyder.org/public/assets/grafana.png)
 
