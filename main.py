@@ -102,7 +102,7 @@ class Ticker(discord.Client):
             if old_price != price:
 
                 await self.user.edit(
-                    username=f'{name} - ${price}'
+                    username=f'{name.upper()} - ${price}'
                 )
 
                 old_price = price
@@ -216,7 +216,7 @@ class Ticker(discord.Client):
             if old_price != price:
 
                 await self.user.edit(
-                    username=f'{ticker} - ${price}'
+                    username=f'{ticker.upper()} - ${price}'
                 )
                 
                 old_price = price
