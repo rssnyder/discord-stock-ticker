@@ -33,6 +33,8 @@ You can also host yourself for free! See instructions below.
 [![BMBL](https://logo.clearbit.com/bumble.com)](https://discord.com/api/oauth2/authorize?client_id=812041842903482378&permissions=0&scope=bot)
 [![PLUG](https://logo.clearbit.com/plugpower.com)](https://discord.com/api/oauth2/authorize?client_id=812041750528000031&permissions=0&scope=bot)
 [![FCEL](https://logo.clearbit.com/fuelcellenergy.com)](https://discord.com/api/oauth2/authorize?client_id=812041645008093186&permissions=0&scope=bot)
+[![IPOD](https://s3.oc0.rileysnyder.org/public/assets/ipod.jpg)](https://discord.com/api/oauth2/authorize?client_id=814168658082791454&permissions=0&scope=bot)
+[![IPOF](https://s3.oc0.rileysnyder.org/public/assets/ipof.jpg)](https://discord.com/api/oauth2/authorize?client_id=814169320233369640&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -49,6 +51,8 @@ You can also host yourself for free! See instructions below.
 [![Cardano](https://logo.clearbit.com/stellar.org)](https://discord.com/api/oauth2/authorize?client_id=808409647731179534&permissions=0&scope=bot)
 [![0x](https://s3.oc0.rileysnyder.org/public/assets/0x.jpg)](https://discord.com/api/oauth2/authorize?client_id=810892119362895872&permissions=0&scope=bot)
 [![Balance](https://logo.clearbit.com/balancer.finance)](https://discord.com/api/oauth2/authorize?client_id=810894385360535572&permissions=0&scope=bot)
+[![IOTA](https://logo.clearbit.com/iota.org)](https://discord.com/api/oauth2/authorize?client_id=814170376254652486&permissions=0&scope=bot)
+[![Reef](https://logo.clearbit.com/reef.finance)](https://discord.com/api/oauth2/authorize?client_id=814288538107379742&permissions=0&scope=bot)
 
 ## Hosting
 
