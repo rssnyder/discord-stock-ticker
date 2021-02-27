@@ -1,4 +1,2 @@
 discord
-requests
-pycoingecko
 redis

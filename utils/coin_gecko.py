@@ -4,13 +4,14 @@ import aiohttp
 import asyncio
 
 
-YAHOO_URL = 'https://query1.finance.yahoo.com/v10/finance/'
+COINGECKO_URL = 'https://api.coingecko.com/api/v3/'
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0'
+    'User-Agent': 'Mozilla/5.0',
+    'accept': 'application/json'
 }
 
 
-async def get_stock_price_async(ticker: str) -> dict:
+async def get_crypto_price_async(ticker: str) -> dict:
     '''
     Get a live stock price from YF API
     '''
@@ -20,10 +21,10 @@ async def get_stock_price_async(ticker: str) -> dict:
 
         async with aiohttp.ClientSession(timeout=timeout) as session:
 
-            async with session.get(YAHOO_URL + f'quoteSummary/{ticker}?modules=price') as response:
+            async with session.get(COINGECKO_URL + f'coins/{ticker}') as response:
 
                 assert 200 == response.status, response.reason
                 return await response.json()
     except asyncio.TimeoutError as e:
-        print(f'Unable to get yahoo prices: {e}')
+        print(f'Unable to get coingecko prices: {e}')
         return {}
