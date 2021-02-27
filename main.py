@@ -3,6 +3,7 @@ from os import getenv
 from datetime import datetime
 from random import choice
 import logging
+
 import asyncio
 import discord
 from redis import Redis, exceptions
@@ -223,7 +224,7 @@ class Ticker(discord.Client):
                         logging.info(f'stock updated nick in {server.name}')
                     
                     # Do not include price in activity now
-                    activity_content = f'Day Change: ${diff}'
+                    activity_content = f'Day Diff: {diff}'
                     
 
                 # Change activity
@@ -267,7 +268,7 @@ class Ticker(discord.Client):
             logging.info('crypto name started')
 
             # Grab the current price data
-            data = get_crypto_price_async(name)
+            data = await get_crypto_price_async(crypto_name)
             price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
             logging.info(f'crypto name price retrived {price}')
 
@@ -312,13 +313,16 @@ class Ticker(discord.Client):
             logging.info('crypto activity started')       
 
             # Grab the current price data
-            data = get_crypto_price_async(name)
+            data = await get_crypto_price_async(crypto_name)
             price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
-            change = data.get('price_change_24h', 0)
+            change = data.get('market_data', {}).get('price_change_24h', 0)
+            change_header = ''
+            if change > 0:
+                change_header = '+'
 
             logging.info(f'crypto activity price retrived {price}')
 
-            activity_content = f'${price} / {change}'
+            activity_content = f'${price} / {change_header}{change}'
 
             # Only update on price change
             if old_price != price:
@@ -340,7 +344,7 @@ class Ticker(discord.Client):
                         logging.info(f'updated nick in {server.name}')
                     
                     # Use activity for other fun stuff
-                    activity_content = 'price changes'
+                    activity_content = f'24hr Diff: {change_header}{change}'
 
                 # Change activity
                 try:
