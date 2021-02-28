@@ -2,13 +2,13 @@
 
 [![GitHub Super-Linter](https://github.com/rssnyder/discord-stock-ticker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+
+[![GitHub last commit](https://img.shields.io/github/last-commit/rssnyder/discord-stock-ticker.svg?style=flat)]()
 [![GitHub stars](https://img.shields.io/github/stars/rssnyder/discord-stock-ticker.svg?style=social&label=Star)]()
 [![GitHub watchers](https://img.shields.io/github/watchers/rssnyder/discord-stock-ticker.svg?style=social&label=Watch)]()
-[![GitHub last commit](https://img.shields.io/github/last-commit/rssnyder/discord-stock-ticker.svg?style=flat)]()
-
 
 ## Support
-[![Discord Chat](https://img.shields.io/discord/806606291798982678.svg)](https://discord.gg/CQqnCYEtG7)
+[![Discord Chat](https://img.shields.io/discord/806606291798982678?style=plastic)](https://discord.gg/CQqnCYEtG7)
 [![Donate](https://img.shields.io/badge/$-support-ff69b4.svg?style=flat)](https://ko-fi.com/rileysnyder) 
 
 Live stock tickers for your discord server.
