@@ -1,4 +1,4 @@
-name: Build Container Image
+name: Test Build Container Image
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build:
+  test_build:
     name: Build
     runs-on: ubuntu-latest
     steps:
