@@ -1,5 +1,4 @@
 '''Yahoo Finance Helpers'''
-from requests import get
 import aiohttp
 import asyncio
 
