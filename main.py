@@ -57,7 +57,7 @@ class Ticker(discord.Client):
                     ticker.upper(),
                     crypto_name,
                     getenv('SET_NICKNAME'),
-                    getenv('FREQUENCY')
+                    getenv('FREQUENCY', 60)
                 )
             )
         else:
@@ -73,7 +73,7 @@ class Ticker(discord.Client):
                     ticker.upper(),
                     stock_name.upper(),
                     getenv('SET_NICKNAME'),
-                    getenv('FREQUENCY')
+                    getenv('FREQUENCY', 60)
                 )
             )
 
