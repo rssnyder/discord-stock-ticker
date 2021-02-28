@@ -1,4 +1,4 @@
-'''Yahoo Finance Helpers'''
+'''Coin Gecko Helpers'''
 import aiohttp
 import asyncio
 
