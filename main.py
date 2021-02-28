@@ -7,6 +7,7 @@ import logging
 import asyncio
 import discord
 from redis import Redis, exceptions
+import dbl
 
 from utils.yahoo import get_stock_price_async
 from utils.coin_gecko import get_crypto_price_async
@@ -57,7 +58,7 @@ class Ticker(discord.Client):
                     ticker.upper(),
                     crypto_name,
                     getenv('SET_NICKNAME'),
-                    getenv('FREQUENCY')
+                    getenv('FREQUENCY', 60)
                 )
             )
         else:
@@ -73,7 +74,7 @@ class Ticker(discord.Client):
                     ticker.upper(),
                     stock_name.upper(),
                     getenv('SET_NICKNAME'),
-                    getenv('FREQUENCY')
+                    getenv('FREQUENCY', 60)
                 )
             )
 
@@ -368,6 +369,24 @@ class Ticker(discord.Client):
             await asyncio.sleep(frequency)
             logging.info('crypto activity sleep ended')
 
+
+class TopGG(commands.Cog):
+    """
+    Use dblpy's autopost feature to post guild count to top.gg every 30 minutes
+    """
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.token = getenv('DBL_TOKEN')
+        self.dblpy = dbl.DBLClient(self.bot, self.token, autopost=True)
+
+    @discord.ext.commands.Cog.listener()
+    async def on_guild_post(self):
+        print("Server count posted successfully")
+
+
+def setup(bot):
+    bot.add_cog(TopGG(bot))
 
 if __name__ == "__main__":
 
