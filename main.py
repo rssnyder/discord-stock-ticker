@@ -111,21 +111,15 @@ class Ticker(discord.Client):
             price = price_data.get('regularMarketPrice', {}).get('raw', 0.00)
             logging.info(f'stock name price retrived {price}')
 
-            # Only update on price change
-            if old_price != price:
+            try:
+                await self.user.edit(
+                    username=f'{name} - ${price}'
+                )
 
-                try:
-                    await self.user.edit(
-                        username=f'{name} - ${price}'
-                    )
-
-                    old_price = price
-                    logging.info('name updated')
-                except discord.HTTPException as e:
-                    logging.warning(f'updating name failed: {e.status}: {e.text}')
-
-            else:
-                logging.info('no price change')
+                old_price = price
+                logging.info('name updated')
+            except discord.HTTPException as e:
+                logging.warning(f'updating name failed: {e.status}: {e.text}')
 
             # Only update every hour
             logging.info(f'stock name sleeping for {NAME_CHANGE_DELAY}s')
@@ -176,52 +170,45 @@ class Ticker(discord.Client):
                 activity_content = f'${price} / {diff}'
                 logging.info(f'stock activity price retrived: {activity_content}')
 
-            # Only update on price change
-            if old_price != price:
+            # Change name via nickname if set
+            if change_nick:
 
-                # Change name via nickname if set
-                if change_nick:
+                for server in self.guilds:
 
-                    for server in self.guilds:
-
-                        try:
-                            await server.me.edit(
-                                nick=f'{name} - ${price}'
-                            )
-                        except discord.HTTPException as e:
-                            logging.error(f'updating nick failed: {e.status}: {e.text}')
-                        except discord.Forbidden as f:
-                            logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
-
-                        logging.info(f'stock updated nick in {server.name}')
-                    
-                    # Check what price we are displaying
-                    if price_data.get('postMarketChange'):
-                        activity_content_header = 'After Hours'
-                    else:
-                        activity_content_header = 'Day Diff'
-                    
-                    activity_content = f'{activity_content_header}: {diff}'
-                    
-
-                # Change activity
-                try:
-                    await self.change_presence(
-                        activity=discord.Activity(
-                            type=discord.ActivityType.watching,
-                            name=activity_content
+                    try:
+                        await server.me.edit(
+                            nick=f'{name} - ${price}'
                         )
+                    except discord.HTTPException as e:
+                        logging.error(f'updating nick failed: {e.status}: {e.text}')
+                    except discord.Forbidden as f:
+                        logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
+
+                    logging.info(f'stock updated nick in {server.name}')
+                
+                # Check what price we are displaying
+                if price_data.get('postMarketChange'):
+                    activity_content_header = 'After Hours'
+                else:
+                    activity_content_header = 'Day Diff'
+                
+                activity_content = f'{activity_content_header}: {diff}'
+                
+
+            # Change activity
+            try:
+                await self.change_presence(
+                    activity=discord.Activity(
+                        type=discord.ActivityType.watching,
+                        name=activity_content
                     )
+                )
 
-                    old_price = price
-                    logging.info('activity updated')
+                old_price = price
+                logging.info('activity updated')
 
-                except discord.InvalidArgument as e:
-                    logging.error(f'updating activity failed: {e.status}: {e.text}')
-
-
-            else:
-                logging.info('no price change')
+            except discord.InvalidArgument as e:
+                logging.error(f'updating activity failed: {e.status}: {e.text}')
 
             # Only update every min
             logging.info(f'stock activity sleeping for {frequency}s')
