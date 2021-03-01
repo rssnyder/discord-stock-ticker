@@ -15,13 +15,7 @@ Live stock tickers for your discord server.
 
 ![Discord Sidebar w/ Bots](https://s3.oc0.rileysnyder.org/public/assets/sidebar.png)
 
-Public (free) Version: Updates activity every 60 seconds and Name updates every hour.
-
-Paid Version: Updates near real time.
-
-You can also host yourself for free! See instructions below.
-
-## Add public tickers to your servers
+## Add tickers to your servers
 
 ### Stocks
 
@@ -67,13 +61,11 @@ You can also host yourself for free! See instructions below.
 
 ## Hosting
 
-### Hosted by rssnyder
+### Public (free)
 
-#### Public (free)
+The bots above are hosted in bulk. They are free to use on any discord server.
 
-The bots above are hosted in bulk. They are free to use and should have little to no downtime.
-
-#### Private (paid)
+### Private (paid)
 
 You can have private instances only for your servers, with real time price updates. There is a full logging stack that includes loki & promtail with grafana for visualization. See contact info below for private bot inquiries. 
 
@@ -83,66 +75,74 @@ If you encounter any issues with the bots please see the support options at the 
 
 ### Self-Hosting
 
-To run for youself, simply set `DISCORD_BOT_TOKEN` and `TICKER` in your environment, and run `main.py`.
+Install python for your target operating system.
 
-You will need one bot for every ticker you want to add to your server.
-
-#### Stocks
+Clone down the repo locally:
 
 ```
 git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
+```
 
-pip install -r requirements.txt
+Register a new application in the discord developer portal and copy the bot token:
 
-export DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+export DISCORD_BOT_TOKEN=<token>
+```
+
+If you are watching a stock, enter the ticker symbol, and optionally you can set a custom name to appear instead of the symbol:
+
+```
 export TICKER=AAPL
-
-python main.py
+export STOCK_NAME=Apple
 ```
 
-You can also set `STOCK_NAME` to overwrite the bot's name.
-
-#### Crypto
-
-If you want to watch a crypto, you must also set `CRYPTO_NAME`, where `CRYPTO_NAME` is the full name (eg. bitcoin) and `TICKER` is how you want the coin to appear (eg. BTC).
+If you are watching a crypto, enter the coin name as you want it to appear on your ticker, as well as the coin name/id for the coingecko API:
 
 ```
-git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
-
-pip install -r requirements.txt
-
-export DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 export TICKER=BTC
 export CRYPTO_NAME=bitcoin
-
-python main.py
 ```
 
-You can also set `SET_NICKNAME=1`  to enable changing the bot's nickname to the price to get name updates more often than once per hour.
-
-To modify the update frequency of the activity/nickname, set `FREQUENCY` (eg. `FREQUENCY=10`).
-
-To see a list of cryptos avalible (we are using the coingecko API):
+You can see coingecko coin names/id via their API (or enter the url in your browser):
 
 ```
-curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" | jq '.[].id'
+curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json"
 ```
 
+You can optionally give your bot "change nickname" permissions to get around discord's limit on changing names only twice per two hours. Then you can set a custom amount of time between price updates (in seconds):
+
+```
+export SET_NICKNAME=1
+export FREQUENCY=3
+```
+
+Once all your options are set, simply install the dependencies and run the bot (virtual environments might be a smart idea):
+
+```
+python3 main.py
+```
 
 ### Docker
 
-You can also run these bots using docker.
+You can also run these bots using docker. This can make running multiple bots esier. Here is an example docker compose file:
 
 ```
 ---
 version: "2"
 services:
-  swag:
-    image: ghcr.io/rssnyder/discord-stock-ticker:1.3.2
+  ticker-pfg:
+    image: ghcr.io/rssnyder/discord-stock-ticker:1.3.3
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       - TICKER=PFG
+    restart: unless-stopped
+  ticker-aapl:
+    image: ghcr.io/rssnyder/discord-stock-ticker:1.3.3
+    container_name: discord-stock-ticker
+    environment:
+      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - TICKER=AAPL
     restart: unless-stopped
 ```
 
