@@ -195,8 +195,13 @@ class Ticker(discord.Client):
 
                         logging.info(f'stock updated nick in {server.name}')
                     
-                    # Do not include price in activity now
-                    activity_content = f'Day Diff: {diff}'
+                    # Check what price we are displaying
+                    if price_data.get('postMarketChange'):
+                        activity_content_header = 'After Hours'
+                    else:
+                        activity_content_header = 'Day Diff'
+                    
+                    activity_content = f'{activity_content_header}: {diff}'
                     
 
                 # Change activity
