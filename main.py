@@ -1,7 +1,5 @@
 '''discord-stock-ticker'''
 from os import getenv
-from datetime import datetime
-from random import choice
 import logging
 
 import asyncio
@@ -12,17 +10,7 @@ from utils.yahoo import get_stock_price_async
 from utils.coin_gecko import get_crypto_price_async
 
 CURRENCY = 'usd'
-WEEKEND = [
-    5,
-    6
-]
-ALERTS = [
-    'discord.gg/CQqnCYEtG7',
-    'markets be closed',
-    'gme to the moon',
-    'what about second breakfast',
-    'subscribe for real time prices!'
-]
+NAME_CHANGE_DELAY = 3600
 
 
 class Ticker(discord.Client):
@@ -115,12 +103,6 @@ class Ticker(discord.Client):
         # Loop as long as the bot is running
         while not self.is_closed():
 
-            # Dont bother updating if markets closed
-            if (datetime.now().hour >= 17) or (datetime.now().hour < 8) or (datetime.today().weekday() in WEEKEND):
-                logging.info('markets are closed')
-                await asyncio.sleep(3600)
-                continue
-
             logging.info('stock name update started')
             
             # Grab the current price data
@@ -136,19 +118,19 @@ class Ticker(discord.Client):
                     await self.user.edit(
                         username=f'{name} - ${price}'
                     )
-                except discord.HTTPException as e:
-                    logging.error(f'updating name failed: {e.status}: {e.text}')
 
-                old_price = price
-                logging.info('name updated')
+                    old_price = price
+                    logging.info('name updated')
+                except discord.HTTPException as e:
+                    logging.warning(f'updating name failed: {e.status}: {e.text}')
 
             else:
                 logging.info('no price change')
 
             # Only update every hour
-            await asyncio.sleep(3600)
-
-            logging.info('name sleep ended')
+            logging.info(f'stock name sleeping for {NAME_CHANGE_DELAY}s')
+            await asyncio.sleep(NAME_CHANGE_DELAY)
+            logging.info('stock name sleep ended')
 
 
     async def stock_update_activity(self, ticker: str, name: str, change_nick: bool = False, frequency: int = 60):
@@ -169,40 +151,30 @@ class Ticker(discord.Client):
         # Loop as long as the bot is running
         while not self.is_closed():
 
-            # If markets are closed, utilize activity for other messages
-            hour = datetime.now().hour
-            day = datetime.today().weekday()
-            if (hour >= 17) or (hour < 8) or (day in WEEKEND):
-
-                logging.info('markets are closed')
-
-                try:
-                    await self.change_presence(
-                        activity=discord.Activity(
-                            type=discord.ActivityType.watching,
-                            name=choice(ALERTS)
-                        )
-                    )
-                except discord.InvalidArgument as e:
-                    logging.error(f'updating activity failed: {e.status}: {e.text}')
-
-                await asyncio.sleep(600)
-                continue
-
             logging.info('stock activity update started')
             
             # Grab the current price data w/ day difference
             data = await get_stock_price_async(ticker)
             price_data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
             price = price_data.get('regularMarketPrice', {}).get('raw', 0.00)
-            raw_diff = price - data.get('regularMarketPreviousClose', {}).get('raw', 0.00)
-            diff = round(raw_diff, 2)
-            if diff > 0:
-                diff = '+' + str(diff)
 
-            logging.info(f'stock activity price retrived {price}')
+            # If after hours, get change
+            if price_data.get('postMarketChange'):
+                raw_diff = price_data.get('postMarketChange', {}).get('raw', 0.00)
+                diff = round(raw_diff, 2)
+                if diff > 0:
+                    diff = '+' + str(diff)
 
-            activity_content = f'${price} / {diff}'
+                activity_content = f'After Hours: {diff}'
+                logging.info(f'stock activity after hours price retrived: {activity_content}')
+            else:
+                raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
+                diff = round(raw_diff, 2)
+                if diff > 0:
+                    diff = '+' + str(diff)
+
+                activity_content = f'${price} / {diff}'
+                logging.info(f'stock activity price retrived: {activity_content}')
 
             # Only update on price change
             if old_price != price:
@@ -223,8 +195,13 @@ class Ticker(discord.Client):
 
                         logging.info(f'stock updated nick in {server.name}')
                     
-                    # Do not include price in activity now
-                    activity_content = f'Day Diff: {diff}'
+                    # Check what price we are displaying
+                    if price_data.get('postMarketChange'):
+                        activity_content_header = 'After Hours'
+                    else:
+                        activity_content_header = 'Day Diff'
+                    
+                    activity_content = f'{activity_content_header}: {diff}'
                     
 
                 # Change activity
@@ -235,19 +212,21 @@ class Ticker(discord.Client):
                             name=activity_content
                         )
                     )
+
+                    old_price = price
+                    logging.info('activity updated')
+
                 except discord.InvalidArgument as e:
                     logging.error(f'updating activity failed: {e.status}: {e.text}')
 
-                logging.info('activity updated')
-
-                old_price = price
 
             else:
                 logging.info('no price change')
 
             # Only update every min
-            await asyncio.sleep(frequency)
-            logging.info('activity sleep ended')
+            logging.info(f'stock activity sleeping for {frequency}s')
+            await asyncio.sleep(int(frequency))
+            logging.info('stock activity sleep ended')
     
 
     async def crypto_update_name(self, ticker: str, crypto_name: str):
@@ -279,17 +258,18 @@ class Ticker(discord.Client):
                     await self.user.edit(
                         username=f'{ticker} - ${price}'
                     )
+
+                    old_price = price
+                    logging.info('crypto name updated')
                 except discord.HTTPException as e:
-                    logging.error(f'updating name failed: {e.status}: {e.text}')
-                
-                old_price = price
-                logging.info('crypto name updated')
+                    logging.warning(f'updating name failed: {e.status}: {e.text}')
 
             else:
                 logging.info('no price change')
 
             # Only update every hour
-            await asyncio.sleep(3600)
+            logging.info(f'crypto name sleeping for {NAME_CHANGE_DELAY}s')
+            await asyncio.sleep(NAME_CHANGE_DELAY)
             logging.info('crypto name sleep ended')
     
 
@@ -354,25 +334,25 @@ class Ticker(discord.Client):
                             name=activity_content
                         )
                     )
+
+                    old_price = price
+                    logging.info('crypto activity updated')
                 except discord.InvalidArgument as e:
                     logging.error(f'updating activity failed: {e.status}: {e.text}')
-
-                logging.info('crypto activity updated')
-
-                old_price = price
 
             else:
                 logging.info('no price change')
 
             # Only update every min
-            await asyncio.sleep(frequency)
+            logging.info(f'crypto sleeping for {frequency}s')
+            await asyncio.sleep(int(frequency))
             logging.info('crypto activity sleep ended')
 
 
 if __name__ == "__main__":
 
     logging.basicConfig(
-        filename='discord-stock-ticker.log',
+        filename=getenv('LOG_FILE'),
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S',
         format='%(asctime)s %(levelname)-8s %(message)s',

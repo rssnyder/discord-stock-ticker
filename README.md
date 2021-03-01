@@ -15,7 +15,9 @@ Live stock tickers for your discord server.
 
 ![Discord Sidebar w/ Bots](https://s3.oc0.rileysnyder.org/public/assets/sidebar.png)
 
-## Add tickers to your servers
+## Add tickers to your servers (click the image to add)
+
+Don't see a stock or crypto that you need? Join our discord or open a github issue to get new ones added!
 
 ### Stocks
 
@@ -40,6 +42,8 @@ Live stock tickers for your discord server.
 [![FCEL](https://logo.clearbit.com/fuelcellenergy.com)](https://discord.com/api/oauth2/authorize?client_id=812041645008093186&permissions=0&scope=bot)
 [![IPOD](https://s3.oc0.rileysnyder.org/public/assets/ipod.jpg)](https://discord.com/api/oauth2/authorize?client_id=814168658082791454&permissions=0&scope=bot)
 [![IPOF](https://s3.oc0.rileysnyder.org/public/assets/ipof.jpg)](https://discord.com/api/oauth2/authorize?client_id=814169320233369640&permissions=0&scope=bot)
+[![AMD](https://logo.clearbit.com/amd.com)](https://discord.com/api/oauth2/authorize?client_id=816049122850897923&permissions=0&scope=bot)
+[![NIO](https://logo.clearbit.com/nio.com)](https://discord.com/api/oauth2/authorize?client_id=816049780546994196&permissions=0&scope=bot)
 
 ### Crypto
 
