@@ -95,8 +95,6 @@ class Ticker(discord.Client):
         name = override for symbol as shown on bot
         '''
 
-        old_price = ''
-
         await self.wait_until_ready()
         logging.info(f'stock name update ready: {name}')
 
@@ -116,7 +114,6 @@ class Ticker(discord.Client):
                     username=f'{name} - ${price}'
                 )
 
-                old_price = price
                 logging.info('name updated')
             except discord.HTTPException as e:
                 logging.warning(f'updating name failed: {e.status}: {e.text}')
@@ -135,9 +132,6 @@ class Ticker(discord.Client):
         change_nick = flag for changing nickname
         frequency = how often to update in seconds
         '''
-
-        # Get config
-        old_price = ''
 
         await self.wait_until_ready()
         logging.info(f'stock activity update ready: {name}')
@@ -204,7 +198,6 @@ class Ticker(discord.Client):
                     )
                 )
 
-                old_price = price
                 logging.info('activity updated')
 
             except discord.InvalidArgument as e:
