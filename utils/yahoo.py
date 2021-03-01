@@ -26,3 +26,6 @@ async def get_stock_price_async(ticker: str) -> dict:
     except asyncio.TimeoutError as e:
         print(f'Unable to get yahoo prices: {e}')
         return {}
+    except aiohttp.client_exceptions.ClientConnectorError:
+        print(f'Unable to get yahoo prices: {e}')
+        return {}
