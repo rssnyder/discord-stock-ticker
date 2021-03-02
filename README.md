@@ -44,6 +44,10 @@ Don't see a stock or crypto that you need? Join our discord or open a github iss
 [![IPOF](https://s3.oc0.rileysnyder.org/public/assets/ipof.jpg)](https://discord.com/api/oauth2/authorize?client_id=814169320233369640&permissions=0&scope=bot)
 [![AMD](https://logo.clearbit.com/amd.com)](https://discord.com/api/oauth2/authorize?client_id=816049122850897923&permissions=0&scope=bot)
 [![NIO](https://logo.clearbit.com/nio.com)](https://discord.com/api/oauth2/authorize?client_id=816049780546994196&permissions=0&scope=bot)
+[![ESGC](https://logo.clearbit.com/erosstx.com)](https://discord.com/api/oauth2/authorize?client_id=816372064494551141&permissions=0&scope=bot)
+[![GOLD](https://s3.oc0.rileysnyder.org/public/assets/gold.jpeg)](https://discord.com/api/oauth2/authorize?client_id=816375134122147850&permissions=0&scope=bot)
+[![SILVER](https://s3.oc0.rileysnyder.org/public/assets/silver.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375586066661456&permissions=0&scope=bot)
+[![OIL](https://s3.oc0.rileysnyder.org/public/assets/oil.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375780442636288&permissions=0&scope=bot)
 
 ### Crypto
 
