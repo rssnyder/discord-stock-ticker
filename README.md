@@ -73,8 +73,6 @@ The bots above are hosted in bulk. They are free to use on any discord server.
 
 You can have private instances only for your servers, with real time price updates. There is a full logging stack that includes loki & promtail with grafana for visualization. See contact info below for private bot inquiries. 
 
-If you encounter any issues with the bots please see the support options at the bottom of this page.
-
 ![Really cool grafana dashboard](https://s3.oc0.rileysnyder.org/public/assets/grafana.png)
 
 ### Self-Hosting
@@ -120,15 +118,23 @@ export SET_NICKNAME=1
 export FREQUENCY=3
 ```
 
+Other options:
+
+```
+export LOG_FILE=log.log  # log to file instead of stdout
+export POST_MARKET_PRICE=3  # display post market price instead of difference
+```
+
 Once all your options are set, simply install the dependencies and run the bot (virtual environments might be a smart idea):
 
 ```
+pip3 install -r requirements.txt
 python3 main.py
 ```
 
 ### Docker
 
-You can also run these bots using docker. This can make running multiple bots esier. Here is an example docker compose file:
+You can also run these bots using docker. This can make running multiple bots esier. Here is an example docker compose file (please check for the latest release and update the tags accordingly):
 
 ```
 ---
