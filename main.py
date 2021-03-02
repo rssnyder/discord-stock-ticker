@@ -148,10 +148,19 @@ class Ticker(discord.Client):
 
             # If after hours, get change
             if price_data.get('postMarketChange'):
-                raw_diff = price_data.get('postMarketChange', {}).get('raw', 0.00)
+
+                # Get difference or new price
+                if getenv('POST_MARKET_PRICE'):
+                    post_market_target = 'postMarketPrice'
+                else:
+                    post_market_target = 'postMarketChange'
+
+                raw_diff = price_data.get(post_market_target, {}).get('raw', 0.00)
                 diff = round(raw_diff, 2)
-                if diff > 0:
-                    diff = '+' + str(diff)
+
+                if not getenv('POST_MARKET_PRICE'):
+                    if diff > 0:
+                        diff = '+' + str(diff)
 
                 activity_content = f'After Hours: {diff}'
                 logging.info(f'stock activity after hours price retrived: {activity_content}')
