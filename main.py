@@ -6,8 +6,8 @@ import asyncio
 import discord
 from redis import Redis, exceptions
 
-from utils.yahoo import get_stock_price_async
-from utils.coin_gecko import get_crypto_price_async
+from utils.yahoo import get_stock_price
+from utils.coin_gecko import get_crypto_price
 
 CURRENCY = 'usd'
 NAME_CHANGE_DELAY = 3600
@@ -104,7 +104,7 @@ class Ticker(discord.Client):
             logging.info('stock name update started')
             
             # Grab the current price data
-            data = await get_stock_price_async(ticker)
+            data = get_stock_price(ticker)
             price_data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
             price = price_data.get('regularMarketPrice', {}).get('raw', 0.00)
             logging.info(f'stock name price retrived {price}')
@@ -142,7 +142,7 @@ class Ticker(discord.Client):
             logging.info('stock activity update started')
             
             # Grab the current price data w/ day difference
-            data = await get_stock_price_async(ticker)
+            data = get_stock_price(ticker)
             price_data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
             price = price_data.get('regularMarketPrice', {}).get('raw', 0.00)
 
@@ -236,7 +236,7 @@ class Ticker(discord.Client):
             logging.info('crypto name started')
 
             # Grab the current price data
-            data = await get_crypto_price_async(crypto_name)
+            data = get_crypto_price(crypto_name)
             price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
             logging.info(f'crypto name price retrived {price}')
 
@@ -282,7 +282,7 @@ class Ticker(discord.Client):
             logging.info('crypto activity started')       
 
             # Grab the current price data
-            data = await get_crypto_price_async(crypto_name)
+            data = get_crypto_price(crypto_name)
             price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
             change = data.get('market_data', {}).get('price_change_24h', 0)
             change_header = ''
