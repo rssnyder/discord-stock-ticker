@@ -1,4 +1,6 @@
 '''Coin Gecko Helpers'''
+from logging import error
+
 from requests import get
 
 
@@ -22,7 +24,7 @@ def get_crypto_price(ticker: str) -> dict:
     try:
         resp.raise_for_status()
     except:
-        print('Error reaching yahoo')
+        error('Error reaching yahoo')
         return {}
 
     return resp.json()

@@ -73,17 +73,20 @@ class Ticker(discord.Client):
 
         logging.info('logged in')
 
-        # Use redis to store stats
-        r = Redis()
-
         # We want to know some stats
         servers = [x.name for x in list(self.guilds)]
 
-        try:
-            for server in servers:
-                r.incr(server)
-        except exceptions.ConnectionError:
-            logging.info('No redis server found, not storing stats')
+        redis_server = getenv('REDIS_URL')
+        if redis_server:
+
+            # Use redis to store stats
+            r = Redis(host=redis_server, port=6379, db=0)
+
+            try:
+                for server in servers:
+                    r.incr(server)
+            except exceptions.ConnectionError:
+                logging.info('No redis server found, not storing stats')
 
         logging.info('servers: ' + str(servers))
 
@@ -163,7 +166,7 @@ class Ticker(discord.Client):
                         diff = '+' + str(diff)
 
                 activity_content = f'After Hours: {diff}'
-                logging.info(f'stock activity after hours price retrived: {activity_content}')
+                logging.info(f'{name} stock activity after hours price retrived: {activity_content}')
             else:
                 raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
                 diff = round(raw_diff, 2)
@@ -171,7 +174,7 @@ class Ticker(discord.Client):
                     diff = '+' + str(diff)
 
                 activity_content = f'${price} / {diff}'
-                logging.info(f'stock activity price retrived: {activity_content}')
+                logging.info(f'{name} stock activity price retrived: {activity_content}')
 
             # Change name via nickname if set
             if change_nick:
@@ -187,7 +190,7 @@ class Ticker(discord.Client):
                     except discord.Forbidden as f:
                         logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
 
-                    logging.info(f'stock updated nick in {server.name}')
+                    logging.info(f'{name} stock updated nick in {server.name}')
                 
                 # Check what price we are displaying
                 if price_data.get('postMarketChange'):
@@ -310,7 +313,7 @@ class Ticker(discord.Client):
                         except discord.Forbidden as f:
                             logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
 
-                        logging.info(f'updated nick in {server.name}')
+                        logging.info(f'{crypto_name} updated nick in {server.name}')
                     
                     # Use activity for other fun stuff
                     activity_content = f'24hr Diff: {change_header}{change}'
@@ -325,7 +328,7 @@ class Ticker(discord.Client):
                     )
 
                     old_price = price
-                    logging.info('crypto activity updated')
+                    logging.info(f'{crypto_name} crypto activity updated {activity_content}')
                 except discord.InvalidArgument as e:
                     logging.error(f'updating activity failed: {e.status}: {e.text}')
 

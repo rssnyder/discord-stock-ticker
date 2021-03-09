@@ -15,6 +15,8 @@ Live stock tickers for your discord server.
 
 ![Discord Sidebar w/ Bots](https://s3.oc0.rileysnyder.org/public/assets/sidebar.png)
 
+Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder) or [hire me](https://github.com/rssnyder) to write/host **your** discord bot!
+
 ## Add tickers to your servers (click the image to add)
 
 Don't see a stock or crypto that you need? Join our discord or open a github issue to get new ones added!
