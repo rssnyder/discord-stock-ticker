@@ -13,7 +13,7 @@
 
 Live stock tickers for your discord server.
 
-![Discord Sidebar w/ Bots](https://s3.oc0.rileysnyder.org/public/assets/sidebar.png)
+![Discord Sidebar w/ Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar.png)
 
 Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder) or [hire me](https://github.com/rssnyder) to write/host **your** discord bot!
 
@@ -29,27 +29,27 @@ Don't see a stock or crypto that you need? Join our discord or open a github iss
 [![Nokia](https://logo.clearbit.com/nokia.com)](https://discord.com/api/oauth2/authorize?client_id=805294107962245120&permissions=0&scope=bot)
 [![Principal Financial Group](https://logo.clearbit.com/principal.com)](https://discord.com/api/oauth2/authorize?client_id=805466470930055189&permissions=0&scope=bot)
 [![Apple](https://logo.clearbit.com/apple.com)](https://discord.com/api/oauth2/authorize?client_id=806569145184550922&permissions=0&scope=bot)
-[![Amazon](https://s3.oc0.rileysnyder.org/public/assets/amzn.jpg)](https://discord.com/api/oauth2/authorize?client_id=806570287042002945&permissions=0&scope=bot)
+[![Amazon](https://s3.cloud.rileysnyder.org/public/assets/amzn.jpg)](https://discord.com/api/oauth2/authorize?client_id=806570287042002945&permissions=0&scope=bot)
 [![Alphabet](https://logo.clearbit.com/google.com)](https://discord.com/api/oauth2/authorize?client_id=806570628156882945&permissions=0&scope=bot)
-[![S&P 500](https://s3.oc0.rileysnyder.org/public/assets/sp500.jpg)](https://discord.com/api/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot)
-[![Dow Jones Industrial Average](https://s3.oc0.rileysnyder.org/public/assets/dow30.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot)
-[![NASDAQ Composite](https://s3.oc0.rileysnyder.org/public/assets/nasdaq.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot)
+[![S&P 500](https://s3.cloud.rileysnyder.org/public/assets/sp500.jpg)](https://discord.com/api/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot)
+[![Dow Jones Industrial Average](https://s3.cloud.rileysnyder.org/public/assets/dow30.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot)
+[![NASDAQ Composite](https://s3.cloud.rileysnyder.org/public/assets/nasdaq.jpg)](https://discord.com/api/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot)
 [![Tesla](https://logo.clearbit.com/tesla.com)](https://discord.com/api/oauth2/authorize?client_id=808723743069306882&permissions=0&scope=bot)
 [![Draftkings](https://logo.clearbit.com/draftkings.com)](https://discord.com/api/oauth2/authorize?client_id=808724381608968202&permissions=0&scope=bot)
-[![SPY](https://s3.oc0.rileysnyder.org/public/assets/spy.jpg)](https://discord.com/api/oauth2/authorize?client_id=811418568846737500&permissions=0&scope=bot)
-[![SPRQ](https://s3.oc0.rileysnyder.org/public/assets/sprq.png)](https://discord.com/api/oauth2/authorize?client_id=812041982980521995&permissions=0&scope=bot)
-[![ACIC](https://s3.oc0.rileysnyder.org/public/assets/acic.jpg)](https://discord.com/api/oauth2/authorize?client_id=812041922499706890&permissions=0&scope=bot)
+[![SPY](https://s3.cloud.rileysnyder.org/public/assets/spy.jpg)](https://discord.com/api/oauth2/authorize?client_id=811418568846737500&permissions=0&scope=bot)
+[![SPRQ](https://s3.cloud.rileysnyder.org/public/assets/sprq.png)](https://discord.com/api/oauth2/authorize?client_id=812041982980521995&permissions=0&scope=bot)
+[![ACIC](https://s3.cloud.rileysnyder.org/public/assets/acic.jpg)](https://discord.com/api/oauth2/authorize?client_id=812041922499706890&permissions=0&scope=bot)
 [![BMBL](https://logo.clearbit.com/bumble.com)](https://discord.com/api/oauth2/authorize?client_id=812041842903482378&permissions=0&scope=bot)
 [![PLUG](https://logo.clearbit.com/plugpower.com)](https://discord.com/api/oauth2/authorize?client_id=812041750528000031&permissions=0&scope=bot)
 [![FCEL](https://logo.clearbit.com/fuelcellenergy.com)](https://discord.com/api/oauth2/authorize?client_id=812041645008093186&permissions=0&scope=bot)
-[![IPOD](https://s3.oc0.rileysnyder.org/public/assets/ipod.jpg)](https://discord.com/api/oauth2/authorize?client_id=814168658082791454&permissions=0&scope=bot)
-[![IPOF](https://s3.oc0.rileysnyder.org/public/assets/ipof.jpg)](https://discord.com/api/oauth2/authorize?client_id=814169320233369640&permissions=0&scope=bot)
+[![IPOD](https://s3.cloud.rileysnyder.org/public/assets/ipod.jpg)](https://discord.com/api/oauth2/authorize?client_id=814168658082791454&permissions=0&scope=bot)
+[![IPOF](https://s3.cloud.rileysnyder.org/public/assets/ipof.jpg)](https://discord.com/api/oauth2/authorize?client_id=814169320233369640&permissions=0&scope=bot)
 [![AMD](https://logo.clearbit.com/amd.com)](https://discord.com/api/oauth2/authorize?client_id=816049122850897923&permissions=0&scope=bot)
 [![NIO](https://logo.clearbit.com/nio.com)](https://discord.com/api/oauth2/authorize?client_id=816049780546994196&permissions=0&scope=bot)
 [![ESGC](https://logo.clearbit.com/erosstx.com)](https://discord.com/api/oauth2/authorize?client_id=816372064494551141&permissions=0&scope=bot)
-[![GOLD](https://s3.oc0.rileysnyder.org/public/assets/gold.jpeg)](https://discord.com/api/oauth2/authorize?client_id=816375134122147850&permissions=0&scope=bot)
-[![SILVER](https://s3.oc0.rileysnyder.org/public/assets/silver.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375586066661456&permissions=0&scope=bot)
-[![OIL](https://s3.oc0.rileysnyder.org/public/assets/oil.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375780442636288&permissions=0&scope=bot)
+[![GOLD](https://s3.cloud.rileysnyder.org/public/assets/gold.jpeg)](https://discord.com/api/oauth2/authorize?client_id=816375134122147850&permissions=0&scope=bot)
+[![SILVER](https://s3.cloud.rileysnyder.org/public/assets/silver.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375586066661456&permissions=0&scope=bot)
+[![OIL](https://s3.cloud.rileysnyder.org/public/assets/oil.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375780442636288&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -64,7 +64,7 @@ Don't see a stock or crypto that you need? Join our discord or open a github iss
 [![Cardano](https://logo.clearbit.com/cardano.com)](https://discord.com/api/oauth2/authorize?client_id=807311315055542272&permissions=0&scope=bot)
 [![Chainlink](https://logo.clearbit.com/chain.link)](https://discord.com/api/oauth2/authorize?client_id=808407486860230747&permissions=0&scope=bot)
 [![Cardano](https://logo.clearbit.com/stellar.org)](https://discord.com/api/oauth2/authorize?client_id=808409647731179534&permissions=0&scope=bot)
-[![0x](https://s3.oc0.rileysnyder.org/public/assets/0x.jpg)](https://discord.com/api/oauth2/authorize?client_id=810892119362895872&permissions=0&scope=bot)
+[![0x](https://s3.cloud.rileysnyder.org/public/assets/0x.jpg)](https://discord.com/api/oauth2/authorize?client_id=810892119362895872&permissions=0&scope=bot)
 [![Balance](https://logo.clearbit.com/balancer.finance)](https://discord.com/api/oauth2/authorize?client_id=810894385360535572&permissions=0&scope=bot)
 [![IOTA](https://logo.clearbit.com/iota.org)](https://discord.com/api/oauth2/authorize?client_id=814170376254652486&permissions=0&scope=bot)
 [![Reef](https://logo.clearbit.com/reef.finance)](https://discord.com/api/oauth2/authorize?client_id=814288538107379742&permissions=0&scope=bot)
@@ -79,7 +79,7 @@ The bots above are hosted in bulk. They are free to use on any discord server.
 
 You can have private instances only for your servers, with real time price updates. There is a full logging stack that includes loki & promtail with grafana for visualization. See contact info below for private bot inquiries. 
 
-![Really cool grafana dashboard](https://s3.oc0.rileysnyder.org/public/assets/grafana.png)
+![Really cool grafana dashboard](https://s3.cloud.rileysnyder.org/public/assets/grafana.png)
 
 ### Self-Hosting
 
