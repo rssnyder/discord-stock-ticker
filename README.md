@@ -21,6 +21,8 @@ Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder) or [hire
 
 Don't see a stock or crypto that you need? Join our discord or open a github issue to get new ones added!
 
+WARNING: Due to an increase in usage, I am having to verify some bots. Discord is experiancing an influx in verification requests and thus there may be some bots that you are unable to add until the bot is verified. You can either try again later or join the discord to get alerted when these bots become requestable again.
+
 ### Stocks
 
 [![GameStop](https://logo.clearbit.com/gamestop.com)](https://discord.com/api/oauth2/authorize?client_id=805268557994262529&permissions=0&scope=bot)
