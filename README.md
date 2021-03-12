@@ -52,6 +52,16 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![GOLD](https://s3.cloud.rileysnyder.org/public/assets/gold.jpeg)](https://discord.com/api/oauth2/authorize?client_id=816375134122147850&permissions=0&scope=bot)
 [![SILVER](https://s3.cloud.rileysnyder.org/public/assets/silver.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375586066661456&permissions=0&scope=bot)
 [![OIL](https://s3.cloud.rileysnyder.org/public/assets/oil.jpg)](https://discord.com/api/oauth2/authorize?client_id=816375780442636288&permissions=0&scope=bot)
+[![PLTR](https://logo.clearbit.com/palantir.com)](https://discord.com/api/oauth2/authorize?client_id=818471352415551518&permissions=0&scope=bot)
+[![CCIV](https://logo.clearbit.com/churchillcapitalcorp.com)](https://discord.com/api/oauth2/authorize?client_id=819575244691865623&permissions=0&scope=bot)
+[![HCMC](https://logo.clearbit.com/healthiercmc.com)](https://discord.com/api/oauth2/authorize?client_id=819575463957102593&permissions=0&scope=bot)
+[![^TNX](https://s3.cloud.rileysnyder.org/public/assets/us10y.jpg)](https://discord.com/api/oauth2/authorize?client_id=819576354361704459&permissions=0&scope=bot)
+[![^VIX](https://s3.cloud.rileysnyder.org/public/assets/vix.jpg)](https://discord.com/api/oauth2/authorize?client_id=819576744176386048&permissions=0&scope=bot)
+[![RTY=F](https://s3.cloud.rileysnyder.org/public/assets/rut.jpg)](https://discord.com/api/oauth2/authorize?client_id=819578053881102336&permissions=0&scope=bot)
+[![AA](https://logo.clearbit.com/alcoa.com)](https://discord.com/api/oauth2/authorize?client_id=819316554486251530&permissions=0&scope=bot)
+[![ARCH](https://logo.clearbit.com/archrsc.com)](https://discord.com/api/oauth2/authorize?client_id=819319796189233154&permissions=0&scope=bot)
+[![LAC.TO](https://logo.clearbit.com/lithiumamericas.com)](https://discord.com/api/oauth2/authorize?client_id=819320002578481203&permissions=0&scope=bot)
+[![X](https://logo.clearbit.com/ussteel.com)](https://discord.com/api/oauth2/authorize?client_id=819320113945509899&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -70,6 +80,7 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![Balance](https://logo.clearbit.com/balancer.finance)](https://discord.com/api/oauth2/authorize?client_id=810894385360535572&permissions=0&scope=bot)
 [![IOTA](https://logo.clearbit.com/iota.org)](https://discord.com/api/oauth2/authorize?client_id=814170376254652486&permissions=0&scope=bot)
 [![Reef](https://logo.clearbit.com/reef.finance)](https://discord.com/api/oauth2/authorize?client_id=814288538107379742&permissions=0&scope=bot)
+[![Algo](https://logo.clearbit.com/algorand.com)](https://discord.com/api/oauth2/authorize?client_id=819274628778164265&permissions=0&scope=bot)
 
 ## Hosting
 
