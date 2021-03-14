@@ -62,6 +62,10 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![ARCH](https://logo.clearbit.com/archrsc.com)](https://discord.com/api/oauth2/authorize?client_id=819319796189233154&permissions=0&scope=bot)
 [![LAC.TO](https://logo.clearbit.com/lithiumamericas.com)](https://discord.com/api/oauth2/authorize?client_id=819320002578481203&permissions=0&scope=bot)
 [![X](https://logo.clearbit.com/ussteel.com)](https://discord.com/api/oauth2/authorize?client_id=819320113945509899&permissions=0&scope=bot)
+[![SCR.TO](https://s3.cloud.rileysnyder.org/public/assets/scr.to.png)](https://discord.com/api/oauth2/authorize?client_id=819320277368307795&permissions=0&scope=bot)
+[![QQQJ](https://s3.cloud.rileysnyder.org/public/assets/qqqj.jpg)](https://discord.com/api/oauth2/authorize?client_id=819320358045351937&permissions=0&scope=bot)
+[![PYPL](https://logo.clearbit.com/paypal.com)](https://discord.com/api/oauth2/authorize?client_id=819395115465572352&permissions=0&scope=bot)
+[![APHA](https://logo.clearbit.com/aphriainc.com)](https://discord.com/api/oauth2/authorize?client_id=819395294949015552&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -81,6 +85,8 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![IOTA](https://logo.clearbit.com/iota.org)](https://discord.com/api/oauth2/authorize?client_id=814170376254652486&permissions=0&scope=bot)
 [![Reef](https://logo.clearbit.com/reef.finance)](https://discord.com/api/oauth2/authorize?client_id=814288538107379742&permissions=0&scope=bot)
 [![Algo](https://logo.clearbit.com/algorand.com)](https://discord.com/api/oauth2/authorize?client_id=819274628778164265&permissions=0&scope=bot)
+[![ETC](https://logo.clearbit.com/ethereumclassic.org)](https://discord.com/api/oauth2/authorize?client_id=819395405980762182&permissions=0&scope=bot)
+[![RVN](https://logo.clearbit.com/ravencoin.org)](https://discord.com/api/oauth2/authorize?client_id=819395519708921866&permissions=0&scope=bot)
 
 ## Hosting
 
