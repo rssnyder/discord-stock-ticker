@@ -45,6 +45,7 @@ class Ticker(discord.Client):
                     ticker.upper(),
                     crypto_name,
                     getenv('SET_NICKNAME'),
+                    getenv('SET_COLOR'),
                     getenv('FREQUENCY', 60)
                 )
             )
@@ -61,6 +62,7 @@ class Ticker(discord.Client):
                     ticker.upper(),
                     stock_name.upper(),
                     getenv('SET_NICKNAME'),
+                    getenv('SET_COLOR'),
                     getenv('FREQUENCY', 60)
                 )
             )
@@ -127,7 +129,7 @@ class Ticker(discord.Client):
             logging.info('stock name sleep ended')
 
 
-    async def stock_update_activity(self, ticker: str, name: str, change_nick: bool = False, frequency: int = 60):
+    async def stock_update_activity(self, ticker: str, name: str, change_nick: bool = False, change_color: bool = False, frequency: int = 60):
         '''
         Update the bot activity based on stock price
         ticker = stock symbol
@@ -135,6 +137,8 @@ class Ticker(discord.Client):
         change_nick = flag for changing nickname
         frequency = how often to update in seconds
         '''
+
+        old_price = 0.0
 
         await self.wait_until_ready()
         logging.info(f'stock activity update ready: {name}')
@@ -181,10 +185,22 @@ class Ticker(discord.Client):
 
                 for server in self.guilds:
 
+                    green = discord.utils.get(server.roles, name="tickers-green")
+                    red = discord.utils.get(server.roles, name="tickers-red")
+
                     try:
                         await server.me.edit(
                             nick=f'{name} - ${price}'
                         )
+                        
+                        if change_color:
+                            if price >= old_price:
+                                await server.me.remove_roles(red)
+                                await server.me.add_roles(green)
+                            else:
+                                await server.me.remove_roles(green)
+                                await server.me.add_roles(red)
+
                     except discord.HTTPException as e:
                         logging.error(f'updating nick failed: {e.status}: {e.text}')
                     except discord.Forbidden as f:
@@ -215,6 +231,8 @@ class Ticker(discord.Client):
             except discord.InvalidArgument as e:
                 logging.error(f'updating activity failed: {e.status}: {e.text}')
 
+            old_price = price
+
             # Only update every min
             logging.info(f'stock activity sleeping for {frequency}s')
             await asyncio.sleep(int(frequency))
@@ -227,8 +245,6 @@ class Ticker(discord.Client):
         ticker = symbol to display on bot
         name = crypto name for CG api
         '''
-
-        old_price = ''
 
         await self.wait_until_ready()
         logging.info(f'crypto name update ready: {crypto_name}')
@@ -243,21 +259,14 @@ class Ticker(discord.Client):
             price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
             logging.info(f'crypto name price retrived {price}')
 
-            # Only update on price change
-            if old_price != price:
+            try:
+                await self.user.edit(
+                    username=f'{ticker} - ${price}'
+                )
 
-                try:
-                    await self.user.edit(
-                        username=f'{ticker} - ${price}'
-                    )
-
-                    old_price = price
-                    logging.info('crypto name updated')
-                except discord.HTTPException as e:
-                    logging.warning(f'updating name failed: {e.status}: {e.text}')
-
-            else:
-                logging.info('no price change')
+                logging.info('crypto name updated')
+            except discord.HTTPException as e:
+                logging.warning(f'updating name failed: {e.status}: {e.text}')
 
             # Only update every hour
             logging.info(f'crypto name sleeping for {NAME_CHANGE_DELAY}s')
@@ -265,7 +274,7 @@ class Ticker(discord.Client):
             logging.info('crypto name sleep ended')
     
 
-    async def crypto_update_activity(self, ticker: str, crypto_name: str, change_nick: bool = False, frequency: int = 60):
+    async def crypto_update_activity(self, ticker: str, crypto_name: str, change_nick: bool = False, change_color: bool = False, frequency: int = 60):
         '''
         Update the bot activity based on crypto price
         ticker = symbol to display on bot
@@ -274,7 +283,7 @@ class Ticker(discord.Client):
         frequency = how often to update in seconds
         '''
 
-        old_price = ''
+        old_price = 0.00
 
         await self.wait_until_ready()
         logging.info(f'crypto activity update ready: {crypto_name}')
@@ -296,44 +305,50 @@ class Ticker(discord.Client):
 
             activity_content = f'${price} / {change_header}{change}'
 
-            # Only update on price change
-            if old_price != price:
+            # Change name via nickname if set
+            if change_nick:
+                
+                for server in self.guilds:
 
-                # Change name via nickname if set
-                if change_nick:
-                    
-                    for server in self.guilds:
+                    green = discord.utils.get(server.roles, name="tickers-green")
+                    red = discord.utils.get(server.roles, name="tickers-red")
 
-                        try:
-                            await server.me.edit(
-                                nick=f'{ticker} - ${price}'
-                            )
-                        except discord.HTTPException as e:
-                            logging.error(f'updating nick failed: {e.status}: {e.text}')
-                        except discord.Forbidden as f:
-                            logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
-
-                        logging.info(f'{crypto_name} updated nick in {server.name}')
-                    
-                    # Use activity for other fun stuff
-                    activity_content = f'24hr Diff: {change_header}{change}'
-
-                # Change activity
-                try:
-                    await self.change_presence(
-                        activity=discord.Activity(
-                            type=discord.ActivityType.watching,
-                            name=activity_content
+                    try:
+                        await server.me.edit(
+                            nick=f'{ticker} - ${price}'
                         )
+
+                        if change_color:
+                            if price >= old_price:
+                                await server.me.remove_roles(red)
+                                await server.me.add_roles(green)
+                            else:
+                                await server.me.remove_roles(green)
+                                await server.me.add_roles(red)
+
+                    except discord.HTTPException as e:
+                        logging.error(f'updating nick failed: {e.status}: {e.text}')
+                    except discord.Forbidden as f:
+                        logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
+
+                    logging.info(f'{crypto_name} updated nick in {server.name}')
+                
+                # Use activity for other fun stuff
+                activity_content = f'24hr Diff: {change_header}{change}'
+
+            # Change activity
+            try:
+                await self.change_presence(
+                    activity=discord.Activity(
+                        type=discord.ActivityType.watching,
+                        name=activity_content
                     )
+                )
 
-                    old_price = price
-                    logging.info(f'{crypto_name} crypto activity updated {activity_content}')
-                except discord.InvalidArgument as e:
-                    logging.error(f'updating activity failed: {e.status}: {e.text}')
-
-            else:
-                logging.info('no price change')
+                old_price = price
+                logging.info(f'{crypto_name} crypto activity updated {activity_content}')
+            except discord.InvalidArgument as e:
+                logging.error(f'updating activity failed: {e.status}: {e.text}')
 
             # Only update every min
             logging.info(f'crypto sleeping for {frequency}s')

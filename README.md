@@ -15,9 +15,9 @@ Live stock tickers for your discord server.
 
 ![Discord Sidebar w/ Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar.png)
 
-Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder) or [hire me](https://github.com/rssnyder) to write/host **your** discord bot!
+Love these bots? You can support this project by subscribing to the premium version or maybe [buy me a coffee](https://ko-fi.com/rileysnyder) or [hire me](https://github.com/rssnyder) to write/host **your** discord bot!
 
-## Add tickers to your servers (click the image to add)
+## Add free tickers to your servers (click the image to add)
 
 Don't see a stock or crypto that you need? Join our discord or open a github issue to get new ones added!
 
@@ -88,15 +88,15 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![ETC](https://logo.clearbit.com/ethereumclassic.org)](https://discord.com/api/oauth2/authorize?client_id=819395405980762182&permissions=0&scope=bot)
 [![RVN](https://logo.clearbit.com/ravencoin.org)](https://discord.com/api/oauth2/authorize?client_id=819395519708921866&permissions=0&scope=bot)
 
-## Hosting
+## Premium
 
-### Public (free)
+![Discord Sidebar w/ Premium Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar-premium.png)
 
-The bots above are hosted in bulk. They are free to use on any discord server.
+For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering. I will host individual instances for your discord server at a cost of $5/month for a 5 pack of bots. You can choose a mix of cryptos and stocks and cancel at any time.
 
-### Private (paid)
+There is a full logging stack that includes loki & promtail with grafana for visualization.
 
-You can have private instances only for your servers, with real time price updates. There is a full logging stack that includes loki & promtail with grafana for visualization. See contact info below for private bot inquiries. 
+If you are interested please see the [contact info on my github page](https://github.com/rssnyder) and send me a messgae via your platform of choice (discord perferred). For a live demo, join the support discord linked at the top or bottom of this page.
 
 ![Really cool grafana dashboard](https://s3.cloud.rileysnyder.org/public/assets/grafana.png)
 
@@ -141,6 +141,16 @@ You can optionally give your bot "change nickname" permissions to get around dis
 ```
 export SET_NICKNAME=1
 export FREQUENCY=3
+```
+
+To enable color changing on price change, there is some setup needed. First you must create a new role to place the bots in. You need to check the `Display role members seperatly from other online members` option for this role, and **do not** assign a custom color for this role, leave it default.
+
+Next you must create two roles called `tickers-green` and `tickers-red `. **Do not** check the `Display role members seperatly from other online members` option, but do set the colors for these roles to be `green` and `red` accordingly (or choose your own colors). These two new roles must appear **below** the general ticker role you created in the first step in the roles list.
+
+Lastly, to enable the color changing, set `SET_COLOR=1` in your environment:
+
+```
+export SET_COLOR=1
 ```
 
 Other options:
@@ -195,6 +205,6 @@ eth: 0x27B6896cC68838bc8adE6407C8283a214ecD4ffE
 
 doge: DTWkUvFakt12yUEssTbdCe2R7TepExBA2G
 
-bch: bitcoincash:qrnmprfh5e77lzdpalczdu839uhvrravlvfr5nwupr
+bch: qrnmprfh5e77lzdpalczdu839uhvrravlvfr5nwupr
 
-btc: bitcoin:1N84bLSVKPZBHKYjHp8QtvPgRJfRbtNKHQ
+btc: 1N84bLSVKPZBHKYjHp8QtvPgRJfRbtNKHQ
