@@ -66,6 +66,8 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![QQQJ](https://s3.cloud.rileysnyder.org/public/assets/qqqj.jpg)](https://discord.com/api/oauth2/authorize?client_id=819320358045351937&permissions=0&scope=bot)
 [![PYPL](https://logo.clearbit.com/paypal.com)](https://discord.com/api/oauth2/authorize?client_id=819395115465572352&permissions=0&scope=bot)
 [![APHA](https://logo.clearbit.com/aphriainc.com)](https://discord.com/api/oauth2/authorize?client_id=819395294949015552&permissions=0&scope=bot)
+[![sndl](https://logo.clearbit.com/sundialcannabis.com)](https://discord.com/api/oauth2/authorize?client_id=819638060894388305&permissions=0&scope=bot)
+[![hut.to](https://s3.cloud.rileysnyder.org/public/assets/hut.jpg)](https://discord.com/api/oauth2/authorize?client_id=819639798482075678&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -87,6 +89,7 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![Algo](https://logo.clearbit.com/algorand.com)](https://discord.com/api/oauth2/authorize?client_id=819274628778164265&permissions=0&scope=bot)
 [![ETC](https://logo.clearbit.com/ethereumclassic.org)](https://discord.com/api/oauth2/authorize?client_id=819395405980762182&permissions=0&scope=bot)
 [![RVN](https://logo.clearbit.com/ravencoin.org)](https://discord.com/api/oauth2/authorize?client_id=819395519708921866&permissions=0&scope=bot)
+[![bnb](https://logo.clearbit.com/binance.com)](https://discord.com/api/oauth2/authorize?client_id=819395643193688124&permissions=0&scope=bot)
 
 ## Premium
 
