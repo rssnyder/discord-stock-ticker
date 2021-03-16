@@ -138,6 +138,8 @@ curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: applicati
 
 You can optionally give your bot "change nickname" permissions to get around discord's limit on changing names only twice per two hours. Then you can set a custom amount of time between price updates (in seconds):
 
+You must also make sure your bot has `Change Nickname` permissions to your server.
+
 ```
 export SET_NICKNAME=1
 export FREQUENCY=3
@@ -146,6 +148,8 @@ export FREQUENCY=3
 To enable color changing on price change, there is some setup needed. First you must create a new role to place the bots in. You need to check the `Display role members seperatly from other online members` option for this role, and **do not** assign a custom color for this role, leave it default.
 
 Next you must create two roles called `tickers-green` and `tickers-red `. **Do not** check the `Display role members seperatly from other online members` option, but do set the colors for these roles to be `green` and `red` accordingly (or choose your own colors). These two new roles must appear **below** the general ticker role you created in the first step in the roles list.
+
+You must also make sure your bot has `Manage Roles` permissions to your server.
 
 Lastly, to enable the color changing, set `SET_COLOR=1` in your environment:
 
