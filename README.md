@@ -176,25 +176,53 @@ python3 main.py
 
 ### Docker
 
-You can also run these bots using docker. This can make running multiple bots esier. Here is an example docker compose file (please check for the latest release and update the tags accordingly):
+You can also run these bots using docker. This can make running multiple bots esier. Here is an example docker compose file for the basic feature set (please check for the latest release and update the tags accordingly):
 
 ```
 ---
 version: "2"
 services:
   ticker-pfg:
-    image: ghcr.io/rssnyder/discord-stock-ticker:1.3.3
+    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       - TICKER=PFG
     restart: unless-stopped
   ticker-aapl:
-    image: ghcr.io/rssnyder/discord-stock-ticker:1.3.3
+    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       - TICKER=AAPL
+    restart: unless-stopped
+```
+
+And here is an example of enabling faster updates with color changes:
+
+```
+---
+version: "2"
+services:
+  ticker-pfg:
+    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
+    container_name: discord-stock-ticker
+    environment:
+      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - TICKER=PFG
+      - SET_NICKNAME=1
+      - SET_COLOR=1
+      - FREQUENCY=10
+    restart: unless-stopped
+  ticker-aapl:
+    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
+    container_name: discord-stock-ticker
+    environment:
+      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - TICKER=AAPL
+      - SET_NICKNAME=1
+      - SET_COLOR=1
+      - FREQUENCY=10
     restart: unless-stopped
 ```
 
