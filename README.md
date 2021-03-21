@@ -68,6 +68,8 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![APHA](https://logo.clearbit.com/aphriainc.com)](https://discord.com/api/oauth2/authorize?client_id=819395294949015552&permissions=0&scope=bot)
 [![sndl](https://logo.clearbit.com/sundialcannabis.com)](https://discord.com/api/oauth2/authorize?client_id=819638060894388305&permissions=0&scope=bot)
 [![hut.to](https://s3.cloud.rileysnyder.org/public/assets/hut.jpg)](https://discord.com/api/oauth2/authorize?client_id=819639798482075678&permissions=0&scope=bot)
+[![nhic](https://s3.cloud.rileysnyder.org/public/assets/nhic.jpg)](https://discord.com/api/oauth2/authorize?client_id=819639927146676304&permissions=0&scope=bot)
+[![ctrm](https://s3.cloud.rileysnyder.org/public/assets/ctrm.png)](https://discord.com/api/oauth2/authorize?client_id=819939407754690572&permissions=0&scope=bot)
 
 ### Crypto
 
