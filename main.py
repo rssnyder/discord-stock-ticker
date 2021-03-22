@@ -46,6 +46,7 @@ class Ticker(discord.Client):
                     crypto_name,
                     getenv('SET_NICKNAME'),
                     getenv('SET_COLOR'),
+                    getenv('FLASH_CHANGE'),
                     getenv('FREQUENCY', 60)
                 )
             )
@@ -63,6 +64,7 @@ class Ticker(discord.Client):
                     stock_name.upper(),
                     getenv('SET_NICKNAME'),
                     getenv('SET_COLOR'),
+                    getenv('FLASH_CHANGE'),
                     getenv('FREQUENCY', 60)
                 )
             )
@@ -129,7 +131,7 @@ class Ticker(discord.Client):
             logging.info('stock name sleep ended')
 
 
-    async def stock_update_activity(self, ticker: str, name: str, change_nick: bool = False, change_color: bool = False, frequency: int = 60):
+    async def stock_update_activity(self, ticker: str, name: str, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
         '''
         Update the bot activity based on stock price
         ticker = stock symbol
@@ -139,6 +141,7 @@ class Ticker(discord.Client):
         '''
 
         old_price = 0.0
+        change_up = True
 
         await self.wait_until_ready()
         logging.info(f'stock activity update ready: {name}')
@@ -167,7 +170,10 @@ class Ticker(discord.Client):
 
                 if not getenv('POST_MARKET_PRICE'):
                     if diff > 0:
+                        change_up = True
                         diff = '+' + str(diff)
+                    else:
+                        change_up = False
 
                 activity_content = f'After Hours: {diff}'
                 logging.info(f'{name} stock activity after hours price retrived: {activity_content}')
@@ -176,6 +182,9 @@ class Ticker(discord.Client):
                 diff = round(raw_diff, 2)
                 if diff > 0:
                     diff = '+' + str(diff)
+                else:
+                    change_up = False
+
 
                 activity_content = f'${price} / {diff}'
                 logging.info(f'{name} stock activity price retrived: {activity_content}')
@@ -194,12 +203,23 @@ class Ticker(discord.Client):
                         )
                         
                         if change_color:
-                            if price >= old_price:
-                                await server.me.remove_roles(red)
+
+                            if flash_change:
+                                # Flash price change
+                                if price >= old_price:
+                                    await server.me.add_roles(green)
+                                    await server.me.remove_roles(red)
+                                else:
+                                    await server.me.add_roles(red)
+                                    await server.me.remove_roles(green)
+
+                            # Stay on day change
+                            if change_up:
                                 await server.me.add_roles(green)
+                                await server.me.remove_roles(red)
                             else:
-                                await server.me.remove_roles(green)
                                 await server.me.add_roles(red)
+                                await server.me.remove_roles(green)
 
                     except discord.HTTPException as e:
                         logging.error(f'updating nick failed: {e.status}: {e.text}')
@@ -274,7 +294,7 @@ class Ticker(discord.Client):
             logging.info('crypto name sleep ended')
     
 
-    async def crypto_update_activity(self, ticker: str, crypto_name: str, change_nick: bool = False, change_color: bool = False, frequency: int = 60):
+    async def crypto_update_activity(self, ticker: str, crypto_name: str, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
         '''
         Update the bot activity based on crypto price
         ticker = symbol to display on bot
@@ -284,6 +304,7 @@ class Ticker(discord.Client):
         '''
 
         old_price = 0.00
+        change_up = True
 
         await self.wait_until_ready()
         logging.info(f'crypto activity update ready: {crypto_name}')
@@ -300,6 +321,8 @@ class Ticker(discord.Client):
             change_header = ''
             if change > 0:
                 change_header = '+'
+            else:
+                change_up = False
 
             logging.info(f'crypto activity price retrived {price}')
 
@@ -319,12 +342,23 @@ class Ticker(discord.Client):
                         )
 
                         if change_color:
-                            if price >= old_price:
-                                await server.me.remove_roles(red)
+
+                            if flash_change:
+                                # Flash price change
+                                if price >= old_price:
+                                    await server.me.add_roles(green)
+                                    await server.me.remove_roles(red)
+                                else:
+                                    await server.me.add_roles(red)
+                                    await server.me.remove_roles(green)
+
+                            # Stay on day change
+                            if change_up:
                                 await server.me.add_roles(green)
+                                await server.me.remove_roles(red)
                             else:
-                                await server.me.remove_roles(green)
                                 await server.me.add_roles(red)
+                                await server.me.remove_roles(green)
 
                     except discord.HTTPException as e:
                         logging.error(f'updating nick failed: {e.status}: {e.text}')

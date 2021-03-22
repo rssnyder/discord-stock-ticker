@@ -162,6 +162,12 @@ Lastly, to enable the color changing, set `SET_COLOR=1` in your environment:
 export SET_COLOR=1
 ```
 
+The colors will reflect the day price change, red for a loss and green for a gain. To flash the color of the price change every check (red for price decrease, green for increase) you can set `FLASH_CHANGE`:
+
+```
+export FLASH_CHANGE=1
+```
+
 Other options:
 
 ```
