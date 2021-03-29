@@ -25,7 +25,6 @@ class Ticker(discord.Client):
         crypto_name = getenv('CRYPTO_NAME')
         stock_name = getenv("STOCK_NAME", ticker)
 
-
         # Check that at least a ticker is set
         if not ticker:
             logging.error('TICKER not set!')
@@ -34,12 +33,15 @@ class Ticker(discord.Client):
         # Use different updates based on security type
         if crypto_name:
             logging.info('crypo ticker')
-            self.sm_task = self.loop.create_task(
-                self.crypto_update_name(
-                    ticker.upper(),
-                    crypto_name
+
+            if not getenv('SET_NICKNAME'):
+                self.sm_task = self.loop.create_task(
+                    self.crypto_update_name(
+                        ticker.upper(),
+                        crypto_name
+                    )
                 )
-            )
+
             self.bg_task = self.loop.create_task(
                 self.crypto_update_activity(
                     ticker.upper(),
@@ -52,12 +54,15 @@ class Ticker(discord.Client):
             )
         else:
             logging.info('stock ticker')
-            self.sm_task = self.loop.create_task(
-                self.stock_update_name(
-                    ticker.upper(),
-                    stock_name.upper()
+
+            if not getenv('SET_NICKNAME'):
+                self.sm_task = self.loop.create_task(
+                    self.stock_update_name(
+                        ticker.upper(),
+                        stock_name.upper()
+                    )
                 )
-            )
+
             self.bg_task = self.loop.create_task(
                 self.stock_update_activity(
                     ticker.upper(),
