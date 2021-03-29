@@ -169,7 +169,7 @@ class Ticker(discord.Client):
                 diff = round(raw_diff, 2)
 
                 if not getenv('POST_MARKET_PRICE'):
-                    if diff > 0:
+                    if diff >= 0.0:
                         change_up = True
                         diff = '+' + str(diff)
                     else:
@@ -180,7 +180,7 @@ class Ticker(discord.Client):
             else:
                 raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
                 diff = round(raw_diff, 2)
-                if diff > 0:
+                if diff >= 0.0:
                     diff = '+' + str(diff)
                 else:
                     change_up = False
@@ -319,7 +319,7 @@ class Ticker(discord.Client):
             price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
             change = data.get('market_data', {}).get('price_change_24h', 0)
             change_header = ''
-            if change > 0:
+            if change >= 0.0:
                 change_header = '+'
             else:
                 change_up = False
