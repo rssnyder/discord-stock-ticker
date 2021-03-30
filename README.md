@@ -71,6 +71,10 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![nhic](https://s3.cloud.rileysnyder.org/public/assets/nhic.jpg)](https://discord.com/api/oauth2/authorize?client_id=819639927146676304&permissions=0&scope=bot)
 [![ctrm](https://s3.cloud.rileysnyder.org/public/assets/ctrm.png)](https://discord.com/api/oauth2/authorize?client_id=819939407754690572&permissions=0&scope=bot)
 [![etfm](https://logo.clearbit.com/fomoworldwide.com)](https://discord.com/api/oauth2/authorize?client_id=819939500687360071&permissions=0&scope=bot)
+[![sens](https://logo.clearbit.com/senseonics.com)](https://discord.com/api/oauth2/authorize?client_id=819939795580354620&permissions=0&scope=bot)
+[![ftcv](https://s3.cloud.rileysnyder.org/public/assets/ftcv.png)](https://discord.com/api/oauth2/authorize?client_id=820048409016533015&permissions=0&scope=bot)
+[![mvis](https://logo.clearbit.com/microvision.com)](https://discord.com/api/oauth2/authorize?client_id=820048636649144330&permissions=0&scope=bot)
+[![cake](https://logo.clearbit.com/thecheesecakefactory.com)](https://discord.com/api/oauth2/authorize?client_id=820048736201605141&permissions=0&scope=bot)
 
 ### Crypto
 
