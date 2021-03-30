@@ -17,9 +17,17 @@ Live stock tickers for your discord server.
 
 Love these bots? You can support this project by subscribing to the premium version or maybe [buy me a coffee](https://ko-fi.com/rileysnyder) or [hire me](https://github.com/rssnyder) to write/host **your** discord bot!
 
+Related Projects:
+
+API for creating new tickers: https://github.com/rssnyder/discord-stock-ticker-api
+
+Discord bot to create new tickers (avalible on the support server): https://github.com/rssnyder/discord-stock-ticker-bot
+
 ## Add free tickers to your servers (click the image to add)
 
-Don't see a stock or crypto that you need? Join our discord or open a github issue to get new ones added!
+Don't see a stock or crypto that you need? Open a github issue or join our discord server to use the broker bot!
+
+![Ticker creation bot](https://s3.cloud.rileysnyder.org/public/assets/ticker-bot.png)
 
 WARNING: Due to an increase in usage, I am having to verify some bots. Discord is experiancing an influx in verification requests and thus there may be some bots that you are unable to add until the bot is verified. You can either try again later or join the discord to get alerted when these bots become requestable again.
 
