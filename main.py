@@ -10,7 +10,6 @@ from utils.yahoo import get_stock_price
 from utils.coin_gecko import get_crypto_price
 
 CURRENCY = 'usd'
-NAME_CHANGE_DELAY = 3600
 
 
 class Ticker(discord.Client):
@@ -34,14 +33,6 @@ class Ticker(discord.Client):
         if crypto_name:
             logging.info('crypo ticker')
 
-            if not getenv('SET_NICKNAME'):
-                self.sm_task = self.loop.create_task(
-                    self.crypto_update_name(
-                        ticker.upper(),
-                        crypto_name
-                    )
-                )
-
             self.bg_task = self.loop.create_task(
                 self.crypto_update_activity(
                     ticker.upper(),
@@ -54,14 +45,6 @@ class Ticker(discord.Client):
             )
         else:
             logging.info('stock ticker')
-
-            if not getenv('SET_NICKNAME'):
-                self.sm_task = self.loop.create_task(
-                    self.stock_update_name(
-                        ticker.upper(),
-                        stock_name.upper()
-                    )
-                )
 
             self.bg_task = self.loop.create_task(
                 self.stock_update_activity(
@@ -100,42 +83,6 @@ class Ticker(discord.Client):
         logging.info('servers: ' + str(servers))
 
 
-    async def stock_update_name(self, ticker: str, name: str):
-        '''
-        Update the bot name based on stock price
-        ticker = stock symbol
-        name = override for symbol as shown on bot
-        '''
-
-        await self.wait_until_ready()
-        logging.info(f'stock name update ready: {name}')
-
-        # Loop as long as the bot is running
-        while not self.is_closed():
-
-            logging.info('stock name update started')
-            
-            # Grab the current price data
-            data = get_stock_price(ticker)
-            price_data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
-            price = price_data.get('regularMarketPrice', {}).get('raw', 0.00)
-            logging.info(f'stock name price retrived {price}')
-
-            try:
-                await self.user.edit(
-                    username=f'{name} - ${price}'
-                )
-
-                logging.info('name updated')
-            except discord.HTTPException as e:
-                logging.warning(f'updating name failed: {e.status}: {e.text}')
-
-            # Only update every hour
-            logging.info(f'stock name sleeping for {NAME_CHANGE_DELAY}s')
-            await asyncio.sleep(NAME_CHANGE_DELAY)
-            logging.info('stock name sleep ended')
-
-
     async def stock_update_activity(self, ticker: str, name: str, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
         '''
         Update the bot activity based on stock price
@@ -149,12 +96,12 @@ class Ticker(discord.Client):
         change_up = True
 
         await self.wait_until_ready()
-        logging.info(f'stock activity update ready: {name}')
+        logging.info('starting stock activity update job...')
 
         # Loop as long as the bot is running
         while not self.is_closed():
 
-            logging.info('stock activity update started')
+            logging.info('fetching stock price...')
             
             # Grab the current price data w/ day difference
             data = get_stock_price(ticker)
@@ -181,7 +128,7 @@ class Ticker(discord.Client):
                         change_up = False
 
                 activity_content = f'After Hours: {diff}'
-                logging.info(f'{name} stock activity after hours price retrived: {activity_content}')
+                logging.info(f'stock after hours price retrived: {activity_content}')
             else:
                 raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
                 diff = round(raw_diff, 2)
@@ -192,7 +139,7 @@ class Ticker(discord.Client):
 
 
                 activity_content = f'${price} / {diff}'
-                logging.info(f'{name} stock activity price retrived: {activity_content}')
+                logging.info(f'stock price retrived: {activity_content}')
 
             # Change name via nickname if set
             if change_nick:
@@ -231,7 +178,7 @@ class Ticker(discord.Client):
                     except discord.Forbidden as f:
                         logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
 
-                    logging.info(f'{name} stock updated nick in {server.name}')
+                    logging.info(f'stock updated nick in {server.name}')
                 
                 # Check what price we are displaying
                 if price_data.get('postMarketChange'):
@@ -240,7 +187,6 @@ class Ticker(discord.Client):
                     activity_content_header = 'Day Diff'
                 
                 activity_content = f'{activity_content_header}: {diff}'
-                
 
             # Change activity
             try:
@@ -251,52 +197,16 @@ class Ticker(discord.Client):
                     )
                 )
 
-                logging.info('activity updated')
+                logging.info(f'stock activity updated: {activity_content}')
 
             except discord.InvalidArgument as e:
                 logging.error(f'updating activity failed: {e.status}: {e.text}')
 
             old_price = price
 
-            # Only update every min
-            logging.info(f'stock activity sleeping for {frequency}s')
+            logging.info(f'stock sleeping for {frequency}s')
             await asyncio.sleep(int(frequency))
-            logging.info('stock activity sleep ended')
-    
-
-    async def crypto_update_name(self, ticker: str, crypto_name: str):
-        '''
-        Update the bot name based on crypto price
-        ticker = symbol to display on bot
-        name = crypto name for CG api
-        '''
-
-        await self.wait_until_ready()
-        logging.info(f'crypto name update ready: {crypto_name}')
-
-        # Loop as long as the bot is running
-        while not self.is_closed():
-
-            logging.info('crypto name started')
-
-            # Grab the current price data
-            data = get_crypto_price(crypto_name)
-            price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
-            logging.info(f'crypto name price retrived {price}')
-
-            try:
-                await self.user.edit(
-                    username=f'{ticker} - ${price}'
-                )
-
-                logging.info('crypto name updated')
-            except discord.HTTPException as e:
-                logging.warning(f'updating name failed: {e.status}: {e.text}')
-
-            # Only update every hour
-            logging.info(f'crypto name sleeping for {NAME_CHANGE_DELAY}s')
-            await asyncio.sleep(NAME_CHANGE_DELAY)
-            logging.info('crypto name sleep ended')
+            logging.info('stock sleep ended')
     
 
     async def crypto_update_activity(self, ticker: str, crypto_name: str, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
@@ -312,12 +222,12 @@ class Ticker(discord.Client):
         change_up = True
 
         await self.wait_until_ready()
-        logging.info(f'crypto activity update ready: {crypto_name}')
+        logging.info('starting crypto activity update job...')
 
         # Loop as long as the bot is running
         while not self.is_closed():
 
-            logging.info('crypto activity started')       
+            logging.info('fetching crypto price...')
 
             # Grab the current price data
             data = get_crypto_price(crypto_name)
@@ -329,7 +239,7 @@ class Ticker(discord.Client):
             else:
                 change_up = False
 
-            logging.info(f'crypto activity price retrived {price}')
+            logging.info(f'crypto price retrived {price}')
 
             activity_content = f'${price} / {change_header}{change}'
 
@@ -385,14 +295,14 @@ class Ticker(discord.Client):
                 )
 
                 old_price = price
-                logging.info(f'{crypto_name} crypto activity updated {activity_content}')
+                logging.info(f'crypto activity updated {activity_content}')
             except discord.InvalidArgument as e:
                 logging.error(f'updating activity failed: {e.status}: {e.text}')
 
             # Only update every min
             logging.info(f'crypto sleeping for {frequency}s')
             await asyncio.sleep(int(frequency))
-            logging.info('crypto activity sleep ended')
+            logging.info('crypto sleep ended')
 
 
 if __name__ == "__main__":
@@ -406,7 +316,7 @@ if __name__ == "__main__":
 
     token = getenv('DISCORD_BOT_TOKEN')
     if not token:
-        print('DISCORD_BOT_TOKEN not set!')
+        logging.error('DISCORD_BOT_TOKEN not set!')
 
     client = Ticker()
     client.run(token)
