@@ -17,6 +17,7 @@ class Ticker(discord.Client):
     Discord client for watching stock/crypto prices
     '''
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -127,7 +128,7 @@ class Ticker(discord.Client):
                     else:
                         change_up = False
 
-                activity_content = f'After Hours: {diff}'
+                activity_content = f'${price} AHT {diff}'
                 logging.info(f'stock after hours price retrived: {activity_content}')
             else:
                 raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
@@ -184,7 +185,7 @@ class Ticker(discord.Client):
                 if price_data.get('postMarketChange'):
                     activity_content_header = 'After Hours'
                 else:
-                    activity_content_header = 'Day Diff'
+                    activity_content_header = 'Day Change'
                 
                 activity_content = f'{activity_content_header}: {diff}'
 
@@ -283,7 +284,7 @@ class Ticker(discord.Client):
                     logging.info(f'{crypto_name} updated nick in {server.name}')
                 
                 # Use activity for other fun stuff
-                activity_content = f'24hr Diff: {change_header}{change}'
+                activity_content = f'24hr: {change_header}{change}'
 
             # Change activity
             try:
