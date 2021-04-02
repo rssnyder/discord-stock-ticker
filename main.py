@@ -185,7 +185,7 @@ class Ticker(discord.Client):
                 if price_data.get('postMarketChange'):
                     activity_content_header = 'After Hours'
                 else:
-                    activity_content_header = 'Day Diff'
+                    activity_content_header = 'Day Change'
                 
                 activity_content = f'{activity_content_header}: {diff}'
 
@@ -284,7 +284,7 @@ class Ticker(discord.Client):
                     logging.info(f'{crypto_name} updated nick in {server.name}')
                 
                 # Use activity for other fun stuff
-                activity_content = f'24hr Diff: {change_header}{change}'
+                activity_content = f'24hr: {change_header}{change}'
 
             # Change activity
             try:
