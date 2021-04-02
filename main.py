@@ -17,6 +17,7 @@ class Ticker(discord.Client):
     Discord client for watching stock/crypto prices
     '''
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -127,7 +128,7 @@ class Ticker(discord.Client):
                     else:
                         change_up = False
 
-                activity_content = f'After Hours: {diff}'
+                activity_content = f'${price} AHT {diff}'
                 logging.info(f'stock after hours price retrived: {activity_content}')
             else:
                 raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
