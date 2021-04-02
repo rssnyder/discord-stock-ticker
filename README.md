@@ -84,6 +84,11 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![ftcv](https://s3.cloud.rileysnyder.org/public/assets/ftcv.png)](https://discord.com/api/oauth2/authorize?client_id=820048409016533015&permissions=0&scope=bot)
 [![mvis](https://logo.clearbit.com/microvision.com)](https://discord.com/api/oauth2/authorize?client_id=820048636649144330&permissions=0&scope=bot)
 [![cake](https://logo.clearbit.com/thecheesecakefactory.com)](https://discord.com/api/oauth2/authorize?client_id=820048736201605141&permissions=0&scope=bot)
+[![chwy](https://logo.clearbit.com/chewy.com)](https://discord.com/api/oauth2/authorize?client_id=826512272506880071&permissions=0&scope=bot)
+[![mstr](https://logo.clearbit.com/microstrategy.com)](https://discord.com/api/oauth2/authorize?client_id=826512588078710794&permissions=0&scope=bot)
+[![ethe](https://logo.clearbit.com/grayscale.co)](https://discord.com/api/oauth2/authorize?client_id=826512680005140550&permissions=0&scope=bot)
+[![arkk](https://logo.clearbit.com/ark.funds.com)](https://discord.com/api/oauth2/authorize?client_id=826512765580869673&permissions=0&scope=bot)
+[![discb](https://logo.clearbit.com/discovery.com)](https://discord.com/api/oauth2/authorize?client_id=827236022466117642&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -108,6 +113,7 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![bnb](https://logo.clearbit.com/binance.com)](https://discord.com/api/oauth2/authorize?client_id=819395643193688124&permissions=0&scope=bot)
 [![ern](https://logo.clearbit.com/ethernity.io)](https://discord.com/api/oauth2/authorize?client_id=819939616349749249&permissions=0&scope=bot)
 [![omi](https://logo.clearbit.com/ecomi.com)](https://discord.com/api/oauth2/authorize?client_id=819939716228579360&permissions=0&scope=bot)
+[![aave](https://logo.clearbit.com/aave.com)](https://discord.com/api/oauth2/authorize?client_id=826512401502961756&permissions=0&scope=bot)
 
 ## Premium
 
