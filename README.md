@@ -89,6 +89,11 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![ethe](https://logo.clearbit.com/grayscale.co)](https://discord.com/api/oauth2/authorize?client_id=826512680005140550&permissions=0&scope=bot)
 [![arkk](https://logo.clearbit.com/ark.funds.com)](https://discord.com/api/oauth2/authorize?client_id=826512765580869673&permissions=0&scope=bot)
 [![discb](https://logo.clearbit.com/discovery.com)](https://discord.com/api/oauth2/authorize?client_id=827236022466117642&permissions=0&scope=bot)
+[![nvta](https://logo.clearbit.com/invitae.com)](https://discord.com/api/oauth2/authorize?client_id=827236111440674876&permissions=0&scope=bot)
+[![msft](https://logo.clearbit.com/microsoft.com)](https://discord.com/api/oauth2/authorize?client_id=827236206575222794&permissions=0&scope=bot)
+[![nflx](https://logo.clearbit.com/netflix.com)](https://discord.com/api/oauth2/authorize?client_id=827236295323025408&permissions=0&scope=bot)
+[![fcx](https://logo.clearbit.com/fcx.com)](https://discord.com/api/oauth2/authorize?client_id=827986004618117170&permissions=0&scope=bot)
+[![bidu](https://logo.clearbit.com/baidu.com)](https://discord.com/api/oauth2/authorize?client_id=827986153147858946&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -114,6 +119,14 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![ern](https://logo.clearbit.com/ethernity.io)](https://discord.com/api/oauth2/authorize?client_id=819939616349749249&permissions=0&scope=bot)
 [![omi](https://logo.clearbit.com/ecomi.com)](https://discord.com/api/oauth2/authorize?client_id=819939716228579360&permissions=0&scope=bot)
 [![aave](https://logo.clearbit.com/aave.com)](https://discord.com/api/oauth2/authorize?client_id=826512401502961756&permissions=0&scope=bot)
+[![ruler](https://logo.clearbit.com/rulerprotocol.com)](https://discord.com/api/oauth2/authorize?client_id=827236401329340476&permissions=0&scope=bot)
+[![pmon](https://logo.clearbit.com/polkamon.com)](https://discord.com/api/oauth2/authorize?client_id=827984460859310080&permissions=0&scope=bot)
+[![uni](https://logo.clearbit.com/uniswap.org)](https://discord.com/api/oauth2/authorize?client_id=827985872389275658&permissions=0&scope=bot)
+[![btt](https://logo.clearbit.com/bittorrent.com)](https://discord.com/api/oauth2/authorize?client_id=827986251264819201&permissions=0&scope=bot)
+[![tron](https://logo.clearbit.com/tron.network)](https://discord.com/api/oauth2/authorize?client_id=828326036785463307&permissions=0&scope=bot)
+[![sc](https://logo.clearbit.com/sia.tech)](https://discord.com/api/oauth2/authorize?client_id=828326519625613393&permissions=0&scope=bot)
+[![vet](https://logo.clearbit.com/vechain.org)](https://discord.com/api/oauth2/authorize?client_id=828326223306424350&permissions=0&scope=bot)
+[![vtho](https://logo.clearbit.com/vechain.org)](https://discord.com/api/oauth2/authorize?client_id=828326375911194635&permissions=0&scope=bot)
 
 ## Premium
 
