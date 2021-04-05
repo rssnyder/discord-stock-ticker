@@ -33,7 +33,7 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 
 ### Stocks
 
-[![GameStop](https://logo.clearbit.com/gamestop.com)](https://discord.com/api/oauth2/authorize?client_id=805268557994262529&permissions=0&scope=bot)
+[![GameStop](https://logo.clearbit.com/gamestop.com)](https://discord.com/api/oauth2/authorize?client_id=828417475624435712&permissions=0&scope=bot)
 [![Blackberry](https://logo.clearbit.com/blackberry.com)](https://discord.com/api/oauth2/authorize?client_id=805289769272999986&permissions=0&scope=bot)
 [![AMC Theatres](https://logo.clearbit.com/amctheatres.com)](https://discord.com/api/oauth2/authorize?client_id=805294017441038357&permissions=0&scope=bot)
 [![Nokia](https://logo.clearbit.com/nokia.com)](https://discord.com/api/oauth2/authorize?client_id=805294107962245120&permissions=0&scope=bot)
@@ -98,7 +98,7 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 
 ### Crypto
 
-[![Bitcoin](https://logo.clearbit.com/bitcoin.org)](https://discord.com/api/oauth2/authorize?client_id=805599050871210014&permissions=0&scope=bot)
+[![Bitcoin](https://logo.clearbit.com/bitcoin.org)](https://discord.com/api/oauth2/authorize?client_id=828417381779898368&permissions=0&scope=bot)
 [![Bitcoin Cash](https://logo.clearbit.com/bitcoin.com)](https://discord.com/api/oauth2/authorize?client_id=805604560013230170&permissions=0&scope=bot)
 [![Ethereum](https://logo.clearbit.com/ethereum.org)](https://discord.com/api/oauth2/authorize?client_id=805605209522962452&permissions=0&scope=bot)
 [![Dogecoin](https://logo.clearbit.com/dogecoin.com)](https://discord.com/api/oauth2/authorize?client_id=805605888387186699&permissions=0&scope=bot)
