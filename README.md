@@ -94,6 +94,7 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![nflx](https://logo.clearbit.com/netflix.com)](https://discord.com/api/oauth2/authorize?client_id=827236295323025408&permissions=0&scope=bot)
 [![fcx](https://logo.clearbit.com/fcx.com)](https://discord.com/api/oauth2/authorize?client_id=827986004618117170&permissions=0&scope=bot)
 [![bidu](https://logo.clearbit.com/baidu.com)](https://discord.com/api/oauth2/authorize?client_id=827986153147858946&permissions=0&scope=bot)
+[![ttd](https://s3.cloud.rileysnyder.org/public/assets/ttd.jpg)](https://discord.com/api/oauth2/authorize?client_id=828326607411871754&permissions=0&scope=bot)
 
 ### Crypto
 
