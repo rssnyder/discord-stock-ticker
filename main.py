@@ -38,6 +38,7 @@ class Ticker(discord.Client):
                 self.crypto_update_activity(
                     ticker.upper(),
                     crypto_name,
+                    getenv('PERCENT_CHANGE'),
                     getenv('SET_NICKNAME'),
                     getenv('SET_COLOR'),
                     getenv('FLASH_CHANGE'),
@@ -51,6 +52,7 @@ class Ticker(discord.Client):
                 self.stock_update_activity(
                     ticker.upper(),
                     stock_name.upper(),
+                    getenv('PERCENT_CHANGE'),
                     getenv('SET_NICKNAME'),
                     getenv('SET_COLOR'),
                     getenv('FLASH_CHANGE'),
@@ -84,7 +86,7 @@ class Ticker(discord.Client):
         logging.info('servers: ' + str(servers))
 
 
-    async def stock_update_activity(self, ticker: str, name: str, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
+    async def stock_update_activity(self, ticker: str, name: str, percent_change: bool = False, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
         '''
         Update the bot activity based on stock price
         ticker = stock symbol
@@ -131,12 +133,16 @@ class Ticker(discord.Client):
                 activity_content = f'${price} AHT {diff}'
                 logging.info(f'stock after hours price retrived: {activity_content}')
             else:
-                raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
-                diff = round(raw_diff, 2)
-                if diff >= 0.0:
-                    diff = '+' + str(diff)
+
+                if percent_change:
+                    diff = price_data.get('regularMarketChangePercent', {}).get('fmt', '0.0%')
                 else:
-                    change_up = False
+                    raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
+                    diff = round(raw_diff, 2)
+                    if diff >= 0.0:
+                        diff = '+' + str(diff)
+                    else:
+                        change_up = False
 
 
                 activity_content = f'${price} / {diff}'
@@ -210,7 +216,7 @@ class Ticker(discord.Client):
             logging.info('stock sleep ended')
     
 
-    async def crypto_update_activity(self, ticker: str, crypto_name: str, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
+    async def crypto_update_activity(self, ticker: str, crypto_name: str, percent_change: bool = False, change_nick: bool = False, change_color: bool = False, flash_change: bool = False, frequency: int = 60):
         '''
         Update the bot activity based on crypto price
         ticker = symbol to display on bot
@@ -233,12 +239,17 @@ class Ticker(discord.Client):
             # Grab the current price data
             data = get_crypto_price(crypto_name)
             price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
+
             change = data.get('market_data', {}).get('price_change_24h', 0)
             change_header = ''
             if change >= 0.0:
                 change_header = '+'
             else:
                 change_up = False
+
+            if percent_change:
+                change_per = data.get('market_data', {}).get('price_change_percentage_24h', 0)
+                change = f'{change_per}%'
 
             logging.info(f'crypto price retrived {price}')
 

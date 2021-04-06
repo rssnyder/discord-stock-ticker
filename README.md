@@ -208,7 +208,8 @@ Other options:
 
 ```
 export LOG_FILE=log.log  # log to file instead of stdout
-export POST_MARKET_PRICE=3  # display post market price instead of difference
+export POST_MARKET_PRICE=1  # display post market price instead of difference
+export PERCENT_CHANGE=1  # display price changes as percent vs price up or down
 ```
 
 Once all your options are set, simply install the dependencies and run the bot (virtual environments might be a smart idea):
