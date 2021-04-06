@@ -274,6 +274,10 @@ services:
 docker-compose-up -d
 ```
 
+### Kubernetes
+
+Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/discord-stock-ticker-chart)
+
 ## Support
 
 If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111` or [join the support server](https://discord.gg/CQqnCYEtG7).
