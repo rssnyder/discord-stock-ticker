@@ -95,6 +95,7 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![fcx](https://logo.clearbit.com/fcx.com)](https://discord.com/api/oauth2/authorize?client_id=827986004618117170&permissions=0&scope=bot)
 [![bidu](https://logo.clearbit.com/baidu.com)](https://discord.com/api/oauth2/authorize?client_id=827986153147858946&permissions=0&scope=bot)
 [![ttd](https://s3.cloud.rileysnyder.org/public/assets/ttd.jpg)](https://discord.com/api/oauth2/authorize?client_id=828326607411871754&permissions=0&scope=bot)
+[![scr](https://s3.cloud.rileysnyder.org/public/assets/scr.to.png)](https://discord.com/api/oauth2/authorize?client_id=828613724608135259&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -128,6 +129,10 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![sc](https://logo.clearbit.com/sia.tech)](https://discord.com/api/oauth2/authorize?client_id=828326519625613393&permissions=0&scope=bot)
 [![vet](https://logo.clearbit.com/vechain.org)](https://discord.com/api/oauth2/authorize?client_id=828326223306424350&permissions=0&scope=bot)
 [![vtho](https://logo.clearbit.com/vechain.org)](https://discord.com/api/oauth2/authorize?client_id=828326375911194635&permissions=0&scope=bot)
+[![ilv](https://logo.clearbit.com/illuvium.io)](https://discord.com/api/oauth2/authorize?client_id=828417571354968104&permissions=0&scope=bot)
+[![atom](https://logo.clearbit.com/cosmos.network)](https://discord.com/api/oauth2/authorize?client_id=828417242570948638&permissions=0&scope=bot)
+[![zil](https://logo.clearbit.com/zilliqa.com)](https://discord.com/api/oauth2/authorize?client_id=828417678976745483&permissions=0&scope=bot)
+[![png](https://logo.clearbit.com/pangolin.exchange)](https://discord.com/api/oauth2/authorize?client_id=828613694845747260&permissions=0&scope=bot)
 
 ## Premium
 
