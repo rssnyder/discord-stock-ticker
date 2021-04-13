@@ -1,11 +1,12 @@
-FROM python:3.8.4
+FROM golang:1.16 AS build
 LABEL org.opencontainers.image.source https://github.com/rssnyder/discord-stock-ticker
 
-COPY requirements.txt /
+COPY . .
 
-RUN pip install -r requirements.txt
+RUN CGO_ENABLED=0 go build -o /bin/ticker
 
-COPY main.py /
-COPY utils /utils
+FROM scratch
+COPY --from=build /bin/ticker /bin/ticker
+EXPOSE 8080
 
-CMD [ "python", "./main.py" ]
+ENTRYPOINT ["/bin/ticker"]
