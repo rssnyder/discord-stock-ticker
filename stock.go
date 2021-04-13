@@ -1,6 +1,10 @@
 package main
 
-import "time"
+import (
+	"time"
+
+	"github.com/rssnyder/discord-stock-ticker/utils"
+)
 
 type Stock struct {
 	Ticker      string        `json:"ticker"`   // stock symbol
@@ -72,7 +76,13 @@ func (s *Stock) watchStockPrice() {
 			return
 		case <-ticker.C:
 			logger.Debugf("Fetching stock price for %s", s.Name)
+
+			// TODO: save the price struct & do something with it
+			_ := utils.GetStockPrice(s.Ticker)
+
 			/*
+
+
 					data = get_stock_price(ticker)
 				   price_data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
 				   price = price_data.get('regularMarketPrice', {}).get('raw', 0.00)
