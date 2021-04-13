@@ -30,7 +30,6 @@ func main() {
 	wg.Add(1)
 	m := NewManager()
 
-	// TODO: remove this and opt for api only
 	s := addInitialStock()
 	m.addStock(s.Ticker, s)
 
@@ -38,16 +37,15 @@ func main() {
 	wg.Wait()
 }
 
-// TODO: To be removed
 func addInitialStock() *Stock {
 	token := os.Getenv("DISCORD_BOT_TOKEN")
 	if token == "" {
-		// logger.Fatal("Discord bot token is not set! Shutting down.")
+		logger.Fatal("Discord bot token is not set! Shutting down.")
 	}
 
 	ticker := os.Getenv("TICKER")
 	if ticker == "" {
-		// logger.Fatal("Ticker is not set!")
+		logger.Fatal("Ticker is not set!")
 	}
 
 	// now get settings for it

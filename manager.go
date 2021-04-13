@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -27,7 +28,7 @@ func NewManager() *Manager {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/stock", m.AddStock).Methods("POST")
-	r.HandleFunc("/stock/:name", m.DeleteStock).Methods("DELETE")
+	r.HandleFunc("/stock/{id}", m.DeleteStock).Methods("DELETE")
 	r.HandleFunc("/stock", m.GetStocks).Methods("GET")
 
 	srv := &http.Server{
@@ -53,11 +54,11 @@ func NewManager() *Manager {
 // StockRequest represents the json coming in from the request
 type StockRequest struct {
 	Ticker      string `json:"ticker"`
-	Token       string `json:"discord_token"`
+	Token       string `json:"discord_bot_token"`
 	Name        string `json:"name"`
-	Nickname    bool   `json:"nickname"`
+	Nickname    bool   `json:"set_nickname"`
 	Crypto      bool   `json:"crypto"`
-	Color       bool   `json:"string"`
+	Color       bool   `json:"set_color"`
 	FlashChange bool   `json:"flash_change"`
 	Frequency   int    `json:"frequency" default:"60"`
 }
@@ -116,9 +117,9 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// TODO: remove this later when we remove env variables
 func (m *Manager) addStock(ticker string, stock *Stock) {
-	m.Watching[ticker] = stock
+	stock.Ticker = strings.ToUpper(stock.Ticker)
+	m.Watching[strings.ToUpper(ticker)] = stock
 }
 
 // DeleteStock addds a new stock or crypto to the list of what to watch
@@ -128,7 +129,8 @@ func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
 
 	logger.Debugf("Got an API request to delete a ticker")
 
-	id := r.URL.Query().Get("id")
+	vars := mux.Vars(r)
+	id := strings.ToUpper(vars["id"])
 
 	if _, ok := m.Watching[id]; !ok {
 		logger.Errorf("Error: no ticker found")
@@ -142,7 +144,7 @@ func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
 	// remove from cache
 	delete(m.Watching, id)
 
-	logger.Debugf("Deleted ticker %s", id)
+	logger.Infof("Deleted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 
