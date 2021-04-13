@@ -90,7 +90,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 	// ensure token is set
 	if stockReq.Token == "" {
-		logger.Errorf("Discord token required")
+		logger.Error("Discord token required")
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, "Error: token required")
 		return
@@ -98,7 +98,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 	// ensure ticker is set
 	if stockReq.Ticker == "" {
-		logger.Errorf("Ticker required")
+		logger.Error("Ticker required")
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprint(w, "Error: ticker required")
 		return
@@ -133,7 +133,7 @@ func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
 	id := strings.ToUpper(vars["id"])
 
 	if _, ok := m.Watching[id]; !ok {
-		logger.Errorf("Error: no ticker found")
+		logger.Error("Error: no ticker found")
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, "Error: ticker not found")
 		return

@@ -22,12 +22,6 @@ type Stock struct {
 	close       chan int      `json:"-"`
 }
 
-// enumerate the types
-const (
-	CryptoType = iota
-	StockType
-)
-
 // NewStock saves information about the stock and starts up a watcher on it
 func NewStock(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int) *Stock {
 	s := &Stock{
@@ -156,7 +150,11 @@ func (s *Stock) watchStockPrice() {
 
 				// Update nickname in guilds
 				for _, g := range guilds {
-					dg.GuildMemberNickname(g.ID, "@me", nickname)
+					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					if err != nil {
+						fmt.Println("Error updating nickname: ", err)
+						continue
+					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
 
 					if s.Color {
@@ -201,9 +199,13 @@ func (s *Stock) watchStockPrice() {
 					}
 				}
 
-				dg.UpdateListeningStatus(activity)
+				err = dg.UpdateListeningStatus(activity)
+				if err != nil {
+					logger.Errorf("Unable to set activity: ", err)
+				} else {
+					logger.Infof("Set activity: %s", activity)
+				}
 
-				logger.Infof("Set activity: %s", activity)
 			} else {
 				var activity string
 
@@ -214,9 +216,13 @@ func (s *Stock) watchStockPrice() {
 					activity = fmt.Sprintf("%s - $%s", fmtPrice, fmtDiff)
 				}
 
-				dg.UpdateListeningStatus(activity)
+				err = dg.UpdateListeningStatus(activity)
+				if err != nil {
+					logger.Errorf("Unable to set activity: ", err)
+				} else {
+					logger.Infof("Set activity: %s", activity)
+				}
 
-				logger.Infof("Set activity: %s", activity)
 			}
 
 		}
@@ -300,7 +306,11 @@ func (s *Stock) watchCryptoPrice() {
 
 				// Update nickname in guilds
 				for _, g := range guilds {
-					dg.GuildMemberNickname(g.ID, "@me", nickname)
+					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					if err != nil {
+						fmt.Println("Error updating nickname: ", err)
+						continue
+					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
 
 					if s.Color {
@@ -330,13 +340,19 @@ func (s *Stock) watchCryptoPrice() {
 
 						// assign role based on change
 						if increase {
-							dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							if err != nil {
+								logger.Errorf("Unable to remove role: ", err)
+							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: ", err)
 							}
 						} else {
-							dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							if err != nil {
+								logger.Errorf("Unable to remove role: ", err)
+							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: ", err)
@@ -345,17 +361,25 @@ func (s *Stock) watchCryptoPrice() {
 					}
 				}
 
-				dg.UpdateListeningStatus(activity)
+				err = dg.UpdateListeningStatus(activity)
+				if err != nil {
+					logger.Errorf("Unable to set activity: ", err)
+				} else {
+					logger.Infof("Set activity: %s", activity)
+				}
 
-				logger.Infof("Set activity: %s", activity)
 			} else {
 				var activity string
 
 				// format activity
 				activity = fmt.Sprintf("%s - $%s", s.Ticker, fmtPrice)
-				dg.UpdateListeningStatus(activity)
+				err = dg.UpdateListeningStatus(activity)
+				if err != nil {
+					logger.Errorf("Unable to set activity: ", err)
+				} else {
+					logger.Infof("Set activity: %s", activity)
+				}
 
-				logger.Infof("Set activity: %s", activity)
 			}
 
 		}
