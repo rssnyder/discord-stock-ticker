@@ -1,25 +1,20 @@
 ---
-name: Lint Code Base
-
+name: golangci-lint
 on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+      - main
   pull_request:
-    branches: [master]
-
 jobs:
-  build:
-    name: Lint Code Base
+  golangci:
+    name: lint
     runs-on: ubuntu-latest
-
     steps:
-
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
         with:
-          fetch-depth: 0
-
-      - name: Lint Code Base
-        uses: github/super-linter@v3
-        env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
