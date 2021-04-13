@@ -1,6 +1,8 @@
 FROM golang:1.16 AS build
 LABEL org.opencontainers.image.source https://github.com/rssnyder/discord-stock-ticker
 
+WORKDIR /go/src/app
+
 COPY . .
 
 RUN CGO_ENABLED=0 go build -o /bin/ticker
