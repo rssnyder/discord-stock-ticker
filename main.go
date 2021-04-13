@@ -34,8 +34,6 @@ func main() {
 	s := addInitialStock()
 	m.addStock(s.Ticker, s)
 
-	connectToRedis()
-
 	// wait forever
 	wg.Wait()
 }
@@ -53,9 +51,9 @@ func addInitialStock() *Stock {
 	}
 
 	// now get settings for it
-	nickname := os.Getenv("SET_NICKNAME")
-	color := os.Getenv("SET_COLOR")
-	flashChange := os.Getenv("FLASH_CHANGE")
+	nickname := env.GetBoolDefault("SET_NICKNAME", false)
+	color := env.GetBoolDefault("SET_COLOR", false)
+	flashChange := env.GetBoolDefault("FLASH_CHANGE", false)
 	frequency := env.GetIntDefault("FREQUENCY", 60)
 	var stock *Stock
 	switch os.Getenv("CRYPTO_NAME") {
@@ -66,26 +64,4 @@ func addInitialStock() *Stock {
 		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, flashChange, frequency)
 	}
 	return stock
-}
-
-func connectToRedis() {
-	redisServer := os.Getenv("REDIS_URL")
-	if redisServer == "" {
-		logger.Info("No redis server specified.")
-		return
-	}
-	// TODO: connect to redis
-	/*
-
-	       # Use redis to store stats
-	       r = Redis(host=redis_server, port=6379, db=0)
-
-	       try:
-	           for server in servers:
-	               r.incr(server)
-	       except exceptions.ConnectionError:
-	           logging.info('No redis server found, not storing stats')
-
-	   logging.info('servers: ' + str(servers))
-	*/
 }

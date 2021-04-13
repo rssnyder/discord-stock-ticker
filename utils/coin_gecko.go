@@ -11,13 +11,21 @@ const (
 	GeckoURL = "https://api.coingecko.com/api/v3/coins/%s"
 )
 
+type CurrentPrice struct {
+	USD int `json:"usd"`
+}
+
+type MarketData struct {
+	CurrentPrice CurrentPrice `json:"current_price"`
+	PriceChange  int          `json:"price_change_24h"`
+}
+
 // The following is the API response gecko gives
 type GeckoPriceResults struct {
-	ID     string `json:"id"`
-	Symbol string `json:"symbol"`
-	Name   string `json:"name"`
-	// TODO: fill this out
-	// based on this: https://api.coingecko.com/api/v3/coins/bitcoin
+	ID         string     `json:"id"`
+	Symbol     string     `json:"symbol"`
+	Name       string     `json:"name"`
+	MarketData MarketData `json:"market_data"`
 }
 
 // GetCryptoPrice retrieves the price of a given ticker using the coin gecko API

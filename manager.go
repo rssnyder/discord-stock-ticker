@@ -55,10 +55,10 @@ type StockRequest struct {
 	Ticker      string `json:"ticker"`
 	Token       string `json:"discord_token"`
 	Name        string `json:"name"`
-	Nickname    string `json:"nickname"`
+	Nickname    bool   `json:"nickname"`
 	Crypto      bool   `json:"crypto"`
-	Color       string `json:"string"`
-	FlashChange string `json:"flash_change"`
+	Color       bool   `json:"string"`
+	FlashChange bool   `json:"flash_change"`
 	Frequency   int    `json:"frequency" default:"60"`
 }
 

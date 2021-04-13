@@ -1,7 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
@@ -9,9 +13,9 @@ import (
 type Stock struct {
 	Ticker      string        `json:"ticker"`   // stock symbol
 	Name        string        `json:"name"`     // override for symbol as shown on the bot
-	Nickname    string        `json:"nickname"` // flag for changing nickname
-	Color       string        `json:"color"`
-	FlashChange string        `json:"flash_change"`
+	Nickname    bool          `json:"nickname"` // flag for changing nickname
+	Color       bool          `json:"color"`
+	FlashChange bool          `json:"flash_change"`
 	Frequency   time.Duration `json:"frequency"` // how often to update in seconds
 	Price       int           `json:"price"`
 	token       string        `json:"-"` // discord token
@@ -25,7 +29,7 @@ const (
 )
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname string, color string, flashChange string, frequency int) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int) *Stock {
 	s := &Stock{
 		Ticker:      ticker,
 		Name:        name,
@@ -43,7 +47,7 @@ func NewStock(ticker string, token string, name string, nickname string, color s
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname string, color string, flashChange string, frequency int) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int) *Stock {
 	s := &Stock{
 		Ticker:      ticker,
 		Name:        name,
@@ -66,8 +70,38 @@ func (s *Stock) Shutdown() {
 }
 
 func (s *Stock) watchStockPrice() {
-	logger.Debugf("Watching stock price for %s", s.Name)
+
+	// create a new discord session using the provided bot token.
+	dg, err := discordgo.New("Bot " + s.token)
+	if err != nil {
+		fmt.Println("Error creating Discord session: ", err)
+		return
+	}
+
+	// show as online
+	err = dg.Open()
+	if err != nil {
+		fmt.Println("error opening discord connection,", err)
+		return
+	}
+
+	// get bot id
+	botUser, err := dg.User("@me")
+	if err != nil {
+		fmt.Println("Error getting bot id: ", err)
+		return
+	}
+
+	// Get guides for bot
+	guilds, err := dg.UserGuilds(100, "", "")
+	if err != nil {
+		fmt.Println("Error getting guilds: ", err)
+		s.Nickname = false
+	}
+
+	logger.Infof("Watching stock price for %s", s.Name)
 	ticker := time.NewTicker(s.Frequency)
+
 	// continuously watch
 	for {
 		select {
@@ -75,118 +109,116 @@ func (s *Stock) watchStockPrice() {
 			logger.Infof("Shutting down price watching for %s", s.Name)
 			return
 		case <-ticker.C:
-			logger.Debugf("Fetching stock price for %s", s.Name)
+			logger.Infof("Fetching stock price for %s", s.Name)
 
-			// TODO: save the price struct & do something with it
-			_ := utils.GetStockPrice(s.Ticker)
+			var priceData utils.PriceResults
+			var fmtPrice string
+			var fmtDiff string
 
-			/*
+			// save the price struct & do something with it
+			priceData, err = utils.GetStockPrice(s.Ticker)
+			if err != nil {
+				logger.Errorf("Unable to fetch stock price for %s", s.Name)
+			}
+			fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
 
+			// check for day or after hours change
+			var emptyChange utils.Change
 
-					data = get_stock_price(ticker)
-				   price_data = data.get('quoteSummary', {}).get('result', []).pop().get('price', {})
-				   price = price_data.get('regularMarketPrice', {}).get('raw', 0.00)
+			if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
+				fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
+			} else {
+				fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
+			}
 
-				   # If after hours, get change
-				   if price_data.get('postMarketChange'):
+			// calculate if price has moved up or down
+			var increase bool
+			if string(fmtDiff[0]) == "-" {
+				increase = false
+			} else {
+				increase = true
+			}
 
-				       # Get difference or new price
-				       if getenv('POST_MARKET_PRICE'):
-				           post_market_target = 'postMarketPrice'
-				       else:
-				           post_market_target = 'postMarketChange'
+			if s.Nickname {
+				// update nickname instead of activity
+				var nickname string
+				var activity string
 
-				       raw_diff = price_data.get(post_market_target, {}).get('raw', 0.00)
-				       diff = round(raw_diff, 2)
+				// format nickname
+				nickname = fmt.Sprintf("%s - $%s", s.Name, fmtPrice)
 
-				       if not getenv('POST_MARKET_PRICE'):
-				           if diff >= 0.0:
-				               change_up = True
-				               diff = '+' + str(diff)
-				           else:
-				               change_up = False
+				// format activity based on trading time
+				if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
+					activity = fmt.Sprintf("Change: %s", fmtDiff)
+				} else {
+					activity = fmt.Sprintf("AHT: %s", fmtDiff)
+				}
 
-				       activity_content = f'${price} AHT {diff}'
-				       logging.info(f'stock after hours price retrived: {activity_content}')
-				   else:
-				       raw_diff = price_data.get('regularMarketChange', {}).get('raw', 0.00)
-				       diff = round(raw_diff, 2)
-				       if diff >= 0.0:
-				           diff = '+' + str(diff)
-				       else:
-				           change_up = False
+				// Update nickname in guilds
+				for _, g := range guilds {
+					dg.GuildMemberNickname(g.ID, "@me", nickname)
+					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
 
+					if s.Color {
+						// get roles for colors
+						var redRole string
+						var greeenRole string
 
-				       activity_content = f'${price} / {diff}'
-				       logging.info(f'stock price retrived: {activity_content}')
+						roles, err := dg.GuildRoles(g.ID)
+						if err != nil {
+							fmt.Println("Error getting guilds: ", err)
+							continue
+						}
 
-				   # Change name via nickname if set
-				   if change_nick:
+						// find role ids
+						for _, r := range roles {
+							if r.Name == "tickers-red" {
+								redRole = r.ID
+							} else if r.Name == "tickers-green" {
+								greeenRole = r.ID
+							}
+						}
 
-				       for server in self.guilds:
+						if len(redRole) == 0 || len(greeenRole) == 0 {
+							logger.Error("Unable to find roles for color changes")
+							continue
+						}
 
-				           green = discord.utils.get(server.roles, name="tickers-green")
-				           red = discord.utils.get(server.roles, name="tickers-red")
+						// assign role based on change
+						if increase {
+							dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+							if err != nil {
+								logger.Errorf("Unable to set role: ", err)
+							}
+						} else {
+							dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+							if err != nil {
+								logger.Errorf("Unable to set role: ", err)
+							}
+						}
+					}
+				}
 
-				           try:
-				               await server.me.edit(
-				                   nick=f'{name} - ${price}'
-				               )
+				dg.UpdateListeningStatus(activity)
 
-				               if change_color:
+				logger.Infof("Set activity: %s", activity)
+			} else {
+				var activity string
 
-				                   if flash_change:
-				                       # Flash price change
-				                       if price >= old_price:
-				                           await server.me.add_roles(green)
-				                           await server.me.remove_roles(red)
-				                       else:
-				                           await server.me.add_roles(red)
-				                           await server.me.remove_roles(green)
+				// format activity based on trading time
+				if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
+					activity = fmt.Sprintf("%s AHT %s", fmtPrice, fmtDiff)
+				} else {
+					activity = fmt.Sprintf("%s - $%s", fmtPrice, fmtDiff)
+				}
 
-				                   # Stay on day change
-				                   if change_up:
-				                       await server.me.add_roles(green)
-				                       await server.me.remove_roles(red)
-				                   else:
-				                       await server.me.add_roles(red)
-				                       await server.me.remove_roles(green)
+				dg.UpdateListeningStatus(activity)
 
-				           except discord.HTTPException as e:
-				               logging.error(f'updating nick failed: {e.status}: {e.text}')
-				           except discord.Forbidden as f:
-				               logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
+				logger.Infof("Set activity: %s", activity)
+			}
 
-				           logging.info(f'stock updated nick in {server.name}')
-
-				       # Check what price we are displaying
-				       if price_data.get('postMarketChange'):
-				           activity_content_header = 'After Hours'
-				       else:
-				           activity_content_header = 'Day Change'
-
-				       activity_content = f'{activity_content_header}: {diff}'
-
-				   # Change activity
-				   try:
-				       await self.change_presence(
-				           activity=discord.Activity(
-				               type=discord.ActivityType.watching,
-				               name=activity_content
-				           )
-				       )
-
-				       logging.info(f'stock activity updated: {activity_content}')
-
-				   except discord.InvalidArgument as e:
-				       logging.error(f'updating activity failed: {e.status}: {e.text}')
-
-				   old_price = price
-
-				   logging.info(f'stock sleeping for {frequency}s')
-				   await asyncio.sleep(int(frequency))
-				   logging.info('stock sleep ended')
-			*/
 		}
 
 	}
@@ -194,8 +226,38 @@ func (s *Stock) watchStockPrice() {
 }
 
 func (s *Stock) watchCryptoPrice() {
+
+	// create a new discord session using the provided bot token.
+	dg, err := discordgo.New("Bot " + s.token)
+	if err != nil {
+		fmt.Println("Error creating Discord session: ", err)
+		return
+	}
+
+	// show as online
+	err = dg.Open()
+	if err != nil {
+		fmt.Println("error opening discord connection,", err)
+		return
+	}
+
+	// get bot id
+	botUser, err := dg.User("@me")
+	if err != nil {
+		fmt.Println("Error getting bot id: ", err)
+		return
+	}
+
+	// Get guides for bot
+	guilds, err := dg.UserGuilds(100, "", "")
+	if err != nil {
+		fmt.Println("Error getting guilds: ", err)
+		s.Nickname = false
+	}
+
 	ticker := time.NewTicker(s.Frequency)
 	logger.Debugf("Watching crypto price for %s", s.Name)
+
 	// continuously watch
 	for {
 		select {
@@ -204,83 +266,98 @@ func (s *Stock) watchCryptoPrice() {
 			return
 		case <-ticker.C:
 			logger.Debugf("Fetching crypto price for %s", s.Name)
-			/*
 
-			   # Grab the current price data
-			   data = get_crypto_price(crypto_name)
-			   price = data.get('market_data', {}).get('current_price', {}).get(CURRENCY, 0.0)
-			   change = data.get('market_data', {}).get('price_change_24h', 0)
-			   change_header = ''
-			   if change >= 0.0:
-			      change_header = '+'
-			   else:
-			      change_up = False
+			var priceData utils.GeckoPriceResults
+			var fmtPrice string
+			var fmtDiff string
 
-			   logging.info(f'crypto price retrived {price}')
+			// save the price struct & do something with it
+			priceData, err = utils.GetCryptoPrice(s.Name)
+			if err != nil {
+				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
+			}
+			fmtPrice = strconv.Itoa(priceData.MarketData.CurrentPrice.USD)
+			fmtDiff = strconv.Itoa(priceData.MarketData.PriceChange)
 
-			   activity_content = f'${price} / {change_header}{change}'
+			// calculate if price has moved up or down
+			var increase bool
+			if string(fmtDiff[0]) == "-" {
+				increase = false
+			} else {
+				increase = true
+			}
 
-			   # Change name via nickname if set
-			   if change_nick:
+			if s.Nickname {
+				// update nickname instead of activity
+				var nickname string
+				var activity string
 
-			      for server in self.guilds:
+				// format nickname
+				nickname = fmt.Sprintf("%s - $%s", s.Ticker, fmtPrice)
 
-			   	   green = discord.utils.get(server.roles, name="tickers-green")
-			   	   red = discord.utils.get(server.roles, name="tickers-red")
+				// format activity
+				activity = fmt.Sprintf("24hr - $%s", fmtDiff)
 
-			   	   try:
-			   		   await server.me.edit(
-			   			   nick=f'{ticker} - ${price}'
-			   		   )
+				// Update nickname in guilds
+				for _, g := range guilds {
+					dg.GuildMemberNickname(g.ID, "@me", nickname)
+					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
 
-			   		   if change_color:
+					if s.Color {
+						// get roles for colors
+						var redRole string
+						var greeenRole string
 
-			   			   if flash_change:
-			   				   # Flash price change
-			   				   if price >= old_price:
-			   					   await server.me.add_roles(green)
-			   					   await server.me.remove_roles(red)
-			   				   else:
-			   					   await server.me.add_roles(red)
-			   					   await server.me.remove_roles(green)
+						roles, err := dg.GuildRoles(g.ID)
+						if err != nil {
+							fmt.Println("Error getting guilds: ", err)
+							continue
+						}
 
-			   			   # Stay on day change
-			   			   if change_up:
-			   				   await server.me.add_roles(green)
-			   				   await server.me.remove_roles(red)
-			   			   else:
-			   				   await server.me.add_roles(red)
-			   				   await server.me.remove_roles(green)
+						// find role ids
+						for _, r := range roles {
+							if r.Name == "tickers-red" {
+								redRole = r.ID
+							} else if r.Name == "tickers-green" {
+								greeenRole = r.ID
+							}
+						}
 
-			   	   except discord.HTTPException as e:
-			   		   logging.error(f'updating nick failed: {e.status}: {e.text}')
-			   	   except discord.Forbidden as f:
-			   		   logging.error(f'lacking perms for chaning nick: {f.status}: {f.text}')
+						if len(redRole) == 0 || len(greeenRole) == 0 {
+							logger.Error("Unable to find roles for color changes")
+							continue
+						}
 
-			   	   logging.info(f'{crypto_name} updated nick in {server.name}')
+						// assign role based on change
+						if increase {
+							dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+							if err != nil {
+								logger.Errorf("Unable to set role: ", err)
+							}
+						} else {
+							dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+							if err != nil {
+								logger.Errorf("Unable to set role: ", err)
+							}
+						}
+					}
+				}
 
-			      # Use activity for other fun stuff
-			      activity_content = f'24hr: {change_header}{change}'
+				dg.UpdateListeningStatus(activity)
 
-			   # Change activity
-			   try:
-			      await self.change_presence(
-			   	   activity=discord.Activity(
-			   		   type=discord.ActivityType.watching,
-			   		   name=activity_content
-			   	   )
-			      )
+				logger.Infof("Set activity: %s", activity)
+			} else {
+				var activity string
 
-			      old_price = price
-			      logging.info(f'crypto activity updated {activity_content}')
-			   except discord.InvalidArgument as e:
-			      logging.error(f'updating activity failed: {e.status}: {e.text}')
+				// format activity
+				activity = fmt.Sprintf("%s - $%s", s.Ticker, fmtPrice)
+				dg.UpdateListeningStatus(activity)
 
-			   # Only update every min
-			   logging.info(f'crypto sleeping for {frequency}s')
-			   await asyncio.sleep(int(frequency))
-			   logging.info('crypto sleep ended')
-			*/
+				logger.Infof("Set activity: %s", activity)
+			}
+
 		}
 	}
 }
