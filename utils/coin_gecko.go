@@ -12,12 +12,12 @@ const (
 )
 
 type CurrentPrice struct {
-	USD int `json:"usd"`
+	USD float64 `json:"usd"`
 }
 
 type MarketData struct {
 	CurrentPrice CurrentPrice `json:"current_price"`
-	PriceChange  int          `json:"price_change_24h"`
+	PriceChange  float64          `json:"price_change_24h"`
 }
 
 // The following is the API response gecko gives

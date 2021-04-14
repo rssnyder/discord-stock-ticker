@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -127,7 +126,9 @@ func (s *Stock) watchStockPrice() {
 
 			// calculate if price has moved up or down
 			var increase bool
-			if string(fmtDiff[0]) == "-" {
+			if len(fmtDiff) == 0 {
+				increase = true
+			} else if string(fmtDiff[0]) == "-" {
 				increase = false
 			} else {
 				increase = true
@@ -288,12 +289,14 @@ func (s *Stock) watchCryptoPrice() {
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
 			}
-			fmtPrice = strconv.Itoa(priceData.MarketData.CurrentPrice.USD)
-			fmtDiff = strconv.Itoa(priceData.MarketData.PriceChange)
+			fmtPrice = fmt.Sprintf("%f", priceData.MarketData.CurrentPrice.USD)
+			fmtDiff= fmt.Sprintf("%f", priceData.MarketData.PriceChange)
 
 			// calculate if price has moved up or down
 			var increase bool
-			if string(fmtDiff[0]) == "-" {
+			if len(fmtDiff) == 0 {
+				increase = true
+			} else if string(fmtDiff[0]) == "-" {
 				increase = false
 			} else {
 				increase = true

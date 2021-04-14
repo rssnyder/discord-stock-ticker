@@ -148,7 +148,19 @@ If you are interested please see the [contact info on my github page](https://gi
 
 ### Self-Hosting
 
+#### Running in a simple shell
+
 Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
+
+```
+wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+tar zxf discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+./discord-stock-ticker
+```
+
+Set options via ENV...
 
 Register a new application in the discord developer portal and copy the bot token:
 
@@ -209,7 +221,27 @@ Once all your options are set, simply run the binary:
 ./discord-stock-ticker
 ```
 
-### Adding multiple bots
+### Systemd service
+
+```
+wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+tar zxf discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+mkdir -p /etc/discord-stock-ticker
+
+mv discord-stock-ticker /etc/discord-stock-ticker/
+
+wget https://raw.githubusercontent.com/rssnyder/discord-stock-ticker/master/discord-stock-ticker.service
+
+mv discord-stock-ticker.service /etc/systemd/system/
+
+systemctl daemon-reload
+
+systemctl start discord-stock-ticker.service
+```
+
+#### Adding multiple bots
 
 A new feature in v2 is having one instance of the discord-stock-ticker manage multiple bots for different stocks and cryptos.
 
