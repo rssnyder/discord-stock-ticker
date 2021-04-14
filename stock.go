@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 
@@ -327,7 +328,7 @@ func (s *Stock) watchCryptoPrice() {
 				var activity string
 
 				// format nickname
-				nickname = fmt.Sprintf("%s - $%s", s.Ticker, fmtPrice)
+				nickname = fmt.Sprintf("%s - $%s", strings.ToUpper(priceData.Symbol), fmtPrice)
 
 				// format activity
 				activity = fmt.Sprintf("24hr %s %s", decorator, fmtDiff)
