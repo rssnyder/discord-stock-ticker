@@ -27,9 +27,9 @@ func NewManager() *Manager {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/stock", m.AddStock).Methods("POST")
-	r.HandleFunc("/stock/{id}", m.DeleteStock).Methods("DELETE")
-	r.HandleFunc("/stock", m.GetStocks).Methods("GET")
+	r.HandleFunc("/ticker", m.AddStock).Methods("POST")
+	r.HandleFunc("/ticker/{id}", m.DeleteStock).Methods("DELETE")
+	r.HandleFunc("/ticker", m.GetStocks).Methods("GET")
 
 	srv := &http.Server{
 		Addr:         "localhost:8080",
@@ -106,9 +106,32 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 	// add stock or crypto ticker
 	if stockReq.Crypto {
+
+		// ensure name is set
+		if stockReq.Name == "" {
+			logger.Error("Name required for crypto")
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprint(w, "Error: Name required")
+			return
+		}
+
+		// check if already existing
+		if _, ok := m.Watching[strings.ToUpper(stockReq.Name)]; ok {
+			logger.Error("Error: ticker already exists")
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
+
 		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.FlashChange, stockReq.Frequency)
-		m.addStock(stockReq.Ticker, stock)
+		m.addStock(stockReq.Name, stock)
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// check if already existing
+	if _, ok := m.Watching[strings.ToUpper(stockReq.Ticker)]; ok {
+		logger.Error("Error: ticker already exists")
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 

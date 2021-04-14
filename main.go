@@ -10,7 +10,6 @@ import (
 )
 
 var logger = log.New()
-var currency = "usd"
 
 func init() {
 	// initialize logging
@@ -30,14 +29,19 @@ func main() {
 	wg.Add(1)
 	m := NewManager()
 
-	s := addInitialStock()
-	m.addStock(s.Ticker, s)
+	// check for inital bots
+	if os.Getenv("DISCORD_BOT_TOKEN") != "" {
+		s := addInitialStock()
+		m.addStock(s.Ticker, s)
+	}
 
 	// wait forever
 	wg.Wait()
 }
 
 func addInitialStock() *Stock {
+	var stock *Stock
+
 	token := os.Getenv("DISCORD_BOT_TOKEN")
 	if token == "" {
 		logger.Fatal("Discord bot token is not set! Shutting down.")
@@ -53,7 +57,7 @@ func addInitialStock() *Stock {
 	color := env.GetBoolDefault("SET_COLOR", false)
 	flashChange := env.GetBoolDefault("FLASH_CHANGE", false)
 	frequency := env.GetIntDefault("FREQUENCY", 60)
-	var stock *Stock
+
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
 		// if it's not a crypto, it's a stock

@@ -184,13 +184,19 @@ func (s *Stock) watchStockPrice() {
 
 						// assign role based on change
 						if increase {
-							dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							if err != nil {
+								logger.Errorf("Unable to remove role: ", err)
+							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: ", err)
 							}
 						} else {
-							dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							if err != nil {
+								logger.Errorf("Unable to remove role: ", err)
+							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: ", err)
@@ -372,7 +378,7 @@ func (s *Stock) watchCryptoPrice() {
 				var activity string
 
 				// format activity
-				activity = fmt.Sprintf("%s - $%s", s.Ticker, fmtPrice)
+				activity = fmt.Sprintf("%s - $%s", fmtPrice, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: ", err)

@@ -218,7 +218,7 @@ To add another bot to your instance, you need to use the API exposed on port 808
 #### List current running bots
 
 ```
-curl localhost:8080/stock
+curl localhost:8080/ticker
 ```
 
 #### Add a new bot
@@ -245,13 +245,17 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "ticker": "pfg",
   "name": "PFG",
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxxx"
-}' localhost:8080/stock
+}' localhost:8080/ticker
 ```
 
 #### Remove a bot
 
 ```
-curl -X DELETE localhost:8080/stock/pfg
+curl -X DELETE localhost:8080/ticker/pfg
+```
+
+```
+curl -X DELETE localhost:8080/ticker/bitcoin
 ```
 
 ### Docker
