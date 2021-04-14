@@ -9,11 +9,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var logger = log.New()
+var (
+	logger = log.New()
+	port *string
+)
 
 func init() {
 	// initialize logging
 	logLevel := flag.Int("logLevel", 0, "defines the log level. 0=production builds. 1=dev builds.")
+	port = flag.String("port", "8080", "port to bind http server to.")
 	flag.Parse()
 	logger.Out = os.Stdout
 	switch *logLevel {
@@ -27,7 +31,7 @@ func init() {
 func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	m := NewManager()
+	m := NewManager(*port)
 
 	// check for inital bots
 	if os.Getenv("DISCORD_BOT_TOKEN") != "" {

@@ -1,5 +1,5 @@
 build-linux:
-	env GOOS=linux GOARCH=arm go build -o ./bin/ticker
+	env GOOS=linux GOARCH=amd64 go build -o ./bin/ticker
 
 build-osx:
 	env GOOS=darwin GOARCH=amd64 go build -o ./bin/ticker

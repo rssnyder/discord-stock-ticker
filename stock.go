@@ -113,6 +113,11 @@ func (s *Stock) watchStockPrice() {
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s", s.Name)
 			}
+
+			if len(priceData.QuoteSummary.Results) == 0 {
+				logger.Errorf("Yahoo returned bad data for %s", s.Name)
+				continue
+			}
 			fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
 
 			// check for day or after hours change
@@ -134,13 +139,20 @@ func (s *Stock) watchStockPrice() {
 				increase = true
 			}
 
+			decorator := "-"
+			if increase {
+				decorator = "⬈"
+			} else {
+				decorator = "⬊"
+			}
+
 			if s.Nickname {
 				// update nickname instead of activity
 				var nickname string
 				var activity string
 
 				// format nickname
-				nickname = fmt.Sprintf("%s - $%s", s.Name, fmtPrice)
+				nickname = fmt.Sprintf("%s %s $%s", s.Name, decorator, fmtPrice)
 
 				// format activity based on trading time
 				if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
@@ -220,7 +232,7 @@ func (s *Stock) watchStockPrice() {
 				if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
 					activity = fmt.Sprintf("%s AHT %s", fmtPrice, fmtDiff)
 				} else {
-					activity = fmt.Sprintf("%s - $%s", fmtPrice, fmtDiff)
+					activity = fmt.Sprintf("%s %s $%s", fmtPrice, decorator, fmtDiff)
 				}
 
 				err = dg.UpdateListeningStatus(activity)
@@ -289,8 +301,8 @@ func (s *Stock) watchCryptoPrice() {
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
 			}
-			fmtPrice = fmt.Sprintf("%f", priceData.MarketData.CurrentPrice.USD)
-			fmtDiff= fmt.Sprintf("%f", priceData.MarketData.PriceChange)
+			fmtPrice = fmt.Sprintf("%.2f", priceData.MarketData.CurrentPrice.USD)
+			fmtDiff = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
 
 			// calculate if price has moved up or down
 			var increase bool
@@ -302,6 +314,13 @@ func (s *Stock) watchCryptoPrice() {
 				increase = true
 			}
 
+			decorator := "-"
+			if increase {
+				decorator = "⬈"
+			} else {
+				decorator = "⬊"
+			}
+
 			if s.Nickname {
 				// update nickname instead of activity
 				var nickname string
@@ -311,7 +330,7 @@ func (s *Stock) watchCryptoPrice() {
 				nickname = fmt.Sprintf("%s - $%s", s.Ticker, fmtPrice)
 
 				// format activity
-				activity = fmt.Sprintf("24hr - $%s", fmtDiff)
+				activity = fmt.Sprintf("24hr %s %s", decorator, fmtDiff)
 
 				// Update nickname in guilds
 				for _, g := range guilds {
@@ -381,7 +400,7 @@ func (s *Stock) watchCryptoPrice() {
 				var activity string
 
 				// format activity
-				activity = fmt.Sprintf("%s - $%s", fmtPrice, fmtDiff)
+				activity = fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: ", err)

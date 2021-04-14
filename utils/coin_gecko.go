@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -31,11 +33,13 @@ type GeckoPriceResults struct {
 // GetCryptoPrice retrieves the price of a given ticker using the coin gecko API
 func GetCryptoPrice(ticker string) (GeckoPriceResults, error) {
 	var price GeckoPriceResults
+
 	reqURL := fmt.Sprintf(GeckoURL, ticker)
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
 		return price, err
 	}
+
 	req.Header.Add("User-Agent", "Mozilla/5.0")
 	req.Header.Add("accept", "application/json")
 	client := &http.Client{}
@@ -44,12 +48,27 @@ func GetCryptoPrice(ticker string) (GeckoPriceResults, error) {
 		return price, err
 	}
 
+	if resp.StatusCode == 429 {
+		fmt.Println("Being rate limited by coingecko")
+
+		rand.Seed(time.Now().UnixNano())
+		n := rand.Intn(10)
+		time.Sleep(time.Duration(n)*time.Second)
+		secondAttempt, err := GetCryptoPrice(ticker)
+		if err != nil {
+			return price, err
+		} else {
+			return secondAttempt, nil
+		}
+	}
+
 	results, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return price, err
 	}
 	err = json.Unmarshal(results, &price)
 	if err != nil {
+		fmt.Printf(resp.Status)
 		return price, err
 	}
 	return price, nil

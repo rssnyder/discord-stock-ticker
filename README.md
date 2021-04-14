@@ -221,6 +221,12 @@ Once all your options are set, simply run the binary:
 ./discord-stock-ticker
 ```
 
+You can also specify the port to bind on (default is 8080):
+
+```
+./discord-stock-ticker -port 8000
+```
+
 ### Systemd service
 
 ```
@@ -241,7 +247,7 @@ systemctl daemon-reload
 systemctl start discord-stock-ticker.service
 ```
 
-#### Adding multiple bots
+### Adding multiple bots
 
 A new feature in v2 is having one instance of the discord-stock-ticker manage multiple bots for different stocks and cryptos.
 
@@ -349,6 +355,55 @@ docker-compose-up -d
 ### Kubernetes
 
 Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/discord-stock-ticker-chart)
+
+You can also use a simple deployment file:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    environment: public
+  name: ticker-cardano
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      environment: public
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        environment: public
+    spec:
+      containers:
+        - env:
+            - name: CRYPTO_NAME
+              value: cardano
+            - name: DISCORD_BOT_TOKEN
+              value: xxxxxxxxxxxxxxxxxxxxxx
+            - name: FREQUENCY
+              value: "1"
+            - name: SET_COLOR
+              value: "1"
+            - name: SET_NICKNAME
+              value: "1"
+            - name: TICKER
+              value: ADA
+            - name: TZ
+              value: America/Chicago
+          image: ghcr.io/rssnyder/discord-stock-ticker:1.8.1
+          name: ticker-cardano
+          resources: {}
+      restartPolicy: Always
+status: {}
+```
+
+```
+kubectl create -f deployment.yaml
+```
 
 ## Support
 
