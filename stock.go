@@ -302,8 +302,15 @@ func (s *Stock) watchCryptoPrice() {
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
 			}
-			fmtPrice = fmt.Sprintf("%.2f", priceData.MarketData.CurrentPrice.USD)
-			fmtDiff = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+
+			// Check for cryptos below 1c
+			if priceData.MarketData.CurrentPrice.USD < 0.01 {
+				fmtPrice = fmt.Sprintf("%.4f", priceData.MarketData.CurrentPrice.USD)
+				fmtDiff = fmt.Sprintf("%.4f", priceData.MarketData.PriceChange)
+			} else {
+				fmtPrice = fmt.Sprintf("%.2f", priceData.MarketData.CurrentPrice.USD)
+				fmtDiff = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+			}
 
 			// calculate if price has moved up or down
 			var increase bool
