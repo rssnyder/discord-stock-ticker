@@ -307,6 +307,9 @@ func (s *Stock) watchCryptoPrice() {
 			if priceData.MarketData.CurrentPrice.USD < 0.01 {
 				fmtPrice = fmt.Sprintf("%.4f", priceData.MarketData.CurrentPrice.USD)
 				fmtDiff = fmt.Sprintf("%.4f", priceData.MarketData.PriceChange)
+			} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
+				fmtPrice = fmt.Sprintf("%.3f", priceData.MarketData.CurrentPrice.USD)
+				fmtDiff = fmt.Sprintf("%.3f", priceData.MarketData.PriceChange)
 			} else {
 				fmtPrice = fmt.Sprintf("%.2f", priceData.MarketData.CurrentPrice.USD)
 				fmtDiff = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
