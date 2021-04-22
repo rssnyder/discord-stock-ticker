@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 
@@ -153,7 +153,7 @@ func (s *Stock) watchStockPrice() {
 				var activity string
 
 				// format nickname
-				nickname = fmt.Sprintf("%s %s $%s", s.Name, decorator, fmtPrice)
+				nickname = fmt.Sprintf("%s %s $%s", strings.ToUpper(s.Name), decorator, fmtPrice)
 
 				// format activity based on trading time
 				if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {

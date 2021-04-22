@@ -11,7 +11,7 @@ import (
 
 var (
 	logger = log.New()
-	port *string
+	port   *string
 )
 
 func init() {
@@ -62,10 +62,16 @@ func addInitialStock() *Stock {
 	flashChange := env.GetBoolDefault("FLASH_CHANGE", false)
 	frequency := env.GetIntDefault("FREQUENCY", 60)
 
+	var stockName string
+	if name, ok := os.LookupEnv("STOCK_NAME"); ok {
+		stockName = name
+	} else {
+		stockName = ticker
+	}
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
 		// if it's not a crypto, it's a stock
-		stock = NewStock(ticker, token, os.Getenv("STOCK_NAME"), nickname, color, flashChange, frequency)
+		stock = NewStock(ticker, token, stockName, nickname, color, flashChange, frequency)
 	default:
 		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, flashChange, frequency)
 	}

@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
