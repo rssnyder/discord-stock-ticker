@@ -1,3 +1,0 @@
-discord
-requests
-redis

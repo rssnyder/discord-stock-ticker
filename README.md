@@ -148,13 +148,19 @@ If you are interested please see the [contact info on my github page](https://gi
 
 ### Self-Hosting
 
-Install python for your target operating system.
+#### Running in a simple shell
 
-Clone down the repo locally:
+Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
 
 ```
-git clone git@github.com:rssnyder/discord-stock-ticker.git && cd discord-stock-ticker
+wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+tar zxf discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+./discord-stock-ticker
 ```
+
+Set options via ENV...
 
 Register a new application in the discord developer portal and copy the bot token:
 
@@ -209,18 +215,85 @@ The colors will reflect the day price change, red for a loss and green for a gai
 export FLASH_CHANGE=1
 ```
 
-Other options:
+Once all your options are set, simply run the binary:
 
 ```
-export LOG_FILE=log.log  # log to file instead of stdout
-export POST_MARKET_PRICE=3  # display post market price instead of difference
+./discord-stock-ticker
 ```
 
-Once all your options are set, simply install the dependencies and run the bot (virtual environments might be a smart idea):
+You can also specify the port to bind on (default is 8080):
 
 ```
-pip3 install -r requirements.txt
-python3 main.py
+./discord-stock-ticker -port 8000
+```
+
+### Systemd service
+
+```
+wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+tar zxf discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+
+mkdir -p /etc/discord-stock-ticker
+
+mv discord-stock-ticker /etc/discord-stock-ticker/
+
+wget https://raw.githubusercontent.com/rssnyder/discord-stock-ticker/master/discord-stock-ticker.service
+
+mv discord-stock-ticker.service /etc/systemd/system/
+
+systemctl daemon-reload
+
+systemctl start discord-stock-ticker.service
+```
+
+### Adding multiple bots
+
+A new feature in v2 is having one instance of the discord-stock-ticker manage multiple bots for different stocks and cryptos.
+
+To add another bot to your instance, you need to use the API exposed on port 8080 of the host you are running on:
+
+#### List current running bots
+
+```
+curl localhost:8080/ticker
+```
+
+#### Add a new bot
+
+Payload: 
+
+```
+{
+  "ticker": "pfg",
+  "name": "PFG",
+  "token": "xxxxxxxxxxxxxxxxxxxxxxxx",
+  "crypto": "",  # OPTIONAL: set only if target is a cryptocurrency
+  "frequency": "10",  # OPTIONAL: default 60
+  "set_nickname": "",  # OPTIONAL
+  "set_color": "",  # OPTIONAL: requires set_nickname
+  "flash_change": ""  # OPTIONAL: requires set_color
+}
+```
+
+Example:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{
+  "ticker": "pfg",
+  "name": "PFG",
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+}' localhost:8080/ticker
+```
+
+#### Remove a bot
+
+```
+curl -X DELETE localhost:8080/ticker/pfg
+```
+
+```
+curl -X DELETE localhost:8080/ticker/bitcoin
 ```
 
 ### Docker
@@ -232,14 +305,14 @@ You can also run these bots using docker. This can make running multiple bots es
 version: "2"
 services:
   ticker-pfg:
-    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
+    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       - TICKER=PFG
     restart: unless-stopped
   ticker-aapl:
-    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
+    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -254,7 +327,7 @@ And here is an example of enabling faster updates with color changes:
 version: "2"
 services:
   ticker-pfg:
-    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
+    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -264,7 +337,7 @@ services:
       - FREQUENCY=10
     restart: unless-stopped
   ticker-aapl:
-    image: ghcr.io/rssnyder/discord-stock-ticker:1.6.0
+    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -282,6 +355,55 @@ docker-compose-up -d
 ### Kubernetes
 
 Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/discord-stock-ticker-chart)
+
+You can also use a simple deployment file:
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    environment: public
+  name: ticker-cardano
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      environment: public
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        environment: public
+    spec:
+      containers:
+        - env:
+            - name: CRYPTO_NAME
+              value: cardano
+            - name: DISCORD_BOT_TOKEN
+              value: xxxxxxxxxxxxxxxxxxxxxx
+            - name: FREQUENCY
+              value: "1"
+            - name: SET_COLOR
+              value: "1"
+            - name: SET_NICKNAME
+              value: "1"
+            - name: TICKER
+              value: ADA
+            - name: TZ
+              value: America/Chicago
+          image: ghcr.io/rssnyder/discord-stock-ticker:1.8.1
+          name: ticker-cardano
+          resources: {}
+      restartPolicy: Always
+status: {}
+```
+
+```
+kubectl create -f deployment.yaml
+```
 
 ## Support
 
