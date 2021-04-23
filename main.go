@@ -52,9 +52,6 @@ func addInitialStock() *Stock {
 	}
 
 	ticker := os.Getenv("TICKER")
-	if ticker == "" {
-		logger.Fatal("Ticker is not set!")
-	}
 
 	// now get settings for it
 	nickname := env.GetBoolDefault("SET_NICKNAME", false)
@@ -68,6 +65,7 @@ func addInitialStock() *Stock {
 	} else {
 		stockName = ticker
 	}
+
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
 		// if it's not a crypto, it's a stock

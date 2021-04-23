@@ -156,7 +156,7 @@ func (s *Stock) watchStockPrice() {
 				nickname = fmt.Sprintf("%s %s $%s", strings.ToUpper(s.Name), decorator, fmtPrice)
 
 				// format activity based on trading time
-				if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
+				if priceData.QuoteSummary.Results[0].Price.PostMarketChange == emptyChange {
 					activity = fmt.Sprintf("Change: %s", fmtDiff)
 				} else {
 					activity = fmt.Sprintf("AHT: %s", fmtDiff)
@@ -334,11 +334,18 @@ func (s *Stock) watchCryptoPrice() {
 
 			if s.Nickname {
 				// update nickname instead of activity
+				var displayName string
 				var nickname string
 				var activity string
 
+				if s.Ticker != "" {
+					displayName = s.Ticker
+				} else {
+					displayName = strings.ToUpper(priceData.Symbol)
+				}
+
 				// format nickname
-				nickname = fmt.Sprintf("%s - $%s", strings.ToUpper(priceData.Symbol), fmtPrice)
+				nickname = fmt.Sprintf("%s - $%s", displayName, fmtPrice)
 
 				// format activity
 				activity = fmt.Sprintf("24hr %s %s", decorator, fmtDiff)
