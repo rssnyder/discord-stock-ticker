@@ -128,6 +128,11 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ensure name is set
+	if stockReq.Name == "" {
+		stockReq.Name = stockReq.Ticker
+	}
+
 	// check if already existing
 	if _, ok := m.Watching[strings.ToUpper(stockReq.Ticker)]; ok {
 		logger.Error("Error: ticker already exists")
