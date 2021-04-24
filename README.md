@@ -304,19 +304,28 @@ You can also run these bots using docker. This can make running multiple bots es
 ---
 version: "2"
 services:
-  ticker-pfg:
-    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
+
+  ticker-stock:
+    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.4
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      - TICKER=PFG
-    restart: unless-stopped
-  ticker-aapl:
-    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
+      - TICKER=gme
+      - FREQUENCY=10  # OPTIONAL / seconds between price updates
+      - STOCK_NAME=1. GME  # OPTIONAL / overrides name of bot
+      - SET_NICKNAME=1  # OPTIONAL / uses server nickname to set price in bot name / requires "change nickname" perms
+      - SET_COLOR=1  # OPTIONAL / change colors based on day change / requires "manage roles" perms and tickers-green & ticker-red roles
+    
+  ticker-crypto:
+    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.4
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      - TICKER=AAPL
+      - CRYPTO_NAME=bitcoin
+      - FREQUENCY=10  # OPTIONAL / seconds between price updates
+      - TICKER=BTC  # OPTIONAL / overrides name of bot
+      - SET_NICKNAME=1  # OPTIONAL / uses server nickname to set price in bot name / requires "change nickname" perms
+      - SET_COLOR=1  # OPTIONAL / change colors based on day change / requires "manage roles" perms and tickers-green & ticker-red roles
     restart: unless-stopped
 ```
 
