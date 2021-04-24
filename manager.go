@@ -96,14 +96,6 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ensure ticker is set
-	if stockReq.Ticker == "" {
-		logger.Error("Ticker required")
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Error: ticker required")
-		return
-	}
-
 	// add stock or crypto ticker
 	if stockReq.Crypto {
 
@@ -125,6 +117,14 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.FlashChange, stockReq.Frequency)
 		m.addStock(stockReq.Name, stock)
 		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	// ensure ticker is set
+	if stockReq.Ticker == "" {
+		logger.Error("Ticker required")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Error: ticker required")
 		return
 	}
 
