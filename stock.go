@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
@@ -18,6 +19,7 @@ type Stock struct {
 	FlashChange bool          `json:"flash_change"`
 	Frequency   time.Duration `json:"frequency"` // how often to update in seconds
 	Price       int           `json:"price"`
+	Cache       redis.Client  `json:"-"`
 	token       string        `json:"-"` // discord token
 	close       chan int      `json:"-"`
 }
@@ -41,7 +43,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int, cache redis.Client) *Stock {
 	s := &Stock{
 		Ticker:      ticker,
 		Name:        name,
@@ -49,6 +51,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Color:       color,
 		FlashChange: flashChange,
 		Frequency:   time.Duration(frequency) * time.Second,
+		Cache:       cache,
 		token:       token,
 		close:       make(chan int, 1),
 	}
@@ -252,6 +255,7 @@ func (s *Stock) watchStockPrice() {
 }
 
 func (s *Stock) watchCryptoPrice() {
+	var rdb redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
@@ -298,7 +302,11 @@ func (s *Stock) watchCryptoPrice() {
 			var fmtDiff string
 
 			// save the price struct & do something with it
-			priceData, err = utils.GetCryptoPrice(s.Name)
+			if s.Cache == rdb {
+				priceData, err = utils.GetCryptoPrice(s.Name)
+			} else {
+				priceData, err = utils.GetCryptoPrice(s.Cache, s.Name)
+			}
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
 			}

@@ -10,20 +10,23 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 )
 
 // Manager holds a list of the crypto and stocks we are watching
 type Manager struct {
 	Watching map[string]*Stock
+	Cache    redis.Client
 	sync.RWMutex
 }
 
 // NewManager stores all the information about the current stocks being watched and
 // listens for api requests on 8080
-func NewManager(port string) *Manager {
+func NewManager(port string, cache redis.Client) *Manager {
 	m := &Manager{
 		Watching: make(map[string]*Stock, 0),
+		Cache:    cache,
 	}
 
 	r := mux.NewRouter()
