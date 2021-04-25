@@ -1,23 +1,29 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 	"sync"
 
 	env "github.com/caitlinelfring/go-env-default"
+	"github.com/go-redis/redis/v8"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
 	logger = log.New()
 	port   *string
+	cache  *bool
+	rdb *redis.Client
+	ctx context.Context
 )
 
 func init() {
 	// initialize logging
 	logLevel := flag.Int("logLevel", 0, "defines the log level. 0=production builds. 1=dev builds.")
 	port = flag.String("port", "8080", "port to bind http server to.")
+	cache = flag.Bool("cache", false, "enable cache for coingecko")
 	flag.Parse()
 	logger.Out = os.Stdout
 	switch *logLevel {
@@ -30,8 +36,18 @@ func init() {
 
 func main() {
 	var wg sync.WaitGroup
+
+	if *cache {
+		rdb = redis.NewClient(&redis.Options{
+			Addr:     "localhost:6379",
+			Password: "",
+			DB:       0,
+		})
+		ctx = context.Background()
+	}
+
 	wg.Add(1)
-	m := NewManager(*port)
+	m := NewManager(*port, rdb, ctx)
 
 	// check for inital bots
 	if os.Getenv("DISCORD_BOT_TOKEN") != "" {
@@ -71,7 +87,7 @@ func addInitialStock() *Stock {
 		// if it's not a crypto, it's a stock
 		stock = NewStock(ticker, token, stockName, nickname, color, flashChange, frequency)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, flashChange, frequency)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, flashChange, frequency, rdb, ctx)
 	}
 	return stock
 }

@@ -19,9 +19,9 @@ Love these bots? You can support this project by subscribing to the premium vers
 
 Related Projects:
 
-API for creating new tickers: https://github.com/rssnyder/discord-stock-ticker-api
-
 Discord bot to create new tickers (avalible on the support server): https://github.com/rssnyder/discord-stock-ticker-bot
+
+Cache-like system to get around coingecko api limits: https://github.com/rssnyder/coingecko-cache
 
 ## Add free tickers to your servers (click the image to add)
 
