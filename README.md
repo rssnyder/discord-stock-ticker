@@ -146,6 +146,25 @@ If you are interested please see the [contact info on my github page](https://gi
 
 ![Really cool grafana dashboard](https://s3.cloud.rileysnyder.org/public/assets/grafana.png)
 
+```                 
+                                                                     +-----+    
+                                                               ----> |yahoo|    
+                                                     ---------/      +-----+    
+               +--------------------+      ---------/                         
+               |                    |-----/                          +-------+  
++---------+    |discord-stock-ticker|------------------------------> |discord|  
+|ticker db|--->|                    |-----\                          +-------+  
++---------+    |                    |--\   ---------\                           
+               +--------------------+   -----\       ---------\      
+                                              --> +-----+      ----> +---------+
+                                                  |redis|            |coingecko|
+                                              --> +-----+      ----> +---------+
+                    +---------------+   -----/       ---------/                 
+                    |coingecko-cache|--/   ---------/                           
+                    |               |-----/                                     
+                    +---------------+                                                  
+```
+
 ### Self-Hosting
 
 #### Running in a simple shell
