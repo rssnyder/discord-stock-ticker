@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+	"strconv"
+	"context"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -78,9 +80,7 @@ func GetCryptoPrice(ticker string) (GeckoPriceResults, error) {
 }
 
 // GetCryptoPriceCache attempt to use cache to get info
-func GetCryptoPriceCache(client *redis.Client, ticker string) (GeckoPriceResults, error) {
-	var price GeckoPriceResults
-
+func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker string) (GeckoPriceResults, error) {
 	var currentPrice CurrentPrice
 	var marketData MarketData
 	var geckoPriceResults GeckoPriceResults
@@ -88,47 +88,57 @@ func GetCryptoPriceCache(client *redis.Client, ticker string) (GeckoPriceResults
 	var name string
 
 	// coin price
-	price, err := rdb.Get(ctx, Sprintf("%s#CurrentPrice", ticker)).Result()
+	price, err := client.Get(ctx, fmt.Sprintf("%s#CurrentPrice", ticker)).Result()
 	if err == redis.Nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	} else if err != nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	} else {
-		currentPrice = currentPrice{price}
+		priceFloat, err := strconv.ParseFloat(price, 32)
+		if err != nil {
+			geckoPriceResults, err = GetCryptoPrice(ticker)
+			return geckoPriceResults, err
+		}
+		currentPrice = CurrentPrice{priceFloat}
 	}
 
 	// price change
-	priceChange, err := rdb.Get(ctx, Sprintf("%s#PriceChange24H", ticker)).Result()
+	priceChange, err := client.Get(ctx, fmt.Sprintf("%s#PriceChange24H", ticker)).Result()
 	if err == redis.Nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	} else if err != nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	} else {
-		marketData = MarketData{currentPrice, priceChange}
+		priceChangeFloat, err := strconv.ParseFloat(priceChange, 32)
+		if err != nil {
+			geckoPriceResults, err = GetCryptoPrice(ticker)
+			return geckoPriceResults, err
+		}
+		marketData = MarketData{currentPrice, priceChangeFloat}
 	}
 
 	// symbol
-	symbol, err = rdb.Get(ctx, Sprintf("%s#Symbol", ticker)).Result()
+	symbol, err = client.Get(ctx, fmt.Sprintf("%s#Symbol", ticker)).Result()
 	if err == redis.Nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	} else if err != nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	}
 
 	// name
-	name, err = rdb.Get(ctx, Sprintf("%s#Name", ticker)).Result()
+	name, err = client.Get(ctx, fmt.Sprintf("%s#Name", ticker)).Result()
 	if err == redis.Nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	} else if err != nil {
-		price, err = GetCryptoPrice(ticker)
-		return price, err
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
 	}
 
 	geckoPriceResults = GeckoPriceResults{

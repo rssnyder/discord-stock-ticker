@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 	"sync"
@@ -14,6 +15,8 @@ var (
 	logger = log.New()
 	port   *string
 	cache  *bool
+	rdb *redis.Client
+	ctx context.Context
 )
 
 func init() {
@@ -33,7 +36,6 @@ func init() {
 
 func main() {
 	var wg sync.WaitGroup
-	var rdb redis.Client
 
 	if *cache {
 		rdb = redis.NewClient(&redis.Options{
@@ -41,10 +43,11 @@ func main() {
 			Password: "",
 			DB:       0,
 		})
+		ctx = context.Background()
 	}
 
 	wg.Add(1)
-	m := NewManager(*port, rdb)
+	m := NewManager(*port, rdb, ctx)
 
 	// check for inital bots
 	if os.Getenv("DISCORD_BOT_TOKEN") != "" {
@@ -84,7 +87,7 @@ func addInitialStock() *Stock {
 		// if it's not a crypto, it's a stock
 		stock = NewStock(ticker, token, stockName, nickname, color, flashChange, frequency)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, flashChange, frequency)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, flashChange, frequency, rdb, ctx)
 	}
 	return stock
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -12,16 +13,17 @@ import (
 )
 
 type Stock struct {
-	Ticker      string        `json:"ticker"`   // stock symbol
-	Name        string        `json:"name"`     // override for symbol as shown on the bot
-	Nickname    bool          `json:"nickname"` // flag for changing nickname
-	Color       bool          `json:"color"`
-	FlashChange bool          `json:"flash_change"`
-	Frequency   time.Duration `json:"frequency"` // how often to update in seconds
-	Price       int           `json:"price"`
-	Cache       redis.Client  `json:"-"`
-	token       string        `json:"-"` // discord token
-	close       chan int      `json:"-"`
+	Ticker      string          `json:"ticker"`   // stock symbol
+	Name        string          `json:"name"`     // override for symbol as shown on the bot
+	Nickname    bool            `json:"nickname"` // flag for changing nickname
+	Color       bool            `json:"color"`
+	FlashChange bool            `json:"flash_change"`
+	Frequency   time.Duration   `json:"frequency"` // how often to update in seconds
+	Price       int             `json:"price"`
+	Cache       *redis.Client   `json:"-"`
+	Context     context.Context `json:"-"`
+	token       string          `json:"-"` // discord token
+	close       chan int        `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
@@ -43,7 +45,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int, cache redis.Client) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
 		Ticker:      ticker,
 		Name:        name,
@@ -52,6 +54,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		FlashChange: flashChange,
 		Frequency:   time.Duration(frequency) * time.Second,
 		Cache:       cache,
+		Context:     context,
 		token:       token,
 		close:       make(chan int, 1),
 	}
@@ -255,7 +258,7 @@ func (s *Stock) watchStockPrice() {
 }
 
 func (s *Stock) watchCryptoPrice() {
-	var rdb redis.Client
+	var rdb *redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
@@ -305,7 +308,7 @@ func (s *Stock) watchCryptoPrice() {
 			if s.Cache == rdb {
 				priceData, err = utils.GetCryptoPrice(s.Name)
 			} else {
-				priceData, err = utils.GetCryptoPrice(s.Cache, s.Name)
+				priceData, err = utils.GetCryptoPriceCache(s.Cache, s.Context, s.Name)
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)

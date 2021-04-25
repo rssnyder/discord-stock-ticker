@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,16 +18,18 @@ import (
 // Manager holds a list of the crypto and stocks we are watching
 type Manager struct {
 	Watching map[string]*Stock
-	Cache    redis.Client
+	Cache    *redis.Client
+	Context  context.Context
 	sync.RWMutex
 }
 
 // NewManager stores all the information about the current stocks being watched and
 // listens for api requests on 8080
-func NewManager(port string, cache redis.Client) *Manager {
+func NewManager(port string, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
 		Watching: make(map[string]*Stock, 0),
 		Cache:    cache,
+		Context:  context,
 	}
 
 	r := mux.NewRouter()
@@ -117,7 +120,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.FlashChange, stockReq.Frequency)
+		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.FlashChange, stockReq.Frequency, m.Cache, m.Context)
 		m.addStock(stockReq.Name, stock)
 		w.WriteHeader(http.StatusNoContent)
 		return
