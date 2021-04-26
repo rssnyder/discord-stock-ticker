@@ -26,13 +26,34 @@ jobs:
     - name: Push
       run: docker push ghcr.io/${GITHUB_REPOSITORY}:${IMAGE_TAG}
 
-  build-binary:
+  build-binary-amd64:
     name: Release Go Binary
     runs-on: ubuntu-latest
     strategy:
       matrix:
         goos: [linux, windows, darwin]
         goarch: [amd64]
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - uses: wangyoucao577/go-release-action@v1.14
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        goversion: "https://dl.google.com/go/go1.16.linux-amd64.tar.gz"
+        project_path: "./"
+        binary_name: "discord-stock-ticker"
+        md5sum: FALSE
+        
+  build-binary-arm:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [arm64]
     steps:
 
     - uses: actions/checkout@v2
