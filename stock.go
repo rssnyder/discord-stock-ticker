@@ -77,6 +77,7 @@ func (s *Stock) watchStockPrice() {
 		fmt.Println("Error creating Discord session: ", err)
 		return
 	}
+	logger.Infof("%s Discord session created.", s.Ticker)
 
 	// show as online
 	err = dg.Open()
@@ -84,6 +85,7 @@ func (s *Stock) watchStockPrice() {
 		fmt.Println("error opening discord connection,", err)
 		return
 	}
+	logger.Infof("%s Discord connection created.", s.Ticker)
 
 	// get bot id
 	botUser, err := dg.User("@me")
@@ -91,6 +93,7 @@ func (s *Stock) watchStockPrice() {
 		fmt.Println("Error getting bot id: ", err)
 		return
 	}
+	logger.Infof("%s Discord data retrived.", s.Ticker)
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
@@ -266,6 +269,7 @@ func (s *Stock) watchCryptoPrice() {
 		fmt.Println("Error creating Discord session: ", err)
 		return
 	}
+	logger.Infof("%s Discord session created.", s.Name)
 
 	// show as online
 	err = dg.Open()
@@ -273,6 +277,7 @@ func (s *Stock) watchCryptoPrice() {
 		fmt.Println("error opening discord connection,", err)
 		return
 	}
+	logger.Infof("%s Discord connection created.", s.Name)
 
 	// get bot id
 	botUser, err := dg.User("@me")
@@ -287,6 +292,7 @@ func (s *Stock) watchCryptoPrice() {
 		fmt.Println("Error getting guilds: ", err)
 		s.Nickname = false
 	}
+	logger.Infof("%s Discord data retrived.", s.Name)
 
 	ticker := time.NewTicker(s.Frequency)
 	logger.Debugf("Watching crypto price for %s", s.Name)
