@@ -53,7 +53,7 @@ jobs:
     strategy:
       matrix:
         goos: [linux]
-        goarch: [arm64]
+        goarch: [arm64, arm]
     steps:
 
     - uses: actions/checkout@v2
