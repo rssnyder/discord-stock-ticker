@@ -96,6 +96,26 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![bidu](https://logo.clearbit.com/baidu.com)](https://discord.com/api/oauth2/authorize?client_id=827986153147858946&permissions=0&scope=bot)
 [![ttd](https://s3.cloud.rileysnyder.org/public/assets/ttd.jpg)](https://discord.com/api/oauth2/authorize?client_id=828326607411871754&permissions=0&scope=bot)
 [![scr](https://s3.cloud.rileysnyder.org/public/assets/scr.to.png)](https://discord.com/api/oauth2/authorize?client_id=828613724608135259&permissions=0&scope=bot)
+[![dis](https://logo.clearbit.com/disney.com)](https://discord.com/api/oauth2/authorize?client_id=828613902740357121&permissions=0&scope=bot)
+[![buzz](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=829119893714108477&permissions=0&scope=bot)
+[![bngo](https://logo.clearbit.com/bionanogenomics.com)](https://discord.com/api/oauth2/authorize?client_id=831958131214385152&permissions=0&scope=bot)
+[![](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=831958814419845130&permissions=0&scope=bot)
+[![arkg](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=831958893801897994&permissions=0&scope=bot)
+[![es=f](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=831958978455535667&permissions=0&scope=bot)
+[![nq=s](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=833759608861622353&permissions=0&scope=bot)
+[![ym=f](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=833759696783409195&permissions=0&scope=bot)
+[![arkx](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=833796890092109834&permissions=0&scope=bot)
+[![arkw](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834494803244220456&permissions=0&scope=bot)
+[![fubo](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=828613871823618128&permissions=0&scope=bot)
+[![arkf](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834494886693568572&permissions=0&scope=bot)
+[![v](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834494985092202537&permissions=0&scope=bot)
+[![sq](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834543616314966036&permissions=0&scope=bot)
+[![jpm](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834543707314192444&permissions=0&scope=bot)
+[![ma](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834543958276964362&permissions=0&scope=bot)
+[![bac](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834544024055840768&permissions=0&scope=bot)
+[![wfc](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834544089621200967&permissions=0&scope=bot)
+[![zb=f](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=834544178456952912&permissions=0&scope=bot)
+[![xxxxxx](https://s3.cloud.rileysnyder.org/public/assets/xxxxxxx.png)](https://discord.com/api/oauth2/authorize?client_id=xxxxxxxxxxxxxxx&permissions=0&scope=bot)
 
 ### Crypto
 
@@ -133,6 +153,13 @@ WARNING: Due to an increase in usage, I am having to verify some bots. Discord i
 [![atom](https://logo.clearbit.com/cosmos.network)](https://discord.com/api/oauth2/authorize?client_id=828417242570948638&permissions=0&scope=bot)
 [![zil](https://logo.clearbit.com/zilliqa.com)](https://discord.com/api/oauth2/authorize?client_id=828417678976745483&permissions=0&scope=bot)
 [![png](https://logo.clearbit.com/pangolin.exchange)](https://discord.com/api/oauth2/authorize?client_id=828613694845747260&permissions=0&scope=bot)
+[![orn](https://logo.clearbit.com/orionprotocol.io)](https://discord.com/api/oauth2/authorize?client_id=828613759781961790&permissions=0&scope=bot)
+[![matic](https://logo.clearbit.com/matic.network)](https://discord.com/api/oauth2/authorize?client_id=828613785345458206&permissions=0&scope=bot)
+[![bat](https://logo.clearbit.com/basicattentiontoken.org)](https://discord.com/api/oauth2/authorize?client_id=828613810355961898&permissions=0&scope=bot)
+[![win](https://s3.cloud.rileysnyder.org/public/assets/wink.png)](https://discord.com/api/oauth2/authorize?client_id=828613846889136148&permissions=0&scope=bot)
+[![shib](https://logo.clearbit.com/shibatoken.com)](https://discord.com/api/oauth2/authorize?client_id=829119870556831816&permissions=0&scope=bot)
+[![cake](https://logo.clearbit.com/pancakeswap.finance)](https://discord.com/api/oauth2/authorize?client_id=831957913819021322&permissions=0&scope=bot)
+[![glq](https://logo.clearbit.com/graphlinq.io)](https://discord.com/api/oauth2/authorize?client_id=831958048523419696&permissions=0&scope=bot)
 
 ## Premium
 
