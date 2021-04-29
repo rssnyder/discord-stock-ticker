@@ -59,14 +59,14 @@ func NewManager(port string, cache *redis.Client, context context.Context) *Mana
 
 // StockRequest represents the json coming in from the request
 type StockRequest struct {
-	Ticker      string `json:"ticker"`
-	Token       string `json:"discord_bot_token"`
-	Name        string `json:"name"`
-	Nickname    bool   `json:"set_nickname"`
-	Crypto      bool   `json:"crypto"`
-	Color       bool   `json:"set_color"`
-	FlashChange bool   `json:"flash_change"`
-	Frequency   int    `json:"frequency" default:"60"`
+	Ticker     string `json:"ticker"`
+	Token      string `json:"discord_bot_token"`
+	Name       string `json:"name"`
+	Nickname   bool   `json:"set_nickname"`
+	Crypto     bool   `json:"crypto"`
+	Color      bool   `json:"set_color"`
+	Percentage bool   `json:"percentage"`
+	Frequency  int    `json:"frequency" default:"60"`
 }
 
 // AddStock adds a new stock or crypto to the list of what to watch
@@ -120,7 +120,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.FlashChange, stockReq.Frequency, m.Cache, m.Context)
+		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency, m.Cache, m.Context)
 		m.addStock(stockReq.Name, stock)
 		w.WriteHeader(http.StatusNoContent)
 		return
@@ -146,7 +146,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.FlashChange, stockReq.Frequency)
+	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency)
 	m.addStock(stockReq.Ticker, stock)
 	w.WriteHeader(http.StatusNoContent)
 }
