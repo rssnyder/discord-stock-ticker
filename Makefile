@@ -4,7 +4,7 @@ build-linux:
 build-osx:
 	env GOOS=darwin GOARCH=amd64 go build -o ./bin/ticker
 	
-build-openbsd
+build-openbsd:
 	env GOOS=openbsd GOARCH=amd64 go build -o ./bin/ticker
 
 run:
