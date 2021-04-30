@@ -1,14 +1,14 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"time"
 	"strconv"
-	"context"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -22,8 +22,9 @@ type CurrentPrice struct {
 }
 
 type MarketData struct {
-	CurrentPrice CurrentPrice `json:"current_price"`
-	PriceChange  float64      `json:"price_change_24h"`
+	CurrentPrice       CurrentPrice `json:"current_price"`
+	PriceChange        float64      `json:"price_change_24h"`
+	PriceChangePercent float64      `json:"price_change_percentage_24h"`
 }
 
 // The following is the API response gecko gives
@@ -118,7 +119,7 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 			geckoPriceResults, err = GetCryptoPrice(ticker)
 			return geckoPriceResults, err
 		}
-		marketData = MarketData{currentPrice, priceChangeFloat}
+		marketData = MarketData{currentPrice, priceChangeFloat, 0.00}
 	}
 
 	// symbol

@@ -15,8 +15,8 @@ var (
 	logger = log.New()
 	port   *string
 	cache  *bool
-	rdb *redis.Client
-	ctx context.Context
+	rdb    *redis.Client
+	ctx    context.Context
 )
 
 func init() {
@@ -72,7 +72,7 @@ func addInitialStock() *Stock {
 	// now get settings for it
 	nickname := env.GetBoolDefault("SET_NICKNAME", false)
 	color := env.GetBoolDefault("SET_COLOR", false)
-	flashChange := env.GetBoolDefault("FLASH_CHANGE", false)
+	percentage := env.GetBoolDefault("PERCENTAGE", false)
 	frequency := env.GetIntDefault("FREQUENCY", 60)
 
 	var stockName string
@@ -85,9 +85,9 @@ func addInitialStock() *Stock {
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
 		// if it's not a crypto, it's a stock
-		stock = NewStock(ticker, token, stockName, nickname, color, flashChange, frequency)
+		stock = NewStock(ticker, token, stockName, nickname, color, percentage, frequency)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, flashChange, frequency, rdb, ctx)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, frequency, rdb, ctx)
 	}
 	return stock
 }

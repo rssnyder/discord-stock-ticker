@@ -13,30 +13,30 @@ import (
 )
 
 type Stock struct {
-	Ticker      string          `json:"ticker"`   // stock symbol
-	Name        string          `json:"name"`     // override for symbol as shown on the bot
-	Nickname    bool            `json:"nickname"` // flag for changing nickname
-	Color       bool            `json:"color"`
-	FlashChange bool            `json:"flash_change"`
-	Frequency   time.Duration   `json:"frequency"` // how often to update in seconds
-	Price       int             `json:"price"`
-	Cache       *redis.Client   `json:"-"`
-	Context     context.Context `json:"-"`
-	token       string          `json:"-"` // discord token
-	close       chan int        `json:"-"`
+	Ticker     string          `json:"ticker"`   // stock symbol
+	Name       string          `json:"name"`     // override for symbol as shown on the bot
+	Nickname   bool            `json:"nickname"` // flag for changing nickname
+	Color      bool            `json:"color"`
+	Percentage bool            `json:"percentage"`
+	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
+	Price      int             `json:"price"`
+	Cache      *redis.Client   `json:"-"`
+	Context    context.Context `json:"-"`
+	token      string          `json:"-"` // discord token
+	close      chan int        `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, frequency int) *Stock {
 	s := &Stock{
-		Ticker:      ticker,
-		Name:        name,
-		Nickname:    nickname,
-		Color:       color,
-		FlashChange: flashChange,
-		Frequency:   time.Duration(frequency) * time.Second,
-		token:       token,
-		close:       make(chan int, 1),
+		Ticker:     ticker,
+		Name:       name,
+		Nickname:   nickname,
+		Color:      color,
+		Percentage: percentage,
+		Frequency:  time.Duration(frequency) * time.Second,
+		token:      token,
+		close:      make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -45,18 +45,18 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, flashChange bool, frequency int, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, frequency int, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
-		Ticker:      ticker,
-		Name:        name,
-		Nickname:    nickname,
-		Color:       color,
-		FlashChange: flashChange,
-		Frequency:   time.Duration(frequency) * time.Second,
-		Cache:       cache,
-		Context:     context,
-		token:       token,
-		close:       make(chan int, 1),
+		Ticker:     ticker,
+		Name:       name,
+		Nickname:   nickname,
+		Color:      color,
+		Percentage: percentage,
+		Frequency:  time.Duration(frequency) * time.Second,
+		Cache:      cache,
+		Context:    context,
+		token:      token,
+		close:      make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -127,13 +127,29 @@ func (s *Stock) watchStockPrice() {
 			}
 			fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
 
+			var activityHeader string
+
+			if s.Percentage {
+				activityHeader = ""
+			} else {
+				activityHeader = "$"
+			}
+
 			// check for day or after hours change
 			var emptyChange utils.Change
 
 			if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
-				fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
+				if s.Percentage {
+					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChangePercent.Fmt
+				} else {
+					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
+				}
 			} else {
-				fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
+				if s.Percentage {
+					fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChangePercent.Fmt
+				} else {
+					fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
+				}
 			}
 
 			// calculate if price has moved up or down
@@ -163,9 +179,9 @@ func (s *Stock) watchStockPrice() {
 
 				// format activity based on trading time
 				if priceData.QuoteSummary.Results[0].Price.PostMarketChange == emptyChange {
-					activity = fmt.Sprintf("Change: %s", fmtDiff)
+					activity = fmt.Sprintf("Change: %s%s", activityHeader, fmtDiff)
 				} else {
-					activity = fmt.Sprintf("AHT: %s", fmtDiff)
+					activity = fmt.Sprintf("AHT: %s%s", activityHeader, fmtDiff)
 				}
 
 				// Update nickname in guilds
@@ -206,20 +222,20 @@ func (s *Stock) watchStockPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						}
 					}
@@ -314,16 +330,30 @@ func (s *Stock) watchCryptoPrice() {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
 			}
 
+			var change float64
+			var activityHeader string
+			var activityFooter string
+
+			if s.Percentage {
+				change = priceData.MarketData.PriceChangePercent
+				activityHeader = ""
+				activityFooter = "%"
+			} else {
+				change = priceData.MarketData.PriceChange
+				activityHeader = "$"
+				activityFooter = ""
+			}
+
 			// Check for cryptos below 1c
 			if priceData.MarketData.CurrentPrice.USD < 0.01 {
 				fmtPrice = fmt.Sprintf("%.4f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.4f", priceData.MarketData.PriceChange)
+				fmtDiff = fmt.Sprintf("%.4f", change)
 			} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
 				fmtPrice = fmt.Sprintf("%.3f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.3f", priceData.MarketData.PriceChange)
+				fmtDiff = fmt.Sprintf("%.3f", change)
 			} else {
 				fmtPrice = fmt.Sprintf("%.2f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+				fmtDiff = fmt.Sprintf("%.2f", change)
 			}
 
 			// calculate if price has moved up or down
@@ -359,7 +389,7 @@ func (s *Stock) watchCryptoPrice() {
 				nickname = fmt.Sprintf("%s - $%s", displayName, fmtPrice)
 
 				// format activity
-				activity = fmt.Sprintf("24hr %s %s", decorator, fmtDiff)
+				activity = fmt.Sprintf("24hr %s %s%s%s", decorator, activityHeader, fmtDiff, activityFooter)
 
 				// Update nickname in guilds
 				for _, g := range guilds {
@@ -399,20 +429,20 @@ func (s *Stock) watchCryptoPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						}
 					}
@@ -426,10 +456,9 @@ func (s *Stock) watchCryptoPrice() {
 				}
 
 			} else {
-				var activity string
 
 				// format activity
-				activity = fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
+				activity := fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: ", err)
