@@ -222,20 +222,20 @@ func (s *Stock) watchStockPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						}
 					}
@@ -429,20 +429,20 @@ func (s *Stock) watchCryptoPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Errorf("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: ", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Errorf("Unable to set role: ", err)
+								logger.Error("Unable to set role: ", err)
 							}
 						}
 					}
@@ -456,10 +456,9 @@ func (s *Stock) watchCryptoPrice() {
 				}
 
 			} else {
-				var activity string
 
 				// format activity
-				activity = fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
+				activity := fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: ", err)
