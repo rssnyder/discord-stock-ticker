@@ -162,11 +162,9 @@ func (s *Stock) watchStockPrice() {
 				increase = true
 			}
 
-			decorator := "-"
+			decorator := "⬊"
 			if increase {
 				decorator = "⬈"
-			} else {
-				decorator = "⬊"
 			}
 
 			if s.Nickname {
@@ -366,11 +364,9 @@ func (s *Stock) watchCryptoPrice() {
 				increase = true
 			}
 
-			decorator := "-"
+			decorator := "⬊"
 			if increase {
 				decorator = "⬈"
-			} else {
-				decorator = "⬊"
 			}
 
 			if s.Nickname {
