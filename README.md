@@ -163,21 +163,19 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 
 ![Discord Sidebar w/ Premium Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar-premium.png)
 
-For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering. I will host individual instances for your discord server at a cost of $5/month for a 5 pack of bots. You can choose a mix of cryptos and stocks and cancel at any time.
+For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering. I will host individual instances for your discord server at a cost of $1 per bot per month. You can choose a mix of cryptos and stocks and cancel at any time.
 
-There is a full logging stack that includes loki & promtail with grafana for visualization.
+If you wish to host your bots on your own hardware, but need help getting set up, I also offer setup services for $20. I will install the service on your hardware and set you up with my internal tools to help manage your instances. This requires a running linux server.
 
 If you are interested please see the [contact info on my github page](https://github.com/rssnyder) and send me a messgae via your platform of choice (discord perferred). For a live demo, join the support discord linked at the top or bottom of this page.
-
-![Really cool grafana dashboard](https://s3.cloud.rileysnyder.org/public/assets/grafana.png)
 
 ```                 
                                                                      +-----+    
                                                                ----> |yahoo|    
                                                      ---------/      +-----+    
                +--------------------+      ---------/                         
-               |                    |-----/                          +-------+  
-+---------+    |discord-stock-ticker|------------------------------> |discord|  
+               |discord-stock-ticker|-----/                          +-------+  
++---------+    |                    |------------------------------> |discord|  
 |ticker db|--->|                    |-----\                          +-------+  
 +---------+    |                    |--\   ---------\                           
                +--------------------+   -----\       ---------\      
@@ -187,7 +185,7 @@ If you are interested please see the [contact info on my github page](https://gi
                     +---------------+   -----/       ---------/                 
                     |coingecko-cache|--/   ---------/                           
                     |               |-----/                                     
-                    +---------------+                                                  
+                    +---------------+                                           
 ```
 
 ### Self-Hosting
@@ -279,10 +277,12 @@ You can also specify the port to bind on (default is 8080):
 
 ### Systemd service
 
-```
-wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+The below script (ran as root) will download and install a `discrod-stock-ticker` service on your linux machine with the API avalible on port `8080` to manage bots.
 
-tar zxf discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+```
+wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.2.0/discord-stock-ticker-v2.2.0-linux-amd64.tar.gz
+
+tar zxf discord-stock-ticker-v2.2.0-linux-amd64.tar.gz
 
 mkdir -p /etc/discord-stock-ticker
 
