@@ -19,7 +19,7 @@ type Stock struct {
 	Color      bool            `json:"color"`
 	Percentage bool            `json:"percentage"`
 	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
-	Price      int             `json:"price"`
+	Price      int             `json:"-"`
 	Cache      *redis.Client   `json:"-"`
 	Context    context.Context `json:"-"`
 	token      string          `json:"-"` // discord token
@@ -162,11 +162,9 @@ func (s *Stock) watchStockPrice() {
 				increase = true
 			}
 
-			decorator := "-"
+			decorator := "⬊"
 			if increase {
 				decorator = "⬈"
-			} else {
-				decorator = "⬊"
 			}
 
 			if s.Nickname {
@@ -243,7 +241,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
@@ -260,7 +258,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
@@ -366,11 +364,9 @@ func (s *Stock) watchCryptoPrice() {
 				increase = true
 			}
 
-			decorator := "-"
+			decorator := "⬊"
 			if increase {
 				decorator = "⬈"
-			} else {
-				decorator = "⬊"
 			}
 
 			if s.Nickname {
@@ -450,7 +446,7 @@ func (s *Stock) watchCryptoPrice() {
 
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
@@ -461,7 +457,7 @@ func (s *Stock) watchCryptoPrice() {
 				activity := fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}

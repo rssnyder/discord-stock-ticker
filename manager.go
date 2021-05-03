@@ -27,7 +27,7 @@ type Manager struct {
 // listens for api requests on 8080
 func NewManager(port string, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
-		Watching: make(map[string]*Stock, 0),
+		Watching: make(map[string]*Stock),
 		Cache:    cache,
 		Context:  context,
 	}
@@ -120,9 +120,15 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency, m.Cache, m.Context)
-		m.addStock(stockReq.Name, stock)
-		w.WriteHeader(http.StatusNoContent)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency, m.Cache, m.Context)
+		m.addStock(stockReq.Name, crypto)
+
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(crypto)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+		}
 		return
 	}
 
@@ -148,7 +154,13 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency)
 	m.addStock(stockReq.Ticker, stock)
-	w.WriteHeader(http.StatusNoContent)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(stock)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
 }
 
 func (m *Manager) addStock(ticker string, stock *Stock) {
