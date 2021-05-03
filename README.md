@@ -1,6 +1,6 @@
 # discord-stock-ticker
 
-[![GitHub Super-Linter](https://github.com/rssnyder/discord-stock-ticker/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+[![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/rssnyder/discord-stock-ticker.svg?style=flat)]()
