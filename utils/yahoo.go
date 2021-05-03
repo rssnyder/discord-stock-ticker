@@ -70,7 +70,7 @@ type Pricing struct {
 type Change struct {
 	Raw     float64 `json:"raw"`
 	Fmt     string  `json:"fmt"`
-	LongFmt string  `json:"longFmt", omitempty`
+	LongFmt string  `json:"longFmt,omitempty"`
 }
 
 // GetStockPrice retrieves the price of a given ticker using the yahoo API

@@ -457,7 +457,7 @@ func (s *Stock) watchCryptoPrice() {
 				activity := fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
