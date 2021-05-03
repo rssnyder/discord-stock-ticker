@@ -120,9 +120,12 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		stock := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency, m.Cache, m.Context)
-		m.addStock(stockReq.Name, stock)
-		w.WriteHeader(http.StatusNoContent)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency, m.Cache, m.Context)
+		m.addStock(stockReq.Name, crypto)
+
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(crypto)
 		return
 	}
 
@@ -148,7 +151,10 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency)
 	m.addStock(stockReq.Ticker, stock)
-	w.WriteHeader(http.StatusNoContent)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(stock)
 }
 
 func (m *Manager) addStock(ticker string, stock *Stock) {

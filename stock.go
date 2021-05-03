@@ -19,7 +19,7 @@ type Stock struct {
 	Color      bool            `json:"color"`
 	Percentage bool            `json:"percentage"`
 	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
-	Price      int             `json:"price"`
+	Price      int             `json:"-"`
 	Cache      *redis.Client   `json:"-"`
 	Context    context.Context `json:"-"`
 	token      string          `json:"-"` // discord token
