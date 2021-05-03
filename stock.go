@@ -243,7 +243,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
@@ -260,7 +260,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
@@ -450,7 +450,7 @@ func (s *Stock) watchCryptoPrice() {
 
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
-					logger.Errorf("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
