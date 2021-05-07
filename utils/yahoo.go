@@ -27,6 +27,7 @@ type Result struct {
 
 type Pricing struct {
 	MaxAge                     int    `json:"maxAge"`
+	PreMarketChangePercent     Change `json:"preMarketChangePercent"`
 	PreMarketChange            Change `json:"preMarketChange"`
 	PreMarketPrice             Change `json:"preMarketPrice"`
 	PreMarketSource            string `json:"preMarketSource"`

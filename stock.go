@@ -139,13 +139,17 @@ func (s *Stock) watchStockPrice() {
 			}
 
 			// check for day or after hours change
-			var emptyChange utils.Change
-
-			if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
+			if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
 				if s.Percentage {
 					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChangePercent.Fmt
 				} else {
 					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
+				}
+			} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
+				if s.Percentage {
+					fmtDiff = priceData.QuoteSummary.Results[0].Price.PreMarketChangePercent.Fmt
+				} else {
+					fmtDiff = priceData.QuoteSummary.Results[0].Price.PreMarketChange.Fmt
 				}
 			} else {
 				if s.Percentage {
@@ -183,10 +187,12 @@ func (s *Stock) watchStockPrice() {
 				nickname = fmt.Sprintf("%s %s $%s", strings.ToUpper(s.Name), decorator, fmtPrice)
 
 				// format activity based on trading time
-				if priceData.QuoteSummary.Results[0].Price.PostMarketChange == emptyChange {
-					activity = fmt.Sprintf("Change: %s%s", activityHeader, fmtDiff)
-				} else {
+				if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
 					activity = fmt.Sprintf("AHT: %s%s", activityHeader, fmtDiff)
+				} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
+					activity = fmt.Sprintf("Pre: %s%s", activityHeader, fmtDiff)
+				} else {
+					activity = fmt.Sprintf("Change: %s%s", activityHeader, fmtDiff)
 				}
 
 				// Update nickname in guilds
@@ -257,8 +263,10 @@ func (s *Stock) watchStockPrice() {
 				var activity string
 
 				// format activity based on trading time
-				if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
+				if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
 					activity = fmt.Sprintf("%s AHT %s", fmtPrice, fmtDiff)
+				} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
+					activity = fmt.Sprintf("%s Pre %s", fmtPrice, fmtDiff)
 				} else {
 					activity = fmt.Sprintf("%s %s $%s", fmtPrice, decorator, fmtDiff)
 				}
