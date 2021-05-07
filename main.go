@@ -73,6 +73,7 @@ func addInitialStock() *Stock {
 	nickname := env.GetBoolDefault("SET_NICKNAME", false)
 	color := env.GetBoolDefault("SET_COLOR", false)
 	percentage := env.GetBoolDefault("PERCENTAGE", false)
+	arrows := env.GetBoolDefault("ARROWS", false)
 	frequency := env.GetIntDefault("FREQUENCY", 60)
 
 	var stockName string
@@ -85,9 +86,9 @@ func addInitialStock() *Stock {
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
 		// if it's not a crypto, it's a stock
-		stock = NewStock(ticker, token, stockName, nickname, color, percentage, frequency)
+		stock = NewStock(ticker, token, stockName, nickname, color, percentage, arrows, frequency)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, frequency, rdb, ctx)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, arrows, frequency, rdb, ctx)
 	}
 	return stock
 }
