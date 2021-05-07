@@ -18,6 +18,7 @@ type Stock struct {
 	Nickname   bool            `json:"nickname"` // flag for changing nickname
 	Color      bool            `json:"color"`
 	Percentage bool            `json:"percentage"`
+	Arrows     bool            `json:"arrows"`
 	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
 	Price      int             `json:"-"`
 	Cache      *redis.Client   `json:"-"`
@@ -27,13 +28,14 @@ type Stock struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, frequency int) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
 		Nickname:   nickname,
 		Color:      color,
 		Percentage: percentage,
+		Arrows:     arrows,
 		Frequency:  time.Duration(frequency) * time.Second,
 		token:      token,
 		close:      make(chan int, 1),
@@ -45,13 +47,14 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, frequency int, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
 		Nickname:   nickname,
 		Color:      color,
 		Percentage: percentage,
+		Arrows:     arrows,
 		Frequency:  time.Duration(frequency) * time.Second,
 		Cache:      cache,
 		Context:    context,
@@ -165,6 +168,10 @@ func (s *Stock) watchStockPrice() {
 			decorator := "⬊"
 			if increase {
 				decorator = "⬈"
+			}
+
+			if !s.Arrows {
+				decorator = "-"
 			}
 
 			if s.Nickname {
@@ -369,6 +376,10 @@ func (s *Stock) watchCryptoPrice() {
 				decorator = "⬈"
 			}
 
+			if !s.Arrows {
+				decorator = "-"
+			}
+
 			if s.Nickname {
 				// update nickname instead of activity
 				var displayName string
@@ -382,10 +393,10 @@ func (s *Stock) watchCryptoPrice() {
 				}
 
 				// format nickname
-				nickname = fmt.Sprintf("%s - $%s", displayName, fmtPrice)
+				nickname = fmt.Sprintf("%s %s $%s", displayName, decorator, fmtPrice)
 
 				// format activity
-				activity = fmt.Sprintf("24hr %s %s%s%s", decorator, activityHeader, fmtDiff, activityFooter)
+				activity = fmt.Sprintf("24hr: %s%s%s", activityHeader, fmtDiff, activityFooter)
 
 				// Update nickname in guilds
 				for _, g := range guilds {

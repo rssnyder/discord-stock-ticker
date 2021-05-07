@@ -66,6 +66,7 @@ type StockRequest struct {
 	Crypto     bool   `json:"crypto"`
 	Color      bool   `json:"set_color"`
 	Percentage bool   `json:"percentage"`
+	Arrows     bool   `json:"arrows"`
 	Frequency  int    `json:"frequency" default:"60"`
 }
 
@@ -120,7 +121,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Frequency, m.Cache, m.Context)
 		m.addStock(stockReq.Name, crypto)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -152,7 +153,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Frequency)
+	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Frequency)
 	m.addStock(stockReq.Ticker, stock)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

@@ -263,6 +263,12 @@ You can also show crypto price changes in percent, rather than USD movement:
 export PERCENTAGE=1
 ```
 
+To enable arrows in the ticker names to reflect price movements, set the arrows var:
+
+```
+export ARROWS=1
+```
+
 Once all your options are set, simply run the binary:
 
 ```
@@ -317,10 +323,12 @@ Stock Payload:
 {
   "ticker": "pfg",
   "token": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "name": "PFG",  # string/OPTIONAL: overwrites display name of bot
+  "name": "2) PFG",  # string/OPTIONAL: overwrites display name of bot
   "frequency": 10,  # int/OPTIONAL: default 60
   "set_nickname": true,  # bool/OPTIONAL
-  "set_color": true  # bool/OPTIONAL: requires set_nickname
+  "set_color": true,  # bool/OPTIONAL: requires set_nickname
+  "percentage": true,  # bool/OPTIONAL: show percent rather than USD change
+  "arrows": true,  # bool/OPTIONAL: show arrows in ticker names
 }
 ```
 
@@ -332,11 +340,12 @@ Crypto Payload:
   "name": "bitcoin",
   "crypto": true,
   "token": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "ticker": "BitCoin",  # string/OPTIONAL: overwrites display name of bot
+  "ticker": "1) BTC",  # string/OPTIONAL: overwrites display name of bot
   "frequency": 10,  # int/OPTIONAL: default 60
   "set_nickname": true,  # bool/OPTIONAL
   "set_color": true,  # bool/OPTIONAL: requires set_nickname
   "percentage": true,  # bool/OPTIONAL: show percent rather than USD change
+  "arrows": true,  # bool/OPTIONAL: show arrows in ticker names
 }
 ```
 
