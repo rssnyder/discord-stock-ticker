@@ -353,19 +353,26 @@ func (s *Stock) watchCryptoPrice() {
 				activityFooter = "%"
 			} else {
 				change = priceData.MarketData.PriceChange
-				activityHeader = "$"
-				activityFooter = ""
+				if change < 0.01 {
+					change = change * 100
+					activityHeader = ""
+					activityFooter = "¢"
+				} else {
+					activityHeader = "$"
+					activityFooter = ""
+				}
 			}
 
 			// Check for cryptos below 1c
 			if priceData.MarketData.CurrentPrice.USD < 0.01 {
-				fmtPrice = fmt.Sprintf("%.4f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.4f", change)
+				priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
+				fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
+				fmtDiff = fmt.Sprintf("%.2f", change)
 			} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
-				fmtPrice = fmt.Sprintf("%.3f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.3f", change)
+				fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
+				fmtDiff = fmt.Sprintf("%.2f", change)
 			} else {
-				fmtPrice = fmt.Sprintf("%.2f", priceData.MarketData.CurrentPrice.USD)
+				fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
 				fmtDiff = fmt.Sprintf("%.2f", change)
 			}
 
@@ -401,7 +408,7 @@ func (s *Stock) watchCryptoPrice() {
 				}
 
 				// format nickname
-				nickname = fmt.Sprintf("%s %s $%s", displayName, decorator, fmtPrice)
+				nickname = fmt.Sprintf("%s %s %s", displayName, decorator, fmtPrice)
 
 				// format activity
 				activity = fmt.Sprintf("24hr: %s%s%s", activityHeader, fmtDiff, activityFooter)
@@ -473,7 +480,7 @@ func (s *Stock) watchCryptoPrice() {
 			} else {
 
 				// format activity
-				activity := fmt.Sprintf("$%s %s %s", fmtPrice, decorator, fmtDiff)
+				activity := fmt.Sprintf("%s %s %s", fmtPrice, decorator, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
