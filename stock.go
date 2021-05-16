@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -353,7 +354,7 @@ func (s *Stock) watchCryptoPrice() {
 				activityFooter = "%"
 			} else {
 				change = priceData.MarketData.PriceChange
-				if change < 0.01 {
+				if math.Abs(priceData.MarketData.PriceChange) < 0.01 {
 					change = change * 100
 					activityHeader = ""
 					activityFooter = "¢"
