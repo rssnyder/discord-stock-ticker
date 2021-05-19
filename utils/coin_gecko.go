@@ -122,6 +122,22 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 		marketData = MarketData{currentPrice, priceChangeFloat, 0.00}
 	}
 
+	// price change percent
+	priceChangePercent, err := client.Get(ctx, fmt.Sprintf("%s#PriceChangePercentage24H", ticker)).Result()
+	if err == redis.Nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
+	} else if err != nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
+	} else {
+		priceChangePercentFloat, err := strconv.ParseFloat(priceChangePercent, 32)
+		if err != nil {
+			priceChangePercentFloat = marketData.PriceChangePercent
+		}
+		marketData.PriceChangePercent = priceChangePercentFloat
+	}
+
 	// symbol
 	symbol, err = client.Get(ctx, fmt.Sprintf("%s#Symbol", ticker)).Result()
 	if err == redis.Nil {
