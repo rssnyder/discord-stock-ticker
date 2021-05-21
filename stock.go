@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -21,6 +22,7 @@ type Stock struct {
 	Percentage bool            `json:"percentage"`
 	Arrows     bool            `json:"arrows"`
 	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
+	Currency   string          `json:"currency"`  // how often to update in seconds
 	Price      int             `json:"-"`
 	Cache      *redis.Client   `json:"-"`
 	Context    context.Context `json:"-"`
@@ -29,7 +31,7 @@ type Stock struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int, currency string) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
@@ -38,6 +40,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 		Percentage: percentage,
 		Arrows:     arrows,
 		Frequency:  time.Duration(frequency) * time.Second,
+		Currency:   strings.ToUpper(currency),
 		token:      token,
 		close:      make(chan int, 1),
 	}
@@ -48,7 +51,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int, currency string, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
@@ -57,6 +60,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Percentage: percentage,
 		Arrows:     arrows,
 		Frequency:  time.Duration(frequency) * time.Second,
+		Currency:   strings.ToUpper(currency),
 		Cache:      cache,
 		Context:    context,
 		token:      token,
@@ -74,6 +78,7 @@ func (s *Stock) Shutdown() {
 }
 
 func (s *Stock) watchStockPrice() {
+	var exRate float64
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
@@ -103,6 +108,16 @@ func (s *Stock) watchStockPrice() {
 		s.Nickname = false
 	}
 
+	// If other currency, get rate
+	if s.Currency != "USD" {
+		exData, err := utils.GetStockPrice(s.Currency + "=X")
+		if err != nil {
+			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
+		} else {
+			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+		}
+	}
+
 	logger.Infof("Watching stock price for %s", s.Name)
 	ticker := time.NewTicker(s.Frequency)
 
@@ -130,6 +145,12 @@ func (s *Stock) watchStockPrice() {
 				continue
 			}
 			fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
+
+			// Check if conversion is needed
+			if exRate != 0 {
+				rawPrice := exRate * priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+				fmtPrice = strconv.FormatFloat(rawPrice, 'f', 2, 64)
+			}
 
 			var activityHeader string
 
@@ -289,6 +310,7 @@ func (s *Stock) watchStockPrice() {
 
 func (s *Stock) watchCryptoPrice() {
 	var rdb *redis.Client
+	var exRate float64
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
@@ -318,6 +340,16 @@ func (s *Stock) watchCryptoPrice() {
 		s.Nickname = false
 	}
 
+	// If other currency, get rate
+	if s.Currency != "USD" {
+		exData, err := utils.GetStockPrice(s.Currency + "=X")
+		if err != nil {
+			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
+		} else {
+			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+		}
+	}
+
 	ticker := time.NewTicker(s.Frequency)
 	logger.Debugf("Watching crypto price for %s", s.Name)
 
@@ -342,6 +374,12 @@ func (s *Stock) watchCryptoPrice() {
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
+			}
+
+			// Check if conversion is needed
+			if exRate != 0 {
+				priceData.MarketData.CurrentPrice.USD = exRate * priceData.MarketData.CurrentPrice.USD
+				priceData.MarketData.PriceChange = exRate * priceData.MarketData.PriceChange
 			}
 
 			var change float64
