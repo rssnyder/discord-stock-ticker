@@ -10,7 +10,7 @@ Live stock tickers for your discord server.
 
 ## Preview
 
-![Discord Sidebar w/ Bots]sidebar.png)
+![Discord Sidebar w/ Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar.png)
 
 ## Join the discord server
 [![Discord Chat](https://logo.clearbit.com/discord.com)](https://discord.gg/CQqnCYEtG7)
@@ -30,7 +30,7 @@ Cache-like system to get around coingecko api limits: https://github.com/rssnyde
 
 Don't see a stock or crypto that you need? Open a github issue or join our discord server to use the broker bot!
 
-![Ticker creation bot]ticker-bot.png)
+![Ticker creation bot](https://s3.cloud.rileysnyder.org/public/assets/ticker-bot.png)
 
 ### Stocks
 
@@ -104,7 +104,7 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 
 ## Premium
 
-![Discord Sidebar w/ Premium Bots]sidebar-premium.png)
+![Discord Sidebar w/ Premium Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar-premium.png)
 
 For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering. I will host individual instances for your discord server at a cost of $1 per bot per month. You can choose a mix of cryptos and stocks and cancel at any time.
 
@@ -271,7 +271,7 @@ Stock Payload:
 ```
 {
   "ticker": "pfg",
-  "token": "xxxxxxxxxxxxxxxxxxxxxxxx",
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "name": "2) PFG",  # string/OPTIONAL: overwrites display name of bot
   "frequency": 10,  # int/OPTIONAL: default 60
   "set_nickname": true,  # bool/OPTIONAL
@@ -289,7 +289,7 @@ Crypto Payload:
 {
   "name": "bitcoin",
   "crypto": true,
-  "token": "xxxxxxxxxxxxxxxxxxxxxxxx",
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
   "ticker": "1) BTC",  # string/OPTIONAL: overwrites display name of bot
   "frequency": 10,  # int/OPTIONAL: default 60
   "set_nickname": true,  # bool/OPTIONAL
