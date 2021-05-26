@@ -212,6 +212,12 @@ To enable arrows in the ticker names to reflect price movements, set the arrows 
 export ARROWS=1
 ```
 
+To have the seperator between name and price be a custom string, set the decorator:
+
+```
+export DECORATOR="@"
+```
+
 To have prices shows in another currency:
 
 ```
@@ -278,6 +284,7 @@ Stock Payload:
   "set_color": true,  # bool/OPTIONAL: requires set_nickname
   "percentage": true,  # bool/OPTIONAL: show percent rather than USD change
   "arrows": true,  # bool/OPTIONAL: show arrows in ticker names
+  "decorator": "@",  # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",  # string/OPTIONAL: alternative curreny
 }
 ```
@@ -296,6 +303,7 @@ Crypto Payload:
   "set_color": true,  # bool/OPTIONAL: requires set_nickname
   "percentage": true,  # bool/OPTIONAL: show percent rather than USD change
   "arrows": true,  # bool/OPTIONAL: show arrows in ticker names
+  "decorator": "@",  # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",  # string/OPTIONAL: alternative curreny
 }
 ```

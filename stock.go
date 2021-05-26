@@ -21,6 +21,7 @@ type Stock struct {
 	Color      bool            `json:"color"`
 	Percentage bool            `json:"percentage"`
 	Arrows     bool            `json:"arrows"`
+	Decorator  string          `json:"decorator"`
 	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
 	Currency   string          `json:"currency"`  // how often to update in seconds
 	Price      int             `json:"-"`
@@ -31,7 +32,7 @@ type Stock struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int, currency string) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
@@ -39,6 +40,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 		Color:      color,
 		Percentage: percentage,
 		Arrows:     arrows,
+		Decorator:  decorator,
 		Frequency:  time.Duration(frequency) * time.Second,
 		Currency:   strings.ToUpper(currency),
 		token:      token,
@@ -51,7 +53,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, frequency int, currency string, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
@@ -59,6 +61,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Color:      color,
 		Percentage: percentage,
 		Arrows:     arrows,
+		Decorator:  decorator,
 		Frequency:  time.Duration(frequency) * time.Second,
 		Currency:   strings.ToUpper(currency),
 		Cache:      cache,
@@ -191,13 +194,11 @@ func (s *Stock) watchStockPrice() {
 				increase = true
 			}
 
-			decorator := "⬊"
-			if increase {
-				decorator = "⬈"
-			}
-
-			if !s.Arrows {
-				decorator = "-"
+			if s.Arrows {
+				s.Decorator = "⬊"
+				if increase {
+					s.Decorator = "⬈"
+				}
 			}
 
 			if s.Nickname {
@@ -206,7 +207,7 @@ func (s *Stock) watchStockPrice() {
 				var activity string
 
 				// format nickname
-				nickname = fmt.Sprintf("%s %s $%s", strings.ToUpper(s.Name), decorator, fmtPrice)
+				nickname = fmt.Sprintf("%s %s $%s", strings.ToUpper(s.Name), s.Decorator, fmtPrice)
 
 				// format activity based on trading time
 				if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
@@ -290,7 +291,7 @@ func (s *Stock) watchStockPrice() {
 				} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
 					activity = fmt.Sprintf("%s Pre %s", fmtPrice, fmtDiff)
 				} else {
-					activity = fmt.Sprintf("%s %s $%s", fmtPrice, decorator, fmtDiff)
+					activity = fmt.Sprintf("%s %s $%s", fmtPrice, s.Decorator, fmtDiff)
 				}
 
 				err = dg.UpdateListeningStatus(activity)
@@ -425,13 +426,11 @@ func (s *Stock) watchCryptoPrice() {
 				increase = true
 			}
 
-			decorator := "⬊"
-			if increase {
-				decorator = "⬈"
-			}
-
-			if !s.Arrows {
-				decorator = "-"
+			if s.Arrows {
+				s.Decorator = "⬊"
+				if increase {
+					s.Decorator = "⬈"
+				}
 			}
 
 			if s.Nickname {
@@ -447,7 +446,7 @@ func (s *Stock) watchCryptoPrice() {
 				}
 
 				// format nickname
-				nickname = fmt.Sprintf("%s %s %s", displayName, decorator, fmtPrice)
+				nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
 
 				// format activity
 				activity = fmt.Sprintf("24hr: %s%s%s", activityHeader, fmtDiff, activityFooter)
@@ -519,7 +518,7 @@ func (s *Stock) watchCryptoPrice() {
 			} else {
 
 				// format activity
-				activity := fmt.Sprintf("%s %s %s", fmtPrice, decorator, fmtDiff)
+				activity := fmt.Sprintf("%s %s %s", fmtPrice, s.Decorator, fmtDiff)
 				err = dg.UpdateListeningStatus(activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
