@@ -1,6 +1,8 @@
 # discord-stock-ticker
 Live stock tickers for your discord server.
 
+🍾 Over 4.6k installs across 170+ tickers!
+
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
 
