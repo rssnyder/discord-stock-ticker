@@ -1,7 +1,7 @@
 # discord-stock-ticker
 Live stock tickers for your discord server.
 
-🍾 Over 4.6k installs across 170+ tickers!
+🍾 170+ tickers with over 4.6k installs across 680+ discord servers!
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -74,7 +74,11 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [rkt](https://discord.com/api/oauth2/authorize?client_id=839289069045547018&permissions=0&scope=bot) | [btc](https://discord.com/api/oauth2/authorize?client_id=839289136418783322&permissions=0&scope=bot) | [tlry](https://discord.com/api/oauth2/authorize?client_id=840022914690842624&permissions=0&scope=bot) |
 | [ogi](https://discord.com/api/oauth2/authorize?client_id=840023145758851103&permissions=0&scope=bot) | [cidm](https://discord.com/api/oauth2/authorize?client_id=840023236640505867&permissions=0&scope=bot) | [roku](https://discord.com/api/oauth2/authorize?client_id=840023321034883072&permissions=0&scope=bot) |
 | [btbt](https://discord.com/api/oauth2/authorize?client_id=841850350226898975&permissions=0&scope=bot) | [omx](https://discord.com/api/oauth2/authorize?client_id=841850514429444158&permissions=0&scope=bot) | [tcnnf](https://discord.com/api/oauth2/authorize?client_id=841412636792979526&permissions=0&scope=bot) |
-| [trul](https://discord.com/api/oauth2/authorize?client_id=841850589402628107&permissions=0&scope=bot) | | |
+| [trul](https://discord.com/api/oauth2/authorize?client_id=841850589402628107&permissions=0&scope=bot) | [adbe](https://discord.com/api/oauth2/authorize?client_id=844012640878723103&permissions=0&scope=bot) | [docu](https://discord.com/api/oauth2/authorize?client_id=844934496955400223&permissions=0&scope=bot) |
+| [lmt](https://discord.com/api/oauth2/authorize?client_id=844934534089015337&permissions=0&scope=bot) | [wmt](https://discord.com/api/oauth2/authorize?client_id=844934568796618772&permissions=0&scope=bot) | [cost](https://discord.com/api/oauth2/authorize?client_id=844934604674039818&permissions=0&scope=bot) |
+| [nya](https://discord.com/api/oauth2/authorize?client_id=844934639574974475&permissions=0&scope=bot) | [gold](https://discord.com/api/oauth2/authorize?client_id=844934740171948032&permissions=0&scope=bot) | [hd](https://discord.com/api/oauth2/authorize?client_id=846442063427272774&permissions=0&scope=bot) |
+| [iwm](https://discord.com/api/oauth2/authorize?client_id=848232028511272972&permissions=0&scope=bot) | [nkla](https://discord.com/api/oauth2/authorize?client_id=848232142545616927&permissions=0&scope=bot) | [sklz](https://discord.com/api/oauth2/authorize?client_id=848232593401053204&permissions=0&scope=bot) |
+| [coin](https://discord.com/api/oauth2/authorize?client_id=848232686320484382&permissions=0&scope=bot) | [snow](https://discord.com/api/oauth2/authorize?client_id=848232784959111259&permissions=0&scope=bot) | |
 
 ### Crypto
 
@@ -102,7 +106,8 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [locgame](https://discord.com/api/oauth2/authorize?client_id=841412468404518974&permissions=0&scope=bot) | [coti](https://discord.com/api/oauth2/authorize?client_id=841412539854094416&permissions=0&scope=bot) | [casper-network](https://discord.com/api/oauth2/authorize?client_id=841849975134355506&permissions=0&scope=bot) |
 | [luck](https://discord.com/api/oauth2/authorize?client_id=841850350226898975&permissions=0&scope=bot) | [hbar](https://discord.com/api/oauth2/authorize?client_id=841850253418430495&permissions=0&scope=bot) | [wex](https://discord.com/api/oauth2/authorize?client_id=841850425312935938&permissions=0&scope=bot) |
 | [rope](https://discord.com/api/oauth2/authorize?client_id=844012291304980490&permissions=0&scope=bot) | [woo](https://discord.com/api/oauth2/authorize?client_id=844012368626188298&permissions=0&scope=bot) | [sushi](https://discord.com/api/oauth2/authorize?client_id=844012506670432277&permissions=0&scope=bot) |
-| [lyxe](https://discord.com/api/oauth2/authorize?client_id=844012575615615007&permissions=0&scope=bot) | | |
+| [lyxe](https://discord.com/api/oauth2/authorize?client_id=844012575615615007&permissions=0&scope=bot) | [ele](https://discord.com/api/oauth2/authorize?client_id=844934678083403826&permissions=0&scope=bot) | [ksm](https://discord.com/api/oauth2/authorize?client_id=844934710597779456&permissions=0&scope=bot) |
+| [eos](https://discord.com/api/oauth2/authorize?client_id=844934770314969109&permissions=0&scope=bot) | [moonstar](https://discord.com/api/oauth2/authorize?client_id=846441900910051378&permissions=0&scope=bot) | [pekc](https://discord.com/api/oauth2/authorize?client_id=846441985429733416&permissions=0&scope=bot) |
 
 ## Premium
 
