@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -135,7 +134,8 @@ func (s *Stock) watchStockPrice() {
 
 			var priceData utils.PriceResults
 			var fmtPrice string
-			var fmtDiff string
+			var fmtDiffPercent string
+			var fmtDiffChange string
 
 			// save the price struct & do something with it
 			priceData, err = utils.GetStockPrice(s.Ticker)
@@ -155,40 +155,23 @@ func (s *Stock) watchStockPrice() {
 				fmtPrice = strconv.FormatFloat(rawPrice, 'f', 2, 64)
 			}
 
-			var activityHeader string
-
-			if s.Percentage {
-				activityHeader = ""
-			} else {
-				activityHeader = "$"
-			}
-
 			// check for day or after hours change
 			if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
-				if s.Percentage {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChangePercent.Fmt
-				} else {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
-				}
+				fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.PostMarketChangePercent.Fmt
+				fmtDiffChange = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
 			} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
-				if s.Percentage {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.PreMarketChangePercent.Fmt
-				} else {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.PreMarketChange.Fmt
-				}
+				fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.PreMarketChangePercent.Fmt
+				fmtDiffChange = priceData.QuoteSummary.Results[0].Price.PreMarketChange.Fmt
 			} else {
-				if s.Percentage {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChangePercent.Fmt
-				} else {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
-				}
+				fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.RegularMarketChangePercent.Fmt
+				fmtDiffChange = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
 			}
 
 			// calculate if price has moved up or down
 			var increase bool
-			if len(fmtDiff) == 0 {
+			if len(fmtDiffChange) == 0 {
 				increase = true
-			} else if string(fmtDiff[0]) == "-" {
+			} else if string(fmtDiffChange[0]) == "-" {
 				increase = false
 			} else {
 				increase = true
@@ -206,17 +189,9 @@ func (s *Stock) watchStockPrice() {
 				var nickname string
 				var activity string
 
-				// format nickname
+				// format nickname & activity
 				nickname = fmt.Sprintf("%s %s $%s", strings.ToUpper(s.Name), s.Decorator, fmtPrice)
-
-				// format activity based on trading time
-				if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
-					activity = fmt.Sprintf("AHT: %s%s", activityHeader, fmtDiff)
-				} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
-					activity = fmt.Sprintf("Pre: %s%s", activityHeader, fmtDiff)
-				} else {
-					activity = fmt.Sprintf("Change: %s%s", activityHeader, fmtDiff)
-				}
+				activity = fmt.Sprintf("$%s (%s)", fmtDiffChange, fmtDiffPercent)
 
 				// Update nickname in guilds
 				for _, g := range guilds {
@@ -275,7 +250,7 @@ func (s *Stock) watchStockPrice() {
 					}
 				}
 
-				err = dg.UpdateListeningStatus(activity)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
@@ -283,18 +258,9 @@ func (s *Stock) watchStockPrice() {
 				}
 
 			} else {
-				var activity string
+				activity := fmt.Sprintf("%s %s %s", fmtPrice, s.Decorator, fmtDiffPercent)
 
-				// format activity based on trading time
-				if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
-					activity = fmt.Sprintf("%s AHT %s", fmtPrice, fmtDiff)
-				} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
-					activity = fmt.Sprintf("%s Pre %s", fmtPrice, fmtDiff)
-				} else {
-					activity = fmt.Sprintf("%s %s $%s", fmtPrice, s.Decorator, fmtDiff)
-				}
-
-				err = dg.UpdateListeningStatus(activity)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
@@ -365,7 +331,7 @@ func (s *Stock) watchCryptoPrice() {
 
 			var priceData utils.GeckoPriceResults
 			var fmtPrice string
-			var fmtDiff string
+			var fmtDiffChange string
 
 			// save the price struct & do something with it
 			if s.Cache == rdb {
@@ -383,44 +349,29 @@ func (s *Stock) watchCryptoPrice() {
 				priceData.MarketData.PriceChange = exRate * priceData.MarketData.PriceChange
 			}
 
-			var change float64
-			var activityHeader string
-			var activityFooter string
-
-			if s.Percentage {
-				change = priceData.MarketData.PriceChangePercent
-				activityHeader = ""
-				activityFooter = "%"
-			} else {
-				change = priceData.MarketData.PriceChange
-				if math.Abs(priceData.MarketData.PriceChange) < 0.01 {
-					change = change * 100
-					activityHeader = ""
-					activityFooter = "¢"
-				} else {
-					activityHeader = "$"
-					activityFooter = ""
-				}
-			}
-
 			// Check for cryptos below 1c
+			fmtDiffPercent := fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercent)
 			if priceData.MarketData.CurrentPrice.USD < 0.01 {
 				priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
-				fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.2f", change)
+				if priceData.MarketData.CurrentPrice.USD < 0.00001 {
+					fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
+				} else {
+					fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
+				}
+				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
 			} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
 				fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.2f", change)
+				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
 			} else {
 				fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiff = fmt.Sprintf("%.2f", change)
+				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
 			}
 
 			// calculate if price has moved up or down
 			var increase bool
-			if len(fmtDiff) == 0 {
+			if len(fmtDiffChange) == 0 {
 				increase = true
-			} else if string(fmtDiff[0]) == "-" {
+			} else if string(fmtDiffChange[0]) == "-" {
 				increase = false
 			} else {
 				increase = true
@@ -447,9 +398,7 @@ func (s *Stock) watchCryptoPrice() {
 
 				// format nickname
 				nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
-
-				// format activity
-				activity = fmt.Sprintf("24hr: %s%s%s", activityHeader, fmtDiff, activityFooter)
+				activity = fmt.Sprintf("$%s (%s%%)", fmtDiffChange, fmtDiffPercent)
 
 				// Update nickname in guilds
 				for _, g := range guilds {
@@ -508,7 +457,7 @@ func (s *Stock) watchCryptoPrice() {
 					}
 				}
 
-				err = dg.UpdateListeningStatus(activity)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
@@ -518,8 +467,8 @@ func (s *Stock) watchCryptoPrice() {
 			} else {
 
 				// format activity
-				activity := fmt.Sprintf("%s %s %s", fmtPrice, s.Decorator, fmtDiff)
-				err = dg.UpdateListeningStatus(activity)
+				activity := fmt.Sprintf("%s %s %s%%", fmtPrice, s.Decorator, fmtDiffPercent)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
