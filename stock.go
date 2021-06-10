@@ -258,10 +258,7 @@ func (s *Stock) watchStockPrice() {
 				}
 
 			} else {
-				var activity string
-
-				// format activity based on trading time
-				activity = fmt.Sprintf("%s %s %s", fmtPrice, s.Decorator, fmtDiffPercent)
+				activity := fmt.Sprintf("%s %s %s", fmtPrice, s.Decorator, fmtDiffPercent)
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
