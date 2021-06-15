@@ -13,6 +13,23 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	lastUpdate = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "since_last_update",
+			Help: "Time since last update.",
+		},
+	)
+	tickerCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "ticker_count",
+			Help: "Number of tickers.",
+		},
+	)
 )
 
 // Manager holds a list of the crypto and stocks we are watching
@@ -21,6 +38,11 @@ type Manager struct {
 	Cache    *redis.Client
 	Context  context.Context
 	sync.RWMutex
+}
+
+func init() {
+	prometheus.MustRegister(lastUpdate)
+	prometheus.MustRegister(tickerCount)
 }
 
 // NewManager stores all the information about the current stocks being watched and
@@ -36,6 +58,8 @@ func NewManager(port string, cache *redis.Client, context context.Context) *Mana
 	r.HandleFunc("/ticker", m.AddStock).Methods("POST")
 	r.HandleFunc("/ticker/{id}", m.DeleteStock).Methods("DELETE")
 	r.HandleFunc("/ticker", m.GetStocks).Methods("GET")
+
+	r.Path("/metrics").Handler(promhttp.Handler())
 
 	srv := &http.Server{
 		Addr:         "localhost:" + port,
@@ -135,6 +159,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, m.Cache, m.Context)
 		m.addStock(stockReq.Name, crypto)
+		tickerCount.Inc()
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
@@ -167,6 +192,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency)
 	m.addStock(stockReq.Ticker, stock)
+	tickerCount.Inc()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -199,6 +225,7 @@ func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
 	}
 	// send shutdown sign
 	m.Watching[id].Shutdown()
+	tickerCount.Dec()
 
 	// remove from cache
 	delete(m.Watching, id)
