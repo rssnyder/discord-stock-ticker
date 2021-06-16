@@ -402,7 +402,7 @@ docker-compose-up -d
 
 ### Kubernetes
 
-Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/discord-stock-ticker-chart)
+Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/charts/tree/master/discord-stock-ticker)
 
 You can also use a simple deployment file:
 
