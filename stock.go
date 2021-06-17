@@ -9,29 +9,31 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis/v8"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
 type Stock struct {
-	Ticker     string          `json:"ticker"`   // stock symbol
-	Name       string          `json:"name"`     // override for symbol as shown on the bot
-	Nickname   bool            `json:"nickname"` // flag for changing nickname
-	Color      bool            `json:"color"`
-	Percentage bool            `json:"percentage"`
-	Arrows     bool            `json:"arrows"`
-	Decorator  string          `json:"decorator"`
-	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
-	Currency   string          `json:"currency"`  // how often to update in seconds
-	Price      int             `json:"-"`
-	Cache      *redis.Client   `json:"-"`
-	Context    context.Context `json:"-"`
-	token      string          `json:"-"` // discord token
-	close      chan int        `json:"-"`
+	Ticker     string               `json:"ticker"`   // stock symbol
+	Name       string               `json:"name"`     // override for symbol as shown on the bot
+	Nickname   bool                 `json:"nickname"` // flag for changing nickname
+	Color      bool                 `json:"color"`
+	Percentage bool                 `json:"percentage"`
+	Arrows     bool                 `json:"arrows"`
+	Decorator  string               `json:"decorator"`
+	Frequency  time.Duration        `json:"frequency"` // how often to update in seconds
+	Currency   string               `json:"currency"`  // how often to update in seconds
+	Price      int                  `json:"-"`
+	Cache      *redis.Client        `json:"-"`
+	Context    context.Context      `json:"-"`
+	LastUpdate *prometheus.GaugeVec `json:"-"`
+	token      string               `json:"-"` // discord token
+	close      chan int             `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, update *prometheus.GaugeVec) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
@@ -42,6 +44,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 		Decorator:  decorator,
 		Frequency:  time.Duration(frequency) * time.Second,
 		Currency:   strings.ToUpper(currency),
+		LastUpdate: update,
 		token:      token,
 		close:      make(chan int, 1),
 	}
@@ -52,7 +55,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, update *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
@@ -63,6 +66,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Decorator:  decorator,
 		Frequency:  time.Duration(frequency) * time.Second,
 		Currency:   strings.ToUpper(currency),
+		LastUpdate: update,
 		Cache:      cache,
 		Context:    context,
 		token:      token,
@@ -201,6 +205,7 @@ func (s *Stock) watchStockPrice() {
 						continue
 					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
+					s.LastUpdate.With(prometheus.Labels{"ticker":s.Ticker}).SetToCurrentTime()
 
 					if s.Color {
 						// get roles for colors
@@ -408,6 +413,7 @@ func (s *Stock) watchCryptoPrice() {
 						continue
 					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
+					s.LastUpdate.With(prometheus.Labels{"ticker":displayName}).SetToCurrentTime()
 
 					if s.Color {
 						// get roles for colors

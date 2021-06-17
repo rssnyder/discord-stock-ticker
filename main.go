@@ -9,6 +9,8 @@ import (
 	env "github.com/caitlinelfring/go-env-default"
 	"github.com/go-redis/redis/v8"
 	log "github.com/sirupsen/logrus"
+	"github.com/prometheus/client_golang/prometheus"
+
 )
 
 var (
@@ -17,6 +19,19 @@ var (
 	cache  *bool
 	rdb    *redis.Client
 	ctx    context.Context
+	lastUpdate = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "last_update",
+			Help: "Seconds since last price update.",
+		},
+		[]string{"ticker"},
+	)
+	tickerCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "ticker_count",
+			Help: "Number of tickers.",
+		},
+	)
 )
 
 func init() {
@@ -47,7 +62,7 @@ func main() {
 	}
 
 	wg.Add(1)
-	m := NewManager(*port, rdb, ctx)
+	m := NewManager(*port, lastUpdate, tickerCount, rdb, ctx)
 
 	// check for inital bots
 	if os.Getenv("DISCORD_BOT_TOKEN") != "" {
@@ -88,9 +103,9 @@ func addInitialStock() *Stock {
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
 		// if it's not a crypto, it's a stock
-		stock = NewStock(ticker, token, stockName, nickname, color, percentage, arrows, decorator, frequency, currency)
+		stock = NewStock(ticker, token, stockName, nickname, color, percentage, arrows, decorator, frequency, currency, lastUpdate)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, arrows, decorator, frequency, currency, rdb, ctx)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, arrows, decorator, frequency, currency, lastUpdate, rdb, ctx)
 	}
 	return stock
 }

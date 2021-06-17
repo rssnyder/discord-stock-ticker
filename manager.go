@@ -17,21 +17,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var (
-	lastUpdate = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "since_last_update",
-			Help: "Time since last update.",
-		},
-	)
-	tickerCount = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "ticker_count",
-			Help: "Number of tickers.",
-		},
-	)
-)
-
 // Manager holds a list of the crypto and stocks we are watching
 type Manager struct {
 	Watching map[string]*Stock
@@ -40,14 +25,9 @@ type Manager struct {
 	sync.RWMutex
 }
 
-func init() {
-	prometheus.MustRegister(lastUpdate)
-	prometheus.MustRegister(tickerCount)
-}
-
 // NewManager stores all the information about the current stocks being watched and
 // listens for api requests on 8080
-func NewManager(port string, cache *redis.Client, context context.Context) *Manager {
+func NewManager(port string, update *prometheus.GaugeVec, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
 		Watching: make(map[string]*Stock),
 		Cache:    cache,
@@ -59,6 +39,9 @@ func NewManager(port string, cache *redis.Client, context context.Context) *Mana
 	r.HandleFunc("/ticker/{id}", m.DeleteStock).Methods("DELETE")
 	r.HandleFunc("/ticker", m.GetStocks).Methods("GET")
 
+	// Metrics
+	prometheus.MustRegister(lastUpdate)
+	prometheus.MustRegister(tickerCount)
 	r.Path("/metrics").Handler(promhttp.Handler())
 
 	srv := &http.Server{
@@ -157,7 +140,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, lastUpdate, m.Cache, m.Context)
 		m.addStock(stockReq.Name, crypto)
 		tickerCount.Inc()
 
@@ -190,7 +173,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency)
+	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, lastUpdate)
 	m.addStock(stockReq.Ticker, stock)
 	tickerCount.Inc()
 
