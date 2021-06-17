@@ -25,7 +25,7 @@ type Manager struct {
 
 // NewManager stores all the information about the current stocks being watched and
 // listens for api requests on 8080
-func NewManager(port string, cache *redis.Client, context context.Context) *Manager {
+func NewManager(address string, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
 		Watching: make(map[string]*Stock),
 		Cache:    cache,
@@ -38,14 +38,14 @@ func NewManager(port string, cache *redis.Client, context context.Context) *Mana
 	r.HandleFunc("/ticker", m.GetStocks).Methods("GET")
 
 	srv := &http.Server{
-		Addr:         "localhost:" + port,
+		Addr:         address,
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
 		Handler:      r,
 	}
 
-	logger.Infof("Starting api server on %s...", port)
+	logger.Infof("Starting api server on %s...", address)
 
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
