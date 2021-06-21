@@ -28,7 +28,7 @@ Discord bot to create new tickers (avalible on the support server): https://gith
 
 Cache-like system to get around coingecko api limits: https://github.com/rssnyder/coingecko-cache
 
-## Add free tickers to your servers (click the image to add)
+## Add free tickers to your servers (click the stock/crypto symbol in the charts below to add)
 
 Don't see a stock or crypto that you need? Open a github issue or join our discord server to use the broker bot!
 
