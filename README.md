@@ -1,7 +1,7 @@
 # discord-stock-ticker
 Live stock tickers for your discord server.
 
-🍾 170+ tickers with over 4.6k installs across 680+ discord servers!
+🍾 250+ tickers with over 6,000 installs across 900 discord servers!
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -78,7 +78,11 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [lmt](https://discord.com/api/oauth2/authorize?client_id=844934534089015337&permissions=0&scope=bot) | [wmt](https://discord.com/api/oauth2/authorize?client_id=844934568796618772&permissions=0&scope=bot) | [cost](https://discord.com/api/oauth2/authorize?client_id=844934604674039818&permissions=0&scope=bot) |
 | [nya](https://discord.com/api/oauth2/authorize?client_id=844934639574974475&permissions=0&scope=bot) | [gold](https://discord.com/api/oauth2/authorize?client_id=844934740171948032&permissions=0&scope=bot) | [hd](https://discord.com/api/oauth2/authorize?client_id=846442063427272774&permissions=0&scope=bot) |
 | [iwm](https://discord.com/api/oauth2/authorize?client_id=848232028511272972&permissions=0&scope=bot) | [nkla](https://discord.com/api/oauth2/authorize?client_id=848232142545616927&permissions=0&scope=bot) | [sklz](https://discord.com/api/oauth2/authorize?client_id=848232593401053204&permissions=0&scope=bot) |
-| [coin](https://discord.com/api/oauth2/authorize?client_id=848232686320484382&permissions=0&scope=bot) | [snow](https://discord.com/api/oauth2/authorize?client_id=848232784959111259&permissions=0&scope=bot) | |
+| [coin](https://discord.com/api/oauth2/authorize?client_id=848232686320484382&permissions=0&scope=bot) | [snow](https://discord.com/api/oauth2/authorize?client_id=848232784959111259&permissions=0&scope=bot) | [li](https://discord.com/api/oauth2/authorize?client_id=850012125546938379&permissions=0&scope=bot) |
+| [ldos](https://discord.com/api/oauth2/authorize?client_id=850012308456341504&permissions=0&scope=bot) | [goev](https://discord.com/api/oauth2/authorize?client_id=850012384391069726&permissions=0&scope=bot) | [ctxr](https://discord.com/api/oauth2/authorize?client_id=850012459674894376&permissions=0&scope=bot) |
+| [ndaq](https://discord.com/api/oauth2/authorize?client_id=851203267840966696&permissions=0&scope=bot) | [wkhs](https://discord.com/api/oauth2/authorize?client_id=851203379286769664&permissions=0&scope=bot) | [clov](https://discord.com/api/oauth2/authorize?client_id=851811767960600577&permissions=0&scope=bot) |
+| [vti](https://discord.com/api/oauth2/authorize?client_id=851811845621678100&permissions=0&scope=bot) | [fsr](https://discord.com/api/oauth2/authorize?client_id=854499151407742997&permissions=0&scope=bot) | [qqq](https://discord.com/api/oauth2/authorize?client_id=854499452840312842&permissions=0&scope=bot) |
+| [es](https://discord.com/api/oauth2/authorize?client_id=854499554774876190&permissions=0&scope=bot) | [si](https://discord.com/api/oauth2/authorize?client_id=856537356970885191&permissions=0&scope=bot) | |
 
 ### Crypto
 
@@ -108,6 +112,18 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [rope](https://discord.com/api/oauth2/authorize?client_id=844012291304980490&permissions=0&scope=bot) | [woo](https://discord.com/api/oauth2/authorize?client_id=844012368626188298&permissions=0&scope=bot) | [sushi](https://discord.com/api/oauth2/authorize?client_id=844012506670432277&permissions=0&scope=bot) |
 | [lyxe](https://discord.com/api/oauth2/authorize?client_id=844012575615615007&permissions=0&scope=bot) | [ele](https://discord.com/api/oauth2/authorize?client_id=844934678083403826&permissions=0&scope=bot) | [ksm](https://discord.com/api/oauth2/authorize?client_id=844934710597779456&permissions=0&scope=bot) |
 | [eos](https://discord.com/api/oauth2/authorize?client_id=844934770314969109&permissions=0&scope=bot) | [moonstar](https://discord.com/api/oauth2/authorize?client_id=846441900910051378&permissions=0&scope=bot) | [pekc](https://discord.com/api/oauth2/authorize?client_id=846441985429733416&permissions=0&scope=bot) |
+| [est](https://discord.com/api/oauth2/authorize?client_id=849375576941658143&permissions=0&scope=bot) | [luna](https://discord.com/api/oauth2/authorize?client_id=849375907856384020&permissions=0&scope=bot) | [arrr](https://discord.com/api/oauth2/authorize?client_id=850012220473344020&permissions=0&scope=bot) |
+| [grt](https://discord.com/api/oauth2/authorize?client_id=850384459488297000&permissions=0&scope=bot) | [xrune](https://discord.com/api/oauth2/authorize?client_id=850384555210047509&permissions=0&scope=bot) | [dfyn](https://discord.com/api/oauth2/authorize?client_id=850384639368495114&permissions=0&scope=bot) |
+| [celo](https://discord.com/api/oauth2/authorize?client_id=850384720084205637&permissions=0&scope=bot) | [pussy](https://discord.com/api/oauth2/authorize?client_id=851202946821652520&permissions=0&scope=bot) | [titan](https://discord.com/api/oauth2/authorize?client_id=851203079487619073&permissions=0&scope=bot) |
+| [xch](https://discord.com/api/oauth2/authorize?client_id=851203175200456704&permissions=0&scope=bot) | [clu](https://discord.com/api/oauth2/authorize?client_id=851811687522631710&permissions=0&scope=bot) | [steel](https://discord.com/api/oauth2/authorize?client_id=851811917333135360&permissions=0&scope=bot) |
+| [theta](https://discord.com/api/oauth2/authorize?client_id=852238599163871286&permissions=0&scope=bot) | [force](https://discord.com/api/oauth2/authorize?client_id=852239848496562247&permissions=0&scope=bot) | [ice](https://discord.com/api/oauth2/authorize?client_id=852239941840011275&permissions=0&scope=bot) |
+| [tomb](https://discord.com/api/oauth2/authorize?client_id=852240031090343976&permissions=0&scope=bot) | [aqu](https://discord.com/api/oauth2/authorize?client_id=852240124104015932&permissions=0&scope=bot) | [amp](https://discord.com/api/oauth2/authorize?client_id=852323149134954506&permissions=0&scope=bot)|
+| [uncx](https://discord.com/api/oauth2/authorize?client_id=852323334229327912&permissions=0&scope=bot) | [cummies](https://discord.com/api/oauth2/authorize?client_id=852323588542562334&permissions=0&scope=bot) | [kmd](https://discord.com/api/oauth2/authorize?client_id=852323686425952298&permissions=0&scope=bot) |
+| [wexpoly](https://discord.com/api/oauth2/authorize?client_id=854392209062887464&permissions=0&scope=bot) | [iron](https://discord.com/api/oauth2/authorize?client_id=854392293590433872&permissions=0&scope=bot) | [xdo](https://discord.com/api/oauth2/authorize?client_id=854392375400464444&permissions=0&scope=bot) |
+| [xusd](https://discord.com/api/oauth2/authorize?client_id=854392452034986024&permissions=0&scope=bot) | [evai](https://discord.com/api/oauth2/authorize?client_id=854392532544520292&permissions=0&scope=bot) | [chee](https://discord.com/api/oauth2/authorize?client_id=854764729771098163&permissions=0&scope=bot) |
+| [fish](https://discord.com/api/oauth2/authorize?client_id=854499334455689267&permissions=0&scope=bot) | [spirit](https://discord.com/api/oauth2/authorize?client_id=854499653792956426&permissions=0&scope=bot) | [comfy](https://discord.com/api/oauth2/authorize?client_id=854764554985668629&permissions=0&scope=bot) |
+| [hodl](https://discord.com/api/oauth2/authorize?client_id=854764648938078240&permissions=0&scope=bot) | [prtcle](https://discord.com/api/oauth2/authorize?client_id=856537250833367081&permissions=0&scope=bot) | [1inch](https://discord.com/api/oauth2/authorize?client_id=856537449722019880&permissions=0&scope=bot) |
+| [dero](https://discord.com/api/oauth2/authorize?client_id=856537535597379605&permissions=0&scope=bot) | [zep](https://discord.com/api/oauth2/authorize?client_id=856537610054139929&permissions=0&scope=bot) | | 
 
 ## Premium
 
