@@ -139,7 +139,7 @@ func (s *Stock) watchStockPrice() {
 		}
 	}
 	
-    	dg.AddHandler(messageCreate)
+    	dg.AddHandler(sendMessage)
 	logger.Infof("Watching stock price for %s", s.Name)
 	ticker := time.NewTicker(s.Frequency)
 
