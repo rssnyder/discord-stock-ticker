@@ -94,9 +94,10 @@ func (s *Stock) watchStockPrice() {
 	}
 
 	// x = what the bot will look for and then respond to, eg; %help, %joke ext.
-	if m.Content == "x" {
-		s.ChannelMessageSend(m.ChannelID, "Response goes here")
-	}
+	
+	//if m.Content == "x" {
+	//	s.ChannelMessageSend(m.ChannelID, "Response goes here")
+	//}
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
