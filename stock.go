@@ -339,7 +339,7 @@ func (s *Stock) watchCryptoPrice() {
 		}
 	}
 	
-    	dg.AddHandler(messageCreate)
+    	dg.AddHandler(sendMessage)
 	ticker := time.NewTicker(s.Frequency)
 	logger.Debugf("Watching crypto price for %s", s.Name)
 
