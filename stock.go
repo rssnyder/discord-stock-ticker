@@ -90,7 +90,10 @@ func sendMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
     // listens for mention
     for _, user := range m.Mentions {
         if user.ID == s.State.User.ID {
-            s.ChannelMessageSend(m.ChannelID, "Bot  online;") 
+            _, err := s.ChannelMessageSend(m.ChannelID, "Bot  online;")
+            if err != nil {
+                fmt.Println("Error sending message reply: ", err)
+            }
         }
     }
         
