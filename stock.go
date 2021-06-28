@@ -78,8 +78,9 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 func (s *Stock) Shutdown() {
 	s.close <- 1
 }
-// THIS FUNCTION IS THE SAME FOR STOCK AND CRYPTO, IF YOU WANT DIFFERENT RESPONSES, MAKE A DIFFEREN'T FUNCTION FOR EACH AND CHANGE THE LINES: 142 AND 340 TO THEIR NEW FUNCTION NAME
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+
+// sendMessage responds to users who @ the bot
+func sendMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
     //ignores itself
     if m.Author.ID == s.State.User.ID {
         return
