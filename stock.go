@@ -81,7 +81,8 @@ func (s *Stock) Shutdown() {
 
 // sendMessage responds to users who @ the bot
 func sendMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
-    //ignores itself
+
+    // ignores itself
     if m.Author.ID == s.State.User.ID {
         return
     }
