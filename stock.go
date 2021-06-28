@@ -86,7 +86,8 @@ func sendMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
     if m.Author.ID == s.State.User.ID {
         return
     }
-    //listens for mention
+
+    // listens for mention
     for _, user := range m.Mentions {
         if user.ID == s.State.User.ID {
             s.ChannelMessageSend(m.ChannelID, "Bot  online;") 
