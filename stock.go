@@ -101,7 +101,6 @@ func sendMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 func (s *Stock) watchStockPrice() {
 	var exRate float64
 
-
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
 	if err != nil {
