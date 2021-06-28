@@ -78,26 +78,28 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 func (s *Stock) Shutdown() {
 	s.close <- 1
 }
+// THIS FUNCTION IS THE SAME FOR STOCK AND CRYPTO, IF YOU WANT DIFFERENT RESPONSES, MAKE A DIFFEREN'T FUNCTION FOR EACH AND CHANGE THE LINES: 142 AND 340 TO THEIR NEW FUNCTION NAME
+func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+    //ignores itself
+    if m.Author.ID == s.State.User.ID {
+        return
+    }
+    //listens for mention
+    for _, user := range m.Mentions {
+        if user.ID == s.State.User.ID {
+            s.ChannelMessageSend(m.ChannelID, "Bot  online;") 
+        }
+    }
+        
+    // the xxxxx should be what the bot responds to, with the 'response here' being the response
+    if m.Content == "xxxxx" {
+        s.ChannelMessageSend(m.ChannelID, "Response here*")
+    }
+}
 
 func (s *Stock) watchStockPrice() {
 	var exRate float64
 
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	// Listens to mentions and will respond to them.
-	for _, user := range m.Mentions {
-		if user.ID == s.State.User.ID {
-			s.ChannelMessageSend(m.ChannelID, "Bot online")
-		}
-	}
-
-	// x = what the bot will look for and then respond to, eg; %help, %joke ext.
-	
-	//if m.Content == "x" {
-	//	s.ChannelMessageSend(m.ChannelID, "Response goes here")
-	//}
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
@@ -136,7 +138,8 @@ func (s *Stock) watchStockPrice() {
 			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
 		}
 	}
-
+	
+    	dg.AddHandler(messageCreate)
 	logger.Infof("Watching stock price for %s", s.Name)
 	ticker := time.NewTicker(s.Frequency)
 
@@ -333,7 +336,8 @@ func (s *Stock) watchCryptoPrice() {
 			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
 		}
 	}
-
+	
+    	dg.AddHandler(messageCreate)
 	ticker := time.NewTicker(s.Frequency)
 	logger.Debugf("Watching crypto price for %s", s.Name)
 
