@@ -82,6 +82,22 @@ func (s *Stock) Shutdown() {
 func (s *Stock) watchStockPrice() {
 	var exRate float64
 
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+	// Listens to mentions and will respond to them.
+	for _, user := range m.Mentions {
+		if user.ID == s.State.User.ID {
+			s.ChannelMessageSend(m.ChannelID, "Bot online")
+		}
+	}
+
+	// x = what the bot will look for and then respond to, eg; %help, %joke ext.
+	if m.Content == "x" {
+		s.ChannelMessageSend(m.ChannelID, "Response goes here")
+	}
+
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
 	if err != nil {
