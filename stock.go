@@ -95,9 +95,9 @@ func sendMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
     }
         
     // the xxxxx should be what the bot responds to, with the 'response here' being the response
-    if m.Content == "xxxxx" {
-        s.ChannelMessageSend(m.ChannelID, "Response here*")
-    }
+    // if m.Content == "xxxxx" {
+    //    s.ChannelMessageSend(m.ChannelID, "Response here*")
+    //}
 }
 
 func (s *Stock) watchStockPrice() {
