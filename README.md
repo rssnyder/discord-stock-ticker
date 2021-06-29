@@ -309,7 +309,6 @@ Stock Payload:
   "arrows": true,  # bool/OPTIONAL: show arrows in ticker names
   "decorator": "@",  # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",  # string/OPTIONAL: alternative curreny
-
 }
 ```
 
