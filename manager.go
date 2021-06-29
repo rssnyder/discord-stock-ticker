@@ -70,6 +70,7 @@ type StockRequest struct {
 	Decorator  string `json:"decorator" default:"-"`
 	Frequency  int    `json:"frequency" default:"60"`
 	Currency   string `json:"currency" default:"usd"`
+	Bitcoin    bool   `json:"bitcoin"`
 }
 
 // AddStock adds a new stock or crypto to the list of what to watch
@@ -133,7 +134,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Bitcoin, m.Cache, m.Context)
 		m.addStock(stockReq.Name, crypto)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")

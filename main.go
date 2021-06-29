@@ -79,6 +79,7 @@ func addInitialStock() *Stock {
 	decorator := env.GetDefault("DECORATOR", "-")
 	frequency := env.GetIntDefault("FREQUENCY", 60)
 	currency := env.GetDefault("CURRENCY", "usd")
+	bitcoin := env.GetBoolDefault("BITCOIN", false)
 
 	var stockName string
 	if name, ok := os.LookupEnv("STOCK_NAME"); ok {
@@ -92,7 +93,7 @@ func addInitialStock() *Stock {
 		// if it's not a crypto, it's a stock
 		stock = NewStock(ticker, token, stockName, nickname, color, percentage, arrows, decorator, frequency, currency)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, arrows, decorator, frequency, currency, rdb, ctx)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, arrows, decorator, frequency, currency, bitcoin, rdb, ctx)
 	}
 	return stock
 }

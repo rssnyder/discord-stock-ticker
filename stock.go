@@ -22,7 +22,8 @@ type Stock struct {
 	Arrows     bool            `json:"arrows"`
 	Decorator  string          `json:"decorator"`
 	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
-	Currency   string          `json:"currency"`  // how often to update in seconds
+	Currency   string          `json:"currency"`
+	Bitcoin    bool            `json:"bitcoin"`
 	Price      int             `json:"-"`
 	Cache      *redis.Client   `json:"-"`
 	Context    context.Context `json:"-"`
@@ -52,7 +53,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, bitcoin bool, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
 		Ticker:     ticker,
 		Name:       name,
@@ -63,6 +64,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Decorator:  decorator,
 		Frequency:  time.Duration(frequency) * time.Second,
 		Currency:   strings.ToUpper(currency),
+		Bitcoin:    bitcoin,
 		Cache:      cache,
 		Context:    context,
 		token:      token,
@@ -332,6 +334,8 @@ func (s *Stock) watchCryptoPrice() {
 			var priceData utils.GeckoPriceResults
 			var fmtPrice string
 			var fmtDiffChange string
+			var changeHeader string
+			var fmtDiffPercent string
 
 			// save the price struct & do something with it
 			if s.Cache == rdb {
@@ -349,22 +353,31 @@ func (s *Stock) watchCryptoPrice() {
 				priceData.MarketData.PriceChange = exRate * priceData.MarketData.PriceChange
 			}
 
-			// Check for cryptos below 1c
-			fmtDiffPercent := fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercent)
-			if priceData.MarketData.CurrentPrice.USD < 0.01 {
-				priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
-				if priceData.MarketData.CurrentPrice.USD < 0.00001 {
-					fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
-				} else {
-					fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
-				}
-				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
-			} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
-				fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+			// Check if a crypto pair is set
+			if s.Bitcoin {
+				fmtPrice = fmt.Sprintf("₿%.6f", priceData.MarketData.CurrentPrice.BTC)
+				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.BTC)
+				fmtDiffPercent = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercentCurrency.BTC)
+				changeHeader = "₿"
 			} else {
-				fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+				// Check for cryptos below 1c
+				changeHeader = "$"
+				fmtDiffPercent = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercent)
+				if priceData.MarketData.CurrentPrice.USD < 0.01 {
+					priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
+					if priceData.MarketData.CurrentPrice.USD < 0.00001 {
+						fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
+					} else {
+						fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
+					}
+					fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+				} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
+					fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
+					fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+				} else {
+					fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
+					fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+				}
 			}
 
 			// calculate if price has moved up or down
@@ -398,7 +411,7 @@ func (s *Stock) watchCryptoPrice() {
 
 				// format nickname
 				nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
-				activity = fmt.Sprintf("$%s (%s%%)", fmtDiffChange, fmtDiffPercent)
+				activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtDiffChange, fmtDiffPercent)
 
 				// Update nickname in guilds
 				for _, g := range guilds {
