@@ -158,11 +158,10 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 		geckoPriceResults, err = GetCryptoPrice(ticker)
 		return geckoPriceResults, err
 	} else {
-		priceChangePercentFloat, err := strconv.ParseFloat(priceChangePercent, 32)
+		priceChangePercentFloat, err = strconv.ParseFloat(priceChangePercent, 32)
 		if err != nil {
-			priceChangePercentFloat = marketData.PriceChangePercent
+			priceChangePercentFloat = 0.00
 		}
-		marketData.PriceChangePercent = priceChangePercentFloat
 	}
 
 	marketData = MarketData{
