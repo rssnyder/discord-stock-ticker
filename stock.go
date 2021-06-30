@@ -14,37 +14,35 @@ import (
 )
 
 type Stock struct {
-	Ticker     string          `json:"ticker"`   // stock symbol
-	Name       string          `json:"name"`     // override for symbol as shown on the bot
-	Nickname   bool            `json:"nickname"` // flag for changing nickname
-	Color      bool            `json:"color"`
-	Percentage bool            `json:"percentage"`
-	Arrows     bool            `json:"arrows"`
-	Decorator  string          `json:"decorator"`
-	Frequency  time.Duration   `json:"frequency"` // how often to update in seconds
-	Currency   string          `json:"currency"`
-	Bitcoin    bool            `json:"bitcoin"`
-	Price      int             `json:"-"`
-	Cache      *redis.Client   `json:"-"`
-	Context    context.Context `json:"-"`
-	token      string          `json:"-"` // discord token
-	close      chan int        `json:"-"`
+	Ticker    string          `json:"ticker"`   // stock symbol
+	Name      string          `json:"name"`     // override for symbol as shown on the bot
+	Nickname  bool            `json:"nickname"` // flag for changing nickname
+	Color     bool            `json:"color"`
+	Decorator string          `json:"decorator"`
+	Frequency time.Duration   `json:"frequency"` // how often to update in seconds
+	Currency  string          `json:"currency"`
+	Bitcoin   bool            `json:"bitcoin"`
+	Activity  string          `json:"activity"`
+	Price     int             `json:"-"`
+	Cache     *redis.Client   `json:"-"`
+	Context   context.Context `json:"-"`
+	token     string          `json:"-"` // discord token
+	close     chan int        `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string) *Stock {
 	s := &Stock{
-		Ticker:     ticker,
-		Name:       name,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Decorator:  decorator,
-		Frequency:  time.Duration(frequency) * time.Second,
-		Currency:   strings.ToUpper(currency),
-		token:      token,
-		close:      make(chan int, 1),
+		Ticker:    ticker,
+		Name:      name,
+		Nickname:  nickname,
+		Color:     color,
+		Decorator: decorator,
+		Activity:  activity,
+		Frequency: time.Duration(frequency) * time.Second,
+		Currency:  strings.ToUpper(currency),
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -53,22 +51,21 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, bitcoin bool, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
-		Ticker:     ticker,
-		Name:       name,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Decorator:  decorator,
-		Frequency:  time.Duration(frequency) * time.Second,
-		Currency:   strings.ToUpper(currency),
-		Bitcoin:    bitcoin,
-		Cache:      cache,
-		Context:    context,
-		token:      token,
-		close:      make(chan int, 1),
+		Ticker:    ticker,
+		Name:      name,
+		Nickname:  nickname,
+		Color:     color,
+		Decorator: decorator,
+		Activity:  activity,
+		Frequency: time.Duration(frequency) * time.Second,
+		Currency:  strings.ToUpper(currency),
+		Bitcoin:   bitcoin,
+		Cache:     cache,
+		Context:   context,
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -120,6 +117,19 @@ func (s *Stock) watchStockPrice() {
 		} else {
 			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
 		}
+	}
+
+	// Set arrows if no custom decorator
+	var arrows bool
+	if s.Decorator == "" {
+		arrows = true
+	}
+
+	// Grab custom activity messages
+	var custom_activity []string
+	itr := 0
+	if s.Activity != "" {
+		custom_activity = strings.Split(s.Activity, ";")
 	}
 
 	logger.Infof("Watching stock price for %s", s.Name)
@@ -179,7 +189,7 @@ func (s *Stock) watchStockPrice() {
 				increase = true
 			}
 
-			if s.Arrows {
+			if arrows {
 				s.Decorator = "⬊"
 				if increase {
 					s.Decorator = "⬈"
@@ -252,6 +262,18 @@ func (s *Stock) watchStockPrice() {
 					}
 				}
 
+				// Custom activity messages
+				if len(custom_activity) > 0 {
+
+					// Display the real activity once per cycle
+					if itr == len(custom_activity) {
+						itr = 0
+					} else {
+						activity = custom_activity[itr]
+						itr++
+					}
+				}
+
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
@@ -317,6 +339,19 @@ func (s *Stock) watchCryptoPrice() {
 		} else {
 			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
 		}
+	}
+
+	// Set arrows if no custom decorator
+	var arrows bool
+	if s.Decorator == "" {
+		arrows = true
+	}
+
+	// Grab custom activity messages
+	var custom_activity []string
+	itr := 0
+	if s.Activity != "" {
+		custom_activity = strings.Split(s.Activity, ";")
 	}
 
 	ticker := time.NewTicker(s.Frequency)
@@ -393,7 +428,7 @@ func (s *Stock) watchCryptoPrice() {
 				increase = true
 			}
 
-			if s.Arrows {
+			if arrows {
 				s.Decorator = "⬊"
 				if increase {
 					s.Decorator = "⬈"
@@ -470,6 +505,18 @@ func (s *Stock) watchCryptoPrice() {
 								logger.Error("Unable to set role: ", err)
 							}
 						}
+					}
+				}
+
+				// Custom activity messages
+				if len(custom_activity) > 0 {
+
+					// Display the real activity once per cycle
+					if itr == len(custom_activity) {
+						itr = 0
+					} else {
+						activity = custom_activity[itr]
+						itr++
 					}
 				}
 

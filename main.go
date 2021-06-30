@@ -39,6 +39,7 @@ func init() {
 func main() {
 	var wg sync.WaitGroup
 
+	// Redis is used a an optional cache for coingecko data
 	if *cache {
 		rdb = redis.NewClient(&redis.Options{
 			Addr:     *redisAddress,
@@ -48,10 +49,11 @@ func main() {
 		ctx = context.Background()
 	}
 
+	// Create the bot manager
 	wg.Add(1)
 	m := NewManager(*address, rdb, ctx)
 
-	// check for inital bots
+	// Check for inital bots
 	if os.Getenv("DISCORD_BOT_TOKEN") != "" {
 		s := addInitialStock()
 		m.addStock(s.Ticker, s)
@@ -61,26 +63,27 @@ func main() {
 	wg.Wait()
 }
 
+// addInitialStock looks for env vars to configure a bot on boot
 func addInitialStock() *Stock {
 	var stock *Stock
 
+	// Discord token is the minimum value needed
 	token := os.Getenv("DISCORD_BOT_TOKEN")
 	if token == "" {
 		logger.Fatal("Discord bot token is not set! Shutting down.")
 	}
 
+	// Get settings for bootstrapped bot
 	ticker := os.Getenv("TICKER")
-
-	// now get settings for it
 	nickname := env.GetBoolDefault("SET_NICKNAME", false)
 	color := env.GetBoolDefault("SET_COLOR", false)
-	percentage := env.GetBoolDefault("PERCENTAGE", false)
-	arrows := env.GetBoolDefault("ARROWS", false)
-	decorator := env.GetDefault("DECORATOR", "-")
+	decorator := env.GetDefault("DECORATOR", "")
 	frequency := env.GetIntDefault("FREQUENCY", 60)
 	currency := env.GetDefault("CURRENCY", "usd")
 	bitcoin := env.GetBoolDefault("BITCOIN", false)
+	activity := env.GetDefault("ACTIVITY", "")
 
+	// Check for stock name options
 	var stockName string
 	if name, ok := os.LookupEnv("STOCK_NAME"); ok {
 		stockName = name
@@ -88,12 +91,13 @@ func addInitialStock() *Stock {
 		stockName = ticker
 	}
 
+	// Check if the target ticker is a crypto
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
-		// if it's not a crypto, it's a stock
-		stock = NewStock(ticker, token, stockName, nickname, color, percentage, arrows, decorator, frequency, currency)
+		// If it's not a crypto, it's a stock
+		stock = NewStock(ticker, token, stockName, nickname, color, decorator, frequency, currency, activity)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, percentage, arrows, decorator, frequency, currency, bitcoin, rdb, ctx)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, decorator, frequency, currency, bitcoin, activity, rdb, ctx)
 	}
 	return stock
 }
