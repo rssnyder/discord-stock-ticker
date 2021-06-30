@@ -15,38 +15,35 @@ import (
 )
 
 type Stock struct {
-	Ticker     string               `json:"ticker"`   // stock symbol
-	Name       string               `json:"name"`     // override for symbol as shown on the bot
-	Nickname   bool                 `json:"nickname"` // flag for changing nickname
-	Color      bool                 `json:"color"`
-	Percentage bool                 `json:"percentage"`
-	Arrows     bool                 `json:"arrows"`
-	Decorator  string               `json:"decorator"`
-	Frequency  time.Duration        `json:"frequency"` // how often to update in seconds
-	Currency   string               `json:"currency"`  // how often to update in seconds
-	Price      int                  `json:"-"`
-	Cache      *redis.Client        `json:"-"`
-	Context    context.Context      `json:"-"`
-	LastUpdate *prometheus.GaugeVec `json:"-"`
-	token      string               `json:"-"` // discord token
-	close      chan int             `json:"-"`
+	Ticker    string          `json:"ticker"`   // stock symbol
+	Name      string          `json:"name"`     // override for symbol as shown on the bot
+	Nickname  bool            `json:"nickname"` // flag for changing nickname
+	Color     bool            `json:"color"`
+	Decorator string          `json:"decorator"`
+	Frequency time.Duration   `json:"frequency"` // how often to update in seconds
+	Currency  string          `json:"currency"`
+	Bitcoin   bool            `json:"bitcoin"`
+	Activity  string          `json:"activity"`
+	Price     int             `json:"-"`
+	Cache     *redis.Client   `json:"-"`
+	Context   context.Context `json:"-"`
+	token     string          `json:"-"` // discord token
+	close     chan int        `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, update *prometheus.GaugeVec) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string) *Stock {
 	s := &Stock{
-		Ticker:     ticker,
-		Name:       name,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Decorator:  decorator,
-		Frequency:  time.Duration(frequency) * time.Second,
-		Currency:   strings.ToUpper(currency),
-		LastUpdate: update,
-		token:      token,
-		close:      make(chan int, 1),
+		Ticker:    ticker,
+		Name:      name,
+		Nickname:  nickname,
+		Color:     color,
+		Decorator: decorator,
+		Activity:  activity,
+		Frequency: time.Duration(frequency) * time.Second,
+		Currency:  strings.ToUpper(currency),
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -55,22 +52,21 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, percentage bool, arrows bool, decorator string, frequency int, currency string, update *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
-		Ticker:     ticker,
-		Name:       name,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Decorator:  decorator,
-		Frequency:  time.Duration(frequency) * time.Second,
-		Currency:   strings.ToUpper(currency),
-		LastUpdate: update,
-		Cache:      cache,
-		Context:    context,
-		token:      token,
-		close:      make(chan int, 1),
+		Ticker:    ticker,
+		Name:      name,
+		Nickname:  nickname,
+		Color:     color,
+		Decorator: decorator,
+		Activity:  activity,
+		Frequency: time.Duration(frequency) * time.Second,
+		Currency:  strings.ToUpper(currency),
+		Bitcoin:   bitcoin,
+		Cache:     cache,
+		Context:   context,
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -122,6 +118,19 @@ func (s *Stock) watchStockPrice() {
 		} else {
 			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
 		}
+	}
+
+	// Set arrows if no custom decorator
+	var arrows bool
+	if s.Decorator == "" {
+		arrows = true
+	}
+
+	// Grab custom activity messages
+	var custom_activity []string
+	itr := 0
+	if s.Activity != "" {
+		custom_activity = strings.Split(s.Activity, ";")
 	}
 
 	logger.Infof("Watching stock price for %s", s.Name)
@@ -181,7 +190,7 @@ func (s *Stock) watchStockPrice() {
 				increase = true
 			}
 
-			if s.Arrows {
+			if arrows {
 				s.Decorator = "⬊"
 				if increase {
 					s.Decorator = "⬈"
@@ -255,6 +264,18 @@ func (s *Stock) watchStockPrice() {
 					}
 				}
 
+				// Custom activity messages
+				if len(custom_activity) > 0 {
+
+					// Display the real activity once per cycle
+					if itr == len(custom_activity) {
+						itr = 0
+					} else {
+						activity = custom_activity[itr]
+						itr++
+					}
+				}
+
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
@@ -322,6 +343,19 @@ func (s *Stock) watchCryptoPrice() {
 		}
 	}
 
+	// Set arrows if no custom decorator
+	var arrows bool
+	if s.Decorator == "" {
+		arrows = true
+	}
+
+	// Grab custom activity messages
+	var custom_activity []string
+	itr := 0
+	if s.Activity != "" {
+		custom_activity = strings.Split(s.Activity, ";")
+	}
+
 	ticker := time.NewTicker(s.Frequency)
 	logger.Debugf("Watching crypto price for %s", s.Name)
 
@@ -336,7 +370,9 @@ func (s *Stock) watchCryptoPrice() {
 
 			var priceData utils.GeckoPriceResults
 			var fmtPrice string
-			var fmtDiffChange string
+			var fmtChange string
+			var changeHeader string
+			var fmtDiffPercent string
 
 			// save the price struct & do something with it
 			if s.Cache == rdb {
@@ -351,38 +387,50 @@ func (s *Stock) watchCryptoPrice() {
 			// Check if conversion is needed
 			if exRate != 0 {
 				priceData.MarketData.CurrentPrice.USD = exRate * priceData.MarketData.CurrentPrice.USD
-				priceData.MarketData.PriceChange = exRate * priceData.MarketData.PriceChange
+				priceData.MarketData.PriceChangeCurrency.USD = exRate * priceData.MarketData.PriceChangeCurrency.USD
 			}
 
-			// Check for cryptos below 1c
-			fmtDiffPercent := fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercent)
-			if priceData.MarketData.CurrentPrice.USD < 0.01 {
-				priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
-				if priceData.MarketData.CurrentPrice.USD < 0.00001 {
-					fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
-				} else {
-					fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
-				}
-				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
-			} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
-				fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+			fmtDiffPercent = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercent)
+
+			// Check if a crypto pair is set
+			if s.Bitcoin {
+				changeHeader = "₿"
+
+				fmtPrice = fmt.Sprintf("₿%.6f", priceData.MarketData.CurrentPrice.BTC)
+				fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.BTC)
+
 			} else {
-				fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
-				fmtDiffChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChange)
+				changeHeader = "$"
+
+				// Check for cryptos below 1c
+				if priceData.MarketData.CurrentPrice.USD < 0.01 {
+					priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
+					if priceData.MarketData.CurrentPrice.USD < 0.00001 {
+						fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
+					} else {
+						fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
+					}
+					fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
+				} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
+					fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
+					fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
+				} else {
+					fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
+					fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
+				}
 			}
 
 			// calculate if price has moved up or down
 			var increase bool
-			if len(fmtDiffChange) == 0 {
+			if len(fmtChange) == 0 {
 				increase = true
-			} else if string(fmtDiffChange[0]) == "-" {
+			} else if string(fmtChange[0]) == "-" {
 				increase = false
 			} else {
 				increase = true
 			}
 
-			if s.Arrows {
+			if arrows {
 				s.Decorator = "⬊"
 				if increase {
 					s.Decorator = "⬈"
@@ -403,7 +451,7 @@ func (s *Stock) watchCryptoPrice() {
 
 				// format nickname
 				nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
-				activity = fmt.Sprintf("$%s (%s%%)", fmtDiffChange, fmtDiffPercent)
+				activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
 
 				// Update nickname in guilds
 				for _, g := range guilds {
@@ -460,6 +508,18 @@ func (s *Stock) watchCryptoPrice() {
 								logger.Error("Unable to set role: ", err)
 							}
 						}
+					}
+				}
+
+				// Custom activity messages
+				if len(custom_activity) > 0 {
+
+					// Display the real activity once per cycle
+					if itr == len(custom_activity) {
+						itr = 0
+					} else {
+						activity = custom_activity[itr]
+						itr++
 					}
 				}
 

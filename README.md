@@ -1,7 +1,7 @@
 # discord-stock-ticker
 Live stock tickers for your discord server.
 
-🍾 170+ tickers with over 4.6k installs across 680+ discord servers!
+🍾 250+ tickers with over 6,000 installs across 900 discord servers!
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -28,7 +28,7 @@ Discord bot to create new tickers (avalible on the support server): https://gith
 
 Cache-like system to get around coingecko api limits: https://github.com/rssnyder/coingecko-cache
 
-## Add free tickers to your servers (click the image to add)
+## Add free tickers to your servers (click the stock/crypto symbol in the charts below to add)
 
 Don't see a stock or crypto that you need? Open a github issue or join our discord server to use the broker bot!
 
@@ -78,7 +78,11 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [lmt](https://discord.com/api/oauth2/authorize?client_id=844934534089015337&permissions=0&scope=bot) | [wmt](https://discord.com/api/oauth2/authorize?client_id=844934568796618772&permissions=0&scope=bot) | [cost](https://discord.com/api/oauth2/authorize?client_id=844934604674039818&permissions=0&scope=bot) |
 | [nya](https://discord.com/api/oauth2/authorize?client_id=844934639574974475&permissions=0&scope=bot) | [gold](https://discord.com/api/oauth2/authorize?client_id=844934740171948032&permissions=0&scope=bot) | [hd](https://discord.com/api/oauth2/authorize?client_id=846442063427272774&permissions=0&scope=bot) |
 | [iwm](https://discord.com/api/oauth2/authorize?client_id=848232028511272972&permissions=0&scope=bot) | [nkla](https://discord.com/api/oauth2/authorize?client_id=848232142545616927&permissions=0&scope=bot) | [sklz](https://discord.com/api/oauth2/authorize?client_id=848232593401053204&permissions=0&scope=bot) |
-| [coin](https://discord.com/api/oauth2/authorize?client_id=848232686320484382&permissions=0&scope=bot) | [snow](https://discord.com/api/oauth2/authorize?client_id=848232784959111259&permissions=0&scope=bot) | |
+| [coin](https://discord.com/api/oauth2/authorize?client_id=848232686320484382&permissions=0&scope=bot) | [snow](https://discord.com/api/oauth2/authorize?client_id=848232784959111259&permissions=0&scope=bot) | [li](https://discord.com/api/oauth2/authorize?client_id=850012125546938379&permissions=0&scope=bot) |
+| [ldos](https://discord.com/api/oauth2/authorize?client_id=850012308456341504&permissions=0&scope=bot) | [goev](https://discord.com/api/oauth2/authorize?client_id=850012384391069726&permissions=0&scope=bot) | [ctxr](https://discord.com/api/oauth2/authorize?client_id=850012459674894376&permissions=0&scope=bot) |
+| [ndaq](https://discord.com/api/oauth2/authorize?client_id=851203267840966696&permissions=0&scope=bot) | [wkhs](https://discord.com/api/oauth2/authorize?client_id=851203379286769664&permissions=0&scope=bot) | [clov](https://discord.com/api/oauth2/authorize?client_id=851811767960600577&permissions=0&scope=bot) |
+| [vti](https://discord.com/api/oauth2/authorize?client_id=851811845621678100&permissions=0&scope=bot) | [fsr](https://discord.com/api/oauth2/authorize?client_id=854499151407742997&permissions=0&scope=bot) | [qqq](https://discord.com/api/oauth2/authorize?client_id=854499452840312842&permissions=0&scope=bot) |
+| [es](https://discord.com/api/oauth2/authorize?client_id=854499554774876190&permissions=0&scope=bot) | [si](https://discord.com/api/oauth2/authorize?client_id=856537356970885191&permissions=0&scope=bot) | |
 
 ### Crypto
 
@@ -108,6 +112,18 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [rope](https://discord.com/api/oauth2/authorize?client_id=844012291304980490&permissions=0&scope=bot) | [woo](https://discord.com/api/oauth2/authorize?client_id=844012368626188298&permissions=0&scope=bot) | [sushi](https://discord.com/api/oauth2/authorize?client_id=844012506670432277&permissions=0&scope=bot) |
 | [lyxe](https://discord.com/api/oauth2/authorize?client_id=844012575615615007&permissions=0&scope=bot) | [ele](https://discord.com/api/oauth2/authorize?client_id=844934678083403826&permissions=0&scope=bot) | [ksm](https://discord.com/api/oauth2/authorize?client_id=844934710597779456&permissions=0&scope=bot) |
 | [eos](https://discord.com/api/oauth2/authorize?client_id=844934770314969109&permissions=0&scope=bot) | [moonstar](https://discord.com/api/oauth2/authorize?client_id=846441900910051378&permissions=0&scope=bot) | [pekc](https://discord.com/api/oauth2/authorize?client_id=846441985429733416&permissions=0&scope=bot) |
+| [est](https://discord.com/api/oauth2/authorize?client_id=849375576941658143&permissions=0&scope=bot) | [luna](https://discord.com/api/oauth2/authorize?client_id=849375907856384020&permissions=0&scope=bot) | [arrr](https://discord.com/api/oauth2/authorize?client_id=850012220473344020&permissions=0&scope=bot) |
+| [grt](https://discord.com/api/oauth2/authorize?client_id=850384459488297000&permissions=0&scope=bot) | [xrune](https://discord.com/api/oauth2/authorize?client_id=850384555210047509&permissions=0&scope=bot) | [dfyn](https://discord.com/api/oauth2/authorize?client_id=850384639368495114&permissions=0&scope=bot) |
+| [celo](https://discord.com/api/oauth2/authorize?client_id=850384720084205637&permissions=0&scope=bot) | [pussy](https://discord.com/api/oauth2/authorize?client_id=851202946821652520&permissions=0&scope=bot) | [titan](https://discord.com/api/oauth2/authorize?client_id=851203079487619073&permissions=0&scope=bot) |
+| [xch](https://discord.com/api/oauth2/authorize?client_id=851203175200456704&permissions=0&scope=bot) | [clu](https://discord.com/api/oauth2/authorize?client_id=851811687522631710&permissions=0&scope=bot) | [steel](https://discord.com/api/oauth2/authorize?client_id=851811917333135360&permissions=0&scope=bot) |
+| [theta](https://discord.com/api/oauth2/authorize?client_id=852238599163871286&permissions=0&scope=bot) | [force](https://discord.com/api/oauth2/authorize?client_id=852239848496562247&permissions=0&scope=bot) | [ice](https://discord.com/api/oauth2/authorize?client_id=852239941840011275&permissions=0&scope=bot) |
+| [tomb](https://discord.com/api/oauth2/authorize?client_id=852240031090343976&permissions=0&scope=bot) | [aqu](https://discord.com/api/oauth2/authorize?client_id=852240124104015932&permissions=0&scope=bot) | [amp](https://discord.com/api/oauth2/authorize?client_id=852323149134954506&permissions=0&scope=bot)|
+| [uncx](https://discord.com/api/oauth2/authorize?client_id=852323334229327912&permissions=0&scope=bot) | [cummies](https://discord.com/api/oauth2/authorize?client_id=852323588542562334&permissions=0&scope=bot) | [kmd](https://discord.com/api/oauth2/authorize?client_id=852323686425952298&permissions=0&scope=bot) |
+| [wexpoly](https://discord.com/api/oauth2/authorize?client_id=854392209062887464&permissions=0&scope=bot) | [iron](https://discord.com/api/oauth2/authorize?client_id=854392293590433872&permissions=0&scope=bot) | [xdo](https://discord.com/api/oauth2/authorize?client_id=854392375400464444&permissions=0&scope=bot) |
+| [xusd](https://discord.com/api/oauth2/authorize?client_id=854392452034986024&permissions=0&scope=bot) | [evai](https://discord.com/api/oauth2/authorize?client_id=854392532544520292&permissions=0&scope=bot) | [chee](https://discord.com/api/oauth2/authorize?client_id=854764729771098163&permissions=0&scope=bot) |
+| [fish](https://discord.com/api/oauth2/authorize?client_id=854499334455689267&permissions=0&scope=bot) | [spirit](https://discord.com/api/oauth2/authorize?client_id=854499653792956426&permissions=0&scope=bot) | [comfy](https://discord.com/api/oauth2/authorize?client_id=854764554985668629&permissions=0&scope=bot) |
+| [hodl](https://discord.com/api/oauth2/authorize?client_id=854764648938078240&permissions=0&scope=bot) | [prtcle](https://discord.com/api/oauth2/authorize?client_id=856537250833367081&permissions=0&scope=bot) | [1inch](https://discord.com/api/oauth2/authorize?client_id=856537449722019880&permissions=0&scope=bot) |
+| [dero](https://discord.com/api/oauth2/authorize?client_id=856537535597379605&permissions=0&scope=bot) | [zep](https://discord.com/api/oauth2/authorize?client_id=856537610054139929&permissions=0&scope=bot) | | 
 
 ## Premium
 
@@ -140,7 +156,13 @@ If you are interested please see the [contact info on my github page](https://gi
 
 ### Self-Hosting
 
-#### Running in a simple shell
+This bot is distributed as a docker image and a binary.
+
+When running the binary, it servers as a manager of one to many bots. You can have one running instance of the binary (service) and have any number of bots running within it.
+
+For the docker version, you can also have one docker instance manage many bots. You can also use docker environment variables to configure one bot in startup, and still be able to add more via the manager later.
+
+#### Using the binary
 
 Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
 
@@ -152,98 +174,22 @@ tar zxf discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
 ./discord-stock-ticker
 ```
 
-Set options via ENV...
+##### Setting options
 
-Register a new application in the discord developer portal and copy the bot token:
-
-```
-export DISCORD_BOT_TOKEN=<token>
-```
-
-If you are watching a stock, enter the ticker symbol, and optionally you can set a custom name to appear instead of the symbol:
+There are options you can set for the service using flags:
 
 ```
-export TICKER=AAPL
-export STOCK_NAME=Apple
+  -address string
+        address:port to bind http server to. (default "localhost:8080")
+  -cache
+        enable cache for coingecko
+  -logLevel int
+        defines the log level. 0=production builds. 1=dev builds.
+  -redisAddress string
+        address:port for redis server. (default "localhost:6379")
 ```
 
-If you are watching a crypto, enter the coin name as you want it to appear on your ticker, as well as the coin name/id for the coingecko API:
-
-```
-export TICKER=BTC
-export CRYPTO_NAME=bitcoin
-```
-
-You can see coingecko coin names/id via their API (or enter the url in your browser):
-
-```
-curl -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json"
-```
-
-You can optionally give your bot "change nickname" permissions to get around discord's limit on changing names only twice per two hours. Then you can set a custom amount of time between price updates (in seconds):
-
-You must also make sure your bot has `Change Nickname` permissions to your server.
-
-```
-export SET_NICKNAME=1
-export FREQUENCY=3
-```
-
-To enable color changing on price change, there is some setup needed. First you must create a new role to place the bots in. You need to check the `Display role members seperatly from other online members` option for this role, and **do not** assign a custom color for this role, leave it default.
-
-Next you must create two roles called `tickers-green` and `tickers-red `. **Do not** check the `Display role members seperatly from other online members` option, but do set the colors for these roles to be `green` and `red` accordingly (or choose your own colors). These two new roles must appear **below** the general ticker role you created in the first step in the roles list.
-
-You must also make sure your bot has `Manage Roles` permissions to your server.
-
-Lastly, to enable the color changing, set `SET_COLOR=1` in your environment:
-
-```
-export SET_COLOR=1
-```
-
-The colors will reflect the day price change, red for a loss and green for a gain. To flash the color of the price change every check (red for price decrease, green for increase) you can set `FLASH_CHANGE`:
-
-```
-export FLASH_CHANGE=1
-```
-
-You can also show crypto price changes in percent, rather than USD movement:
-
-```
-export PERCENTAGE=1
-```
-
-To enable arrows in the ticker names to reflect price movements, set the arrows var:
-
-```
-export ARROWS=1
-```
-
-To have the seperator between name and price be a custom string, set the decorator:
-
-```
-export DECORATOR="@"
-```
-
-To have prices shows in another currency:
-
-```
-export CURRENCY=aud
-```
-
-Once all your options are set, simply run the binary:
-
-```
-./discord-stock-ticker
-```
-
-You can also specify the port to bind on (default is 8080):
-
-```
-./discord-stock-ticker -port 8000
-```
-
-### Systemd service
+##### Systemd service
 
 The below script (ran as root) will download and install a `discrod-stock-ticker` service on your linux machine with the API avalible on port `8080` to manage bots.
 
@@ -265,19 +211,17 @@ systemctl daemon-reload
 systemctl start discord-stock-ticker.service
 ```
 
-### Adding multiple bots
+##### Adding bots
 
-A new feature in v2 is having one instance of the discord-stock-ticker manage multiple bots for different stocks and cryptos.
+Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
-To add another bot to your instance, you need to use the API exposed on port 8080 of the host you are running on:
-
-#### List current running bots
+###### List current running bots
 
 ```
 curl localhost:8080/ticker
 ```
 
-#### Add a new bot
+###### Add a new bot
 
 Stock Payload: 
 
@@ -289,10 +233,9 @@ Stock Payload:
   "frequency": 10,  # int/OPTIONAL: default 60
   "set_nickname": true,  # bool/OPTIONAL
   "set_color": true,  # bool/OPTIONAL: requires set_nickname
-  "percentage": true,  # bool/OPTIONAL: show percent rather than USD change
-  "arrows": true,  # bool/OPTIONAL: show arrows in ticker names
   "decorator": "@",  # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",  # string/OPTIONAL: alternative curreny
+  "activity": "Hello;Its;Me",  # string/OPTIONAL: list of strings to show in activity section
 }
 ```
 
@@ -308,10 +251,10 @@ Crypto Payload:
   "frequency": 10,  # int/OPTIONAL: default 60
   "set_nickname": true,  # bool/OPTIONAL
   "set_color": true,  # bool/OPTIONAL: requires set_nickname
-  "percentage": true,  # bool/OPTIONAL: show percent rather than USD change
-  "arrows": true,  # bool/OPTIONAL: show arrows in ticker names
   "decorator": "@",  # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",  # string/OPTIONAL: alternative curreny
+  "bitcoin": true,  # bool/OPTIONAL: show prices in BTC
+  "activity": "Hello;Its;Me",  # string/OPTIONAL: list of strings to show in activity section
 }
 ```
 
@@ -325,7 +268,7 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/ticker
 ```
 
-#### Remove a bot
+###### Remove a bot
 
 ```
 curl -X DELETE localhost:8080/ticker/pfg
@@ -335,9 +278,15 @@ curl -X DELETE localhost:8080/ticker/pfg
 curl -X DELETE localhost:8080/ticker/bitcoin
 ```
 
-### Docker
+#### Docker
 
-You can also run these bots using docker. This can make running multiple bots esier. Here is an example docker compose file for the basic feature set (please check for the latest release and update the tags accordingly):
+To run a simple version without any bots on startup (can add via the API as shown above) you can simply run with:
+
+```
+docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:2.6.1
+```
+
+Here is an example docker compose file with environment variables set for adding a bot on startup. Notice the environment variables are the same as the JSON payload above, but in capital letters:
 
 ```
 ---
@@ -345,7 +294,7 @@ version: "2"
 services:
 
   ticker-stock:
-    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.4
+    image: ghcr.io/rssnyder/discord-stock-ticker:2.6.1
     container_name: discord-stock-ticker
     environment:
       - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -354,55 +303,14 @@ services:
       - STOCK_NAME=1. GME  # OPTIONAL / overrides name of bot
       - SET_NICKNAME=1  # OPTIONAL / uses server nickname to set price in bot name / requires "change nickname" perms
       - SET_COLOR=1  # OPTIONAL / change colors based on day change / requires "manage roles" perms and tickers-green & ticker-red roles
-    
-  ticker-crypto:
-    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.4
-    container_name: discord-stock-ticker
-    environment:
-      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      - CRYPTO_NAME=bitcoin
-      - FREQUENCY=10  # OPTIONAL / seconds between price updates
-      - TICKER=BTC  # OPTIONAL / overrides name of bot
-      - SET_NICKNAME=1  # OPTIONAL / uses server nickname to set price in bot name / requires "change nickname" perms
-      - SET_COLOR=1  # OPTIONAL / change colors based on day change / requires "manage roles" perms and tickers-green & ticker-red roles
-    restart: unless-stopped
+      - DECORATOR=@  # string/OPTIONAL: what to show instead of arrows
+      - CURRENCY=aud  # string/OPTIONAL: alternative curreny
+      - ACTIVITY="Hello;Its;Me"  # string/OPTIONAL: list of strings to show in activity section
 ```
 
-And here is an example of enabling faster updates with color changes:
+#### Kubernetes
 
-```
----
-version: "2"
-services:
-  ticker-pfg:
-    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
-    container_name: discord-stock-ticker
-    environment:
-      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      - TICKER=PFG
-      - SET_NICKNAME=1
-      - SET_COLOR=1
-      - FREQUENCY=10
-    restart: unless-stopped
-  ticker-aapl:
-    image: ghcr.io/rssnyder/discord-stock-ticker:2.0.0
-    container_name: discord-stock-ticker
-    environment:
-      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      - TICKER=AAPL
-      - SET_NICKNAME=1
-      - SET_COLOR=1
-      - FREQUENCY=10
-    restart: unless-stopped
-```
-
-```
-docker-compose-up -d
-```
-
-### Kubernetes
-
-Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/discord-stock-ticker-chart)
+Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/charts/tree/master/discord-stock-ticker)
 
 You can also use a simple deployment file:
 
@@ -447,10 +355,6 @@ spec:
           resources: {}
       restartPolicy: Always
 status: {}
-```
-
-```
-kubectl create -f deployment.yaml
 ```
 
 ## Support
