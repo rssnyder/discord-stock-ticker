@@ -26,7 +26,7 @@ type Manager struct {
 }
 
 // NewManager stores all the information about the current stocks being watched and
-func NewManager(address string, update *prometheus.GaugeVec, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
+func NewManager(address string, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
 		Watching: make(map[string]*Stock),
 		Cache:    cache,
@@ -40,7 +40,6 @@ func NewManager(address string, update *prometheus.GaugeVec, count prometheus.Ga
 	r.HandleFunc("/ticker", m.GetStocks).Methods("GET")
 
 	// Metrics
-	prometheus.MustRegister(lastUpdate)
 	prometheus.MustRegister(tickerCount)
 	r.Path("/metrics").Handler(promhttp.Handler())
 

@@ -8,9 +8,8 @@ import (
 
 	env "github.com/caitlinelfring/go-env-default"
 	"github.com/go-redis/redis/v8"
-	log "github.com/sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
-
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -20,14 +19,7 @@ var (
 	cache        *bool
 	rdb          *redis.Client
 	ctx          context.Context
-	lastUpdate = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "last_update",
-			Help: "Seconds since last price update.",
-		},
-		[]string{"ticker"},
-	)
-	tickerCount = prometheus.NewGauge(
+	tickerCount  = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "ticker_count",
 			Help: "Number of tickers.",
@@ -66,7 +58,7 @@ func main() {
 
 	// Create the bot manager
 	wg.Add(1)
-	m := NewManager(*address, lastUpdate, tickerCount, rdb, ctx)
+	m := NewManager(*address, tickerCount, rdb, ctx)
 
 	// Check for inital bots
 	if os.Getenv("DISCORD_BOT_TOKEN") != "" {

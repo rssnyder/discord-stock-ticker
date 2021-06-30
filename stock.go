@@ -9,7 +9,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis/v8"
-	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
@@ -24,7 +23,6 @@ type Stock struct {
 	Currency  string          `json:"currency"`
 	Bitcoin   bool            `json:"bitcoin"`
 	Activity  string          `json:"activity"`
-	Price     int             `json:"-"`
 	Cache     *redis.Client   `json:"-"`
 	Context   context.Context `json:"-"`
 	token     string          `json:"-"` // discord token
@@ -214,7 +212,6 @@ func (s *Stock) watchStockPrice() {
 						continue
 					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
-					s.LastUpdate.With(prometheus.Labels{"ticker":s.Ticker}).SetToCurrentTime()
 
 					if s.Color {
 						// get roles for colors
@@ -461,7 +458,6 @@ func (s *Stock) watchCryptoPrice() {
 						continue
 					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
-					s.LastUpdate.With(prometheus.Labels{"ticker":displayName}).SetToCurrentTime()
 
 					if s.Color {
 						// get roles for colors
