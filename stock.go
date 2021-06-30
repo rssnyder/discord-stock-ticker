@@ -23,7 +23,6 @@ type Stock struct {
 	Currency  string          `json:"currency"`
 	Bitcoin   bool            `json:"bitcoin"`
 	Activity  string          `json:"activity"`
-	Price     int             `json:"-"`
 	Cache     *redis.Client   `json:"-"`
 	Context   context.Context `json:"-"`
 	token     string          `json:"-"` // discord token
