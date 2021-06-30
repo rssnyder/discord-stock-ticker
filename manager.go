@@ -24,7 +24,6 @@ type Manager struct {
 }
 
 // NewManager stores all the information about the current stocks being watched and
-// listens for api requests on 8080
 func NewManager(address string, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
 		Watching: make(map[string]*Stock),
@@ -32,6 +31,7 @@ func NewManager(address string, cache *redis.Client, context context.Context) *M
 		Context:  context,
 	}
 
+	// Create a router to accept requests
 	r := mux.NewRouter()
 	r.HandleFunc("/ticker", m.AddStock).Methods("POST")
 	r.HandleFunc("/ticker/{id}", m.DeleteStock).Methods("DELETE")
@@ -59,18 +59,17 @@ func NewManager(address string, cache *redis.Client, context context.Context) *M
 
 // StockRequest represents the json coming in from the request
 type StockRequest struct {
-	Ticker     string `json:"ticker"`
-	Token      string `json:"discord_bot_token"`
-	Name       string `json:"name"`
-	Nickname   bool   `json:"set_nickname"`
-	Crypto     bool   `json:"crypto"`
-	Color      bool   `json:"set_color"`
-	Percentage bool   `json:"percentage"`
-	Arrows     bool   `json:"arrows"`
-	Decorator  string `json:"decorator" default:"-"`
-	Frequency  int    `json:"frequency" default:"60"`
-	Currency   string `json:"currency" default:"usd"`
-	Bitcoin    bool   `json:"bitcoin"`
+	Ticker    string `json:"ticker"`
+	Token     string `json:"discord_bot_token"`
+	Name      string `json:"name"`
+	Nickname  bool   `json:"set_nickname"`
+	Crypto    bool   `json:"crypto"`
+	Color     bool   `json:"set_color"`
+	Decorator string `json:"decorator" default:"-"`
+	Frequency int    `json:"frequency" default:"60"`
+	Currency  string `json:"currency" default:"usd"`
+	Bitcoin   bool   `json:"bitcoin"`
+	Activity  string `json:"activity"`
 }
 
 // AddStock adds a new stock or crypto to the list of what to watch
@@ -111,11 +110,6 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		stockReq.Currency = "usd"
 	}
 
-	// ensure decorator is set
-	if stockReq.Decorator == "" {
-		stockReq.Decorator = "-"
-	}
-
 	// add stock or crypto ticker
 	if stockReq.Crypto {
 
@@ -134,7 +128,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Bitcoin, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Bitcoin, stockReq.Activity, m.Cache, m.Context)
 		m.addStock(stockReq.Name, crypto)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -166,7 +160,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Percentage, stockReq.Arrows, stockReq.Decorator, stockReq.Frequency, stockReq.Currency)
+	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity)
 	m.addStock(stockReq.Ticker, stock)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
