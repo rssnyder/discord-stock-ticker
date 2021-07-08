@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -127,6 +128,7 @@ func (s *Stock) watchStockPrice() {
 	// Grab custom activity messages
 	var custom_activity []string
 	itr := 0
+	itrSeed := 0.0
 	if s.Activity != "" {
 		custom_activity = strings.Split(s.Activity, ";")
 	}
@@ -267,9 +269,14 @@ func (s *Stock) watchStockPrice() {
 					// Display the real activity once per cycle
 					if itr == len(custom_activity) {
 						itr = 0
-					} else {
+						itrSeed = 0.0
+					} else if math.Mod(itrSeed, 2.0) == 1.0 {
 						activity = custom_activity[itr]
 						itr++
+						itrSeed++
+					} else {
+						activity = custom_activity[itr]
+						itrSeed++
 					}
 				}
 
@@ -349,6 +356,7 @@ func (s *Stock) watchCryptoPrice() {
 	// Grab custom activity messages
 	var custom_activity []string
 	itr := 0
+	itrSeed := 0.0
 	if s.Activity != "" {
 		custom_activity = strings.Split(s.Activity, ";")
 	}
@@ -513,9 +521,14 @@ func (s *Stock) watchCryptoPrice() {
 					// Display the real activity once per cycle
 					if itr == len(custom_activity) {
 						itr = 0
-					} else {
+						itrSeed = 0.0
+					} else if math.Mod(itrSeed, 2.0) == 1.0 {
 						activity = custom_activity[itr]
 						itr++
+						itrSeed++
+					} else {
+						activity = custom_activity[itr]
+						itrSeed++
 					}
 				}
 
