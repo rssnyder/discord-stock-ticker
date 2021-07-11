@@ -162,6 +162,16 @@ When running the binary, it servers as a manager of one to many bots. You can ha
 
 For the docker version, you can also have one docker instance manage many bots. You can also use docker environment variables to configure one bot in startup, and still be able to add more via the manager later.
 
+#### Roles for colors
+
+To enabled color changing you will need to create three roles.
+
+The first role is the role the tickers will appear under. It can be named _anything you want_. You need to check the **Display role members seperatly from other online members** option for this role, but _do not_ assign a custom color for this role, leave it default.
+
+Then you need to make two other roles. These roles need to be named _exactly_ **tickers-red** & **tickers-green**. **Do not** check the Display role members seperatly from other online members option for these roles, but do assign colors to these roles, red and green (or whatever color you want to represent gain/loss) respectively.
+
+The last two roles tickers-green and tickers-red need to be below the first role in the role list in your server settings. You should then add all your ticker bots to the first role.
+
 #### Using the binary
 
 Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
