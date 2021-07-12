@@ -244,20 +244,20 @@ func (s *Stock) watchStockPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to remove role: %s", err)
+								logger.Errorf("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to set role: %s", err)
+								logger.Errorf("Unable to set role: %s", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to remove role: %s", err)
+								logger.Errorf("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to set role: %s", err)
+								logger.Errorf("Unable to set role: %s", err)
 							}
 						}
 					}
@@ -282,7 +282,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: %s", err)
+					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
@@ -292,7 +292,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: %s", err)
+					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
@@ -496,20 +496,20 @@ func (s *Stock) watchCryptoPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to remove role: %s", err)
+								logger.Errorf("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to set role: %s", err)
+								logger.Errorf("Unable to set role: %s", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to remove role: %s", err)
+								logger.Errorf("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to set role: %s", err)
+								logger.Errorf("Unable to set role: %s", err)
 							}
 						}
 					}
@@ -534,7 +534,7 @@ func (s *Stock) watchCryptoPrice() {
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: %s", err)
+					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
@@ -545,7 +545,7 @@ func (s *Stock) watchCryptoPrice() {
 				activity := fmt.Sprintf("%s %s %s%%", fmtPrice, s.Decorator, fmtDiffPercent)
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: %s", err)
+					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
