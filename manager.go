@@ -137,7 +137,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(crypto)
 		if err != nil {
-			logger.Error("Unable to encode ticker: %s", err)
+			logger.Errorf("Unable to encode ticker: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
 		}
 		return
@@ -170,7 +170,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(stock)
 	if err != nil {
-		logger.Error("Unable to encode ticker: %s", err)
+		logger.Errorf("Unable to encode ticker: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
@@ -191,7 +191,7 @@ func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
 	id := strings.ToUpper(vars["id"])
 
 	if _, ok := m.Watching[id]; !ok {
-		logger.Error("No ticker found: %s", id)
+		logger.Errorf("No ticker found: %s", id)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
