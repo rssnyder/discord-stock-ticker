@@ -87,7 +87,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger.Errorf("%v", err)
+		logger.Errorf("%s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -95,7 +95,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	// unmarshal into struct
 	var stockReq StockRequest
 	if err := json.Unmarshal(body, &stockReq); err != nil {
-		logger.Errorf("Unmarshalling: %v", err)
+		logger.Errorf("Unmarshalling: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -137,7 +137,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(crypto)
 		if err != nil {
-			logger.Error("Unable to encode ticker: %v", err)
+			logger.Error("Unable to encode ticker: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
 		}
 		return
@@ -170,7 +170,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(stock)
 	if err != nil {
-		logger.Error("Unable to encode ticker: %v", err)
+		logger.Error("Unable to encode ticker: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
@@ -191,7 +191,7 @@ func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
 	id := strings.ToUpper(vars["id"])
 
 	if _, ok := m.Watching[id]; !ok {
-		logger.Error("No ticker found: %v", id)
+		logger.Error("No ticker found: %s", id)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -213,6 +213,6 @@ func (m *Manager) GetStocks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(m.Watching); err != nil {
-		logger.Errorf("Serving request: %v", err)
+		logger.Errorf("Serving request: %s", err)
 	}
 }

@@ -84,28 +84,28 @@ func (s *Stock) watchStockPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
 	if err != nil {
-		logger.Errorf("Creating Discord session: ", err)
+		logger.Errorf("Creating Discord session: %s", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("Opening discord connection,", err)
+		logger.Errorf("Opening discord connection: %s", err)
 		return
 	}
 
 	// get bot id
 	botUser, err := dg.User("@me")
 	if err != nil {
-		logger.Errorf("Getting bot id: ", err)
+		logger.Errorf("Getting bot id: %s", err)
 		return
 	}
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		logger.Errorf("Getting guilds: ", err)
+		logger.Errorf("Getting guilds: %s", err)
 		s.Nickname = false
 	}
 
@@ -210,7 +210,7 @@ func (s *Stock) watchStockPrice() {
 				for _, g := range guilds {
 					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 					if err != nil {
-						logger.Errorf("Updating nickname: ", err)
+						logger.Errorf("Updating nickname: %s", err)
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
@@ -222,7 +222,7 @@ func (s *Stock) watchStockPrice() {
 
 						roles, err := dg.GuildRoles(g.ID)
 						if err != nil {
-							logger.Errorf("Getting guilds: ", err)
+							logger.Errorf("Getting guilds: %s", err)
 							continue
 						}
 
@@ -244,20 +244,20 @@ func (s *Stock) watchStockPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to set role: ", err)
+								logger.Error("Unable to set role: %s", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to set role: ", err)
+								logger.Error("Unable to set role: %s", err)
 							}
 						}
 					}
@@ -282,7 +282,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
@@ -292,7 +292,7 @@ func (s *Stock) watchStockPrice() {
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
@@ -312,28 +312,28 @@ func (s *Stock) watchCryptoPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.token)
 	if err != nil {
-		logger.Errorf("Creating Discord session: ", err)
+		logger.Errorf("Creating Discord session: %s", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("Opening discord connection,", err)
+		logger.Errorf("Opening discord connection: %s", err)
 		return
 	}
 
 	// get bot id
 	botUser, err := dg.User("@me")
 	if err != nil {
-		logger.Errorf("Getting bot id: ", err)
+		logger.Errorf("Getting bot id: %s", err)
 		return
 	}
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		logger.Errorf("Getting guilds: ", err)
+		logger.Errorf("Getting guilds: %s", err)
 		s.Nickname = false
 	}
 
@@ -462,7 +462,7 @@ func (s *Stock) watchCryptoPrice() {
 				for _, g := range guilds {
 					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 					if err != nil {
-						logger.Errorf("Updating nickname: ", err)
+						logger.Errorf("Updating nickname: %s", err)
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
@@ -474,7 +474,7 @@ func (s *Stock) watchCryptoPrice() {
 
 						roles, err := dg.GuildRoles(g.ID)
 						if err != nil {
-							logger.Errorf("Getting guilds: ", err)
+							logger.Errorf("Getting guilds: %s", err)
 							continue
 						}
 
@@ -496,20 +496,20 @@ func (s *Stock) watchCryptoPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to set role: ", err)
+								logger.Error("Unable to set role: %s", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to remove role: ", err)
+								logger.Error("Unable to remove role: %s", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to set role: ", err)
+								logger.Error("Unable to set role: %s", err)
 							}
 						}
 					}
@@ -534,7 +534,7 @@ func (s *Stock) watchCryptoPrice() {
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
@@ -545,7 +545,7 @@ func (s *Stock) watchCryptoPrice() {
 				activity := fmt.Sprintf("%s %s %s%%", fmtPrice, s.Decorator, fmtDiffPercent)
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: ", err)
+					logger.Error("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
