@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -88,18 +87,16 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger.Errorf("Error: %v", err)
+		logger.Errorf("%v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error reading body: %v", err)
 		return
 	}
 
 	// unmarshal into struct
 	var stockReq StockRequest
 	if err := json.Unmarshal(body, &stockReq); err != nil {
-		logger.Errorf("Error unmarshalling: %v", err)
+		logger.Errorf("Unmarshalling: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Error unmarshalling: %v", err)
 		return
 	}
 
@@ -107,7 +104,6 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	if stockReq.Token == "" {
 		logger.Error("Discord token required")
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Error: token required")
 		return
 	}
 
@@ -123,13 +119,12 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		if stockReq.Name == "" {
 			logger.Error("Name required for crypto")
 			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprint(w, "Error: Name required")
 			return
 		}
 
 		// check if already existing
 		if _, ok := m.Watching[strings.ToUpper(stockReq.Name)]; ok {
-			logger.Error("Error: ticker already exists")
+			logger.Error("Ticker already exists")
 			w.WriteHeader(http.StatusConflict)
 			return
 		}
@@ -142,6 +137,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		err = json.NewEncoder(w).Encode(crypto)
 		if err != nil {
+			logger.Error("Unable to encode ticker: %v", err)
 			w.WriteHeader(http.StatusBadRequest)
 		}
 		return
@@ -151,7 +147,6 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	if stockReq.Ticker == "" {
 		logger.Error("Ticker required")
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Error: ticker required")
 		return
 	}
 
@@ -162,7 +157,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 
 	// check if already existing
 	if _, ok := m.Watching[strings.ToUpper(stockReq.Ticker)]; ok {
-		logger.Error("Error: ticker already exists")
+		logger.Error("Ticker already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
@@ -175,6 +170,7 @@ func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(stock)
 	if err != nil {
+		logger.Error("Unable to encode ticker: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
@@ -195,9 +191,8 @@ func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
 	id := strings.ToUpper(vars["id"])
 
 	if _, ok := m.Watching[id]; !ok {
-		logger.Error("Error: no ticker found")
+		logger.Error("No ticker found: %v", id)
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Error: ticker not found")
 		return
 	}
 	// send shutdown sign
@@ -218,7 +213,6 @@ func (m *Manager) GetStocks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(m.Watching); err != nil {
-		logger.Errorf("Error serving request: %v", err)
-		fmt.Fprintf(w, "Error: %v", err)
+		logger.Errorf("Serving request: %v", err)
 	}
 }
