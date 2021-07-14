@@ -265,6 +265,7 @@ Crypto Payload:
   "currency": "aud",  # string/OPTIONAL: alternative curreny
   "bitcoin": true,  # bool/OPTIONAL: show prices in BTC
   "activity": "Hello;Its;Me",  # string/OPTIONAL: list of strings to show in activity section
+  "decimals": 3,  # int/OPTIONAL: set number of decimal places
 }
 ```
 

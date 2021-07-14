@@ -24,6 +24,7 @@ type Stock struct {
 	Currency  string          `json:"currency"`
 	Bitcoin   bool            `json:"bitcoin"`
 	Activity  string          `json:"activity"`
+	Decimals  int             `json:"decimals"`
 	Cache     *redis.Client   `json:"-"`
 	Context   context.Context `json:"-"`
 	token     string          `json:"-"` // discord token
@@ -31,7 +32,7 @@ type Stock struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string) *Stock {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int) *Stock {
 	s := &Stock{
 		Ticker:    ticker,
 		Name:      name,
@@ -39,6 +40,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 		Color:     color,
 		Decorator: decorator,
 		Activity:  activity,
+		Decimals:  decimals,
 		Frequency: time.Duration(frequency) * time.Second,
 		Currency:  strings.ToUpper(currency),
 		token:     token,
@@ -51,7 +53,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, cache *redis.Client, context context.Context) *Stock {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, decimals int, cache *redis.Client, context context.Context) *Stock {
 	s := &Stock{
 		Ticker:    ticker,
 		Name:      name,
@@ -59,6 +61,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Color:     color,
 		Decorator: decorator,
 		Activity:  activity,
+		Decimals:  decimals,
 		Frequency: time.Duration(frequency) * time.Second,
 		Currency:  strings.ToUpper(currency),
 		Bitcoin:   bitcoin,
@@ -407,21 +410,43 @@ func (s *Stock) watchCryptoPrice() {
 			} else {
 				changeHeader = "$"
 
-				// Check for cryptos below 1c
-				if priceData.MarketData.CurrentPrice.USD < 0.01 {
-					priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
-					if priceData.MarketData.CurrentPrice.USD < 0.00001 {
-						fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
-					} else {
-						fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
-					}
-					fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
-				} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
-					fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
-					fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
-				} else {
+				fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
+
+				// Check for custom decimal places
+				switch s.Decimals {
+				// case 0:
+				// 	fmtPrice = fmt.Sprintf("$%.0f", priceData.MarketData.CurrentPrice.USD)
+				case 1:
+					fmtPrice = fmt.Sprintf("$%.1f", priceData.MarketData.CurrentPrice.USD)
+				case 2:
 					fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
-					fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
+				case 3:
+					fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
+				case 4:
+					fmtPrice = fmt.Sprintf("$%.4f", priceData.MarketData.CurrentPrice.USD)
+				case 5:
+					fmtPrice = fmt.Sprintf("$%.5f", priceData.MarketData.CurrentPrice.USD)
+				case 6:
+					fmtPrice = fmt.Sprintf("$%.6f", priceData.MarketData.CurrentPrice.USD)
+				case 7:
+					fmtPrice = fmt.Sprintf("$%.7f", priceData.MarketData.CurrentPrice.USD)
+				case 8:
+					fmtPrice = fmt.Sprintf("$%.8f", priceData.MarketData.CurrentPrice.USD)
+				default:
+
+					// Check for cryptos below 1c
+					if priceData.MarketData.CurrentPrice.USD < 0.01 {
+						priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
+						if priceData.MarketData.CurrentPrice.USD < 0.00001 {
+							fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
+						} else {
+							fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
+						}
+					} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
+						fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
+					} else {
+						fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
+					}
 				}
 			}
 

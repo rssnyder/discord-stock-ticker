@@ -89,6 +89,7 @@ func addInitialStock() *Stock {
 	currency := env.GetDefault("CURRENCY", "usd")
 	bitcoin := env.GetBoolDefault("BITCOIN", false)
 	activity := env.GetDefault("ACTIVITY", "")
+	decimals := env.GetIntDefault("DECIMALS", 0)
 
 	// Check for stock name options
 	var stockName string
@@ -102,9 +103,9 @@ func addInitialStock() *Stock {
 	switch os.Getenv("CRYPTO_NAME") {
 	case "":
 		// If it's not a crypto, it's a stock
-		stock = NewStock(ticker, token, stockName, nickname, color, decorator, frequency, currency, activity)
+		stock = NewStock(ticker, token, stockName, nickname, color, decorator, frequency, currency, activity, decimals)
 	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, decorator, frequency, currency, bitcoin, activity, rdb, ctx)
+		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, decorator, frequency, currency, bitcoin, activity, decimals, rdb, ctx)
 	}
 	return stock
 }
