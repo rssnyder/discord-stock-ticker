@@ -14,26 +14,26 @@ import (
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
-type Stock struct {
-	Ticker    string          `json:"ticker"`   // stock symbol
-	Name      string          `json:"name"`     // override for symbol as shown on the bot
-	Nickname  bool            `json:"nickname"` // flag for changing nickname
+type Ticker struct {
+	Ticker    string          `json:"ticker"`
+	Name      string          `json:"name"`
+	Nickname  bool            `json:"nickname"`
 	Color     bool            `json:"color"`
 	Decorator string          `json:"decorator"`
-	Frequency time.Duration   `json:"frequency"` // how often to update in seconds
+	Frequency time.Duration   `json:"frequency"`
 	Currency  string          `json:"currency"`
 	Bitcoin   bool            `json:"bitcoin"`
 	Activity  string          `json:"activity"`
 	Decimals  int             `json:"decimals"`
 	Cache     *redis.Client   `json:"-"`
 	Context   context.Context `json:"-"`
-	token     string          `json:"-"` // discord token
+	token     string          `json:"-"`
 	close     chan int        `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int) *Stock {
-	s := &Stock{
+func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int) *Ticker {
+	s := &Ticker{
 		Ticker:    ticker,
 		Name:      name,
 		Nickname:  nickname,
@@ -53,8 +53,8 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, decimals int, cache *redis.Client, context context.Context) *Stock {
-	s := &Stock{
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, decimals int, cache *redis.Client, context context.Context) *Ticker {
+	s := &Ticker{
 		Ticker:    ticker,
 		Name:      name,
 		Nickname:  nickname,
@@ -77,11 +77,11 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 }
 
 // Shutdown sends a signal to shut off the goroutine
-func (s *Stock) Shutdown() {
+func (s *Ticker) Shutdown() {
 	s.close <- 1
 }
 
-func (s *Stock) watchStockPrice() {
+func (s *Ticker) watchStockPrice() {
 	var exRate float64
 
 	// create a new discord session using the provided bot token.
@@ -308,7 +308,7 @@ func (s *Stock) watchStockPrice() {
 
 }
 
-func (s *Stock) watchCryptoPrice() {
+func (s *Ticker) watchCryptoPrice() {
 	var rdb *redis.Client
 	var exRate float64
 

@@ -6,7 +6,6 @@ import (
 	"os"
 	"sync"
 
-	env "github.com/caitlinelfring/go-env-default"
 	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
@@ -23,6 +22,30 @@ var (
 		prometheus.GaugeOpts{
 			Name: "ticker_count",
 			Help: "Number of tickers.",
+		},
+	)
+	boardCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "board_count",
+			Help: "Number of board.",
+		},
+	)
+	gasCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "gas_count",
+			Help: "Number of gas.",
+		},
+	)
+	maticCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "matic_count",
+			Help: "Number of matics.",
+		},
+	)
+	holdersCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "holders_count",
+			Help: "Number of holders.",
 		},
 	)
 )
@@ -58,54 +81,8 @@ func main() {
 
 	// Create the bot manager
 	wg.Add(1)
-	m := NewManager(*address, tickerCount, rdb, ctx)
-
-	// Check for inital bots
-	if os.Getenv("DISCORD_BOT_TOKEN") != "" {
-		s := addInitialStock()
-		m.addStock(s.Ticker, s)
-	}
+	NewManager(*address, tickerCount, rdb, ctx)
 
 	// wait forever
 	wg.Wait()
-}
-
-// addInitialStock looks for env vars to configure a bot on boot
-func addInitialStock() *Stock {
-	var stock *Stock
-
-	// Discord token is the minimum value needed
-	token := os.Getenv("DISCORD_BOT_TOKEN")
-	if token == "" {
-		logger.Fatal("Discord bot token is not set! Shutting down.")
-	}
-
-	// Get settings for bootstrapped bot
-	ticker := os.Getenv("TICKER")
-	nickname := env.GetBoolDefault("SET_NICKNAME", false)
-	color := env.GetBoolDefault("SET_COLOR", false)
-	decorator := env.GetDefault("DECORATOR", "")
-	frequency := env.GetIntDefault("FREQUENCY", 60)
-	currency := env.GetDefault("CURRENCY", "usd")
-	bitcoin := env.GetBoolDefault("BITCOIN", false)
-	activity := env.GetDefault("ACTIVITY", "")
-	decimals := env.GetIntDefault("DECIMALS", 0)
-
-	// Check for stock name options
-	var stockName string
-	if name, ok := os.LookupEnv("STOCK_NAME"); ok {
-		stockName = name
-	} else {
-		stockName = ticker
-	}
-
-	// Check if the target ticker is a crypto
-	switch os.Getenv("CRYPTO_NAME") {
-	case "":
-		// If it's not a crypto, it's a stock
-		stock = NewStock(ticker, token, stockName, nickname, color, decorator, frequency, currency, activity, decimals)
-	default:
-		stock = NewCrypto(ticker, token, os.Getenv("CRYPTO_NAME"), nickname, color, decorator, frequency, currency, bitcoin, activity, decimals, rdb, ctx)
-	}
-	return stock
 }

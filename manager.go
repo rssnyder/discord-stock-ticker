@@ -2,11 +2,8 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
@@ -18,28 +15,62 @@ import (
 
 // Manager holds a list of the crypto and stocks we are watching
 type Manager struct {
-	Watching map[string]*Stock
-	Cache    *redis.Client
-	Context  context.Context
+	WatchingTicker  map[string]*Ticker
+	WatchingBoard   map[string]*Board
+	WatchingGas     map[string]*Gas
+	WatchingMatic   map[string]*Matic
+	WatchingHolders map[string]*Holders
+	Cache           *redis.Client
+	Context         context.Context
 	sync.RWMutex
 }
 
 // NewManager stores all the information about the current stocks being watched and
 func NewManager(address string, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
-		Watching: make(map[string]*Stock),
-		Cache:    cache,
-		Context:  context,
+		WatchingTicker:  make(map[string]*Ticker),
+		WatchingBoard:   make(map[string]*Board),
+		WatchingGas:     make(map[string]*Gas),
+		WatchingMatic:   make(map[string]*Matic),
+		WatchingHolders: make(map[string]*Holders),
+		Cache:           cache,
+		Context:         context,
 	}
 
 	// Create a router to accept requests
 	r := mux.NewRouter()
-	r.HandleFunc("/ticker", m.AddStock).Methods("POST")
-	r.HandleFunc("/ticker/{id}", m.DeleteStock).Methods("DELETE")
-	r.HandleFunc("/ticker", m.GetStocks).Methods("GET")
+
+	// Ticker
+	r.HandleFunc("/ticker", m.AddTicker).Methods("POST")
+	r.HandleFunc("/ticker/{id}", m.DeleteTicker).Methods("DELETE")
+	r.HandleFunc("/ticker", m.GetTickers).Methods("GET")
+
+	// Board
+	r.HandleFunc("/tickerboard", m.AddBoard).Methods("POST")
+	r.HandleFunc("/tickerboard/{id}", m.DeleteBoard).Methods("DELETE")
+	r.HandleFunc("/tickerboard", m.GetBoards).Methods("GET")
+
+	// Gas
+	r.HandleFunc("/gas", m.AddGas).Methods("POST")
+	r.HandleFunc("/gas/{id}", m.DeleteGas).Methods("DELETE")
+	r.HandleFunc("/gas", m.GetGas).Methods("GET")
+
+	// Matic
+	r.HandleFunc("/matic", m.AddMatic).Methods("POST")
+	r.HandleFunc("/matic/{id}", m.DeleteMatic).Methods("DELETE")
+	r.HandleFunc("/matic", m.GetMatic).Methods("GET")
+
+	// Holders
+	r.HandleFunc("/holders", m.AddHolders).Methods("POST")
+	r.HandleFunc("/holders/{id}", m.DeleteHolders).Methods("DELETE")
+	r.HandleFunc("/holders", m.GetHolders).Methods("GET")
 
 	// Metrics
 	prometheus.MustRegister(tickerCount)
+	prometheus.MustRegister(boardCount)
+	prometheus.MustRegister(gasCount)
+	prometheus.MustRegister(maticCount)
+	prometheus.MustRegister(holdersCount)
 	r.Path("/metrics").Handler(promhttp.Handler())
 
 	srv := &http.Server{
@@ -60,160 +91,4 @@ func NewManager(address string, count prometheus.Gauge, cache *redis.Client, con
 	}()
 
 	return m
-}
-
-// StockRequest represents the json coming in from the request
-type StockRequest struct {
-	Ticker    string `json:"ticker"`
-	Token     string `json:"discord_bot_token"`
-	Name      string `json:"name"`
-	Nickname  bool   `json:"set_nickname"`
-	Crypto    bool   `json:"crypto"`
-	Color     bool   `json:"set_color"`
-	Decorator string `json:"decorator" default:"-"`
-	Frequency int    `json:"frequency" default:"60"`
-	Currency  string `json:"currency" default:"usd"`
-	Bitcoin   bool   `json:"bitcoin"`
-	Activity  string `json:"activity"`
-	Decimals  int    `json:"decimals"`
-}
-
-// AddStock adds a new stock or crypto to the list of what to watch
-func (m *Manager) AddStock(w http.ResponseWriter, r *http.Request) {
-	m.Lock()
-	defer m.Unlock()
-
-	logger.Debugf("Got an API request to add a ticker")
-
-	// read body
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		logger.Errorf("%s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// unmarshal into struct
-	var stockReq StockRequest
-	if err := json.Unmarshal(body, &stockReq); err != nil {
-		logger.Errorf("Unmarshalling: %s", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// ensure token is set
-	if stockReq.Token == "" {
-		logger.Error("Discord token required")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// ensure currency is set
-	if stockReq.Currency == "" {
-		stockReq.Currency = "usd"
-	}
-
-	// add stock or crypto ticker
-	if stockReq.Crypto {
-
-		// ensure name is set
-		if stockReq.Name == "" {
-			logger.Error("Name required for crypto")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// check if already existing
-		if _, ok := m.Watching[strings.ToUpper(stockReq.Name)]; ok {
-			logger.Error("Ticker already exists")
-			w.WriteHeader(http.StatusConflict)
-			return
-		}
-
-		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Bitcoin, stockReq.Activity, stockReq.Decimals, m.Cache, m.Context)
-		m.addStock(stockReq.Name, crypto)
-		tickerCount.Inc()
-
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(crypto)
-		if err != nil {
-			logger.Errorf("Unable to encode ticker: %s", err)
-			w.WriteHeader(http.StatusBadRequest)
-		}
-		return
-	}
-
-	// ensure ticker is set
-	if stockReq.Ticker == "" {
-		logger.Error("Ticker required")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	// ensure name is set
-	if stockReq.Name == "" {
-		stockReq.Name = stockReq.Ticker
-	}
-
-	// check if already existing
-	if _, ok := m.Watching[strings.ToUpper(stockReq.Ticker)]; ok {
-		logger.Error("Ticker already exists")
-		w.WriteHeader(http.StatusConflict)
-		return
-	}
-
-	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals)
-	m.addStock(stockReq.Ticker, stock)
-	tickerCount.Inc()
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(stock)
-	if err != nil {
-		logger.Errorf("Unable to encode ticker: %s", err)
-		w.WriteHeader(http.StatusBadRequest)
-	}
-}
-
-func (m *Manager) addStock(ticker string, stock *Stock) {
-	stock.Ticker = strings.ToUpper(stock.Ticker)
-	m.Watching[strings.ToUpper(ticker)] = stock
-}
-
-// DeleteStock addds a new stock or crypto to the list of what to watch
-func (m *Manager) DeleteStock(w http.ResponseWriter, r *http.Request) {
-	m.Lock()
-	defer m.Unlock()
-
-	logger.Debugf("Got an API request to delete a ticker")
-
-	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
-
-	if _, ok := m.Watching[id]; !ok {
-		logger.Errorf("No ticker found: %s", id)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	// send shutdown sign
-	m.Watching[id].Shutdown()
-	tickerCount.Dec()
-
-	// remove from cache
-	delete(m.Watching, id)
-
-	logger.Infof("Deleted ticker %s", id)
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// GetStocks returns a list of what the manager is watching
-func (m *Manager) GetStocks(w http.ResponseWriter, r *http.Request) {
-	m.RLock()
-	defer m.RUnlock()
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(m.Watching); err != nil {
-		logger.Errorf("Serving request: %s", err)
-	}
 }
