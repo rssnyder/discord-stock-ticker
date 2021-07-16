@@ -1,7 +1,9 @@
 # discord-stock-ticker
 Live stock and crypto tickers for your discord server.
 
-🍾 300+ tickers with over 7k installs across 1k discord servers!
+Now with five different types of tickers!
+
+🍾 300+ public tickers with over 7k installs across 1k discord servers!
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -12,7 +14,17 @@ Live stock and crypto tickers for your discord server.
 
 ## Preview
 
-![Discord Sidebar w/ Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar.png)
+![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)
+
+![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)
+
+![GASETH](https://user-images.githubusercontent.com/7338312/126001497-28056ed7-11eb-467c-9a60-9c22aea6bed8.gif)
+
+![GASBSC](https://user-images.githubusercontent.com/7338312/126001507-ef53d741-4af4-4c4e-90a2-7c5c8ec4bae0.gif)
+
+![GASMATIC](https://user-images.githubusercontent.com/7338312/126001518-0d629875-90f7-46f3-965f-03b229595a99.gif)
+
+![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
 
 ## Join the discord server
 [![Discord Chat](https://logo.clearbit.com/discord.com)](https://discord.gg/CQqnCYEtG7)
@@ -291,6 +303,9 @@ curl -X DELETE localhost:8080/ticker/bitcoin
 
 ##### Stock and Crypto Price Tickerboards
 
+
+![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)
+
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
 ###### List current running bots
@@ -355,6 +370,10 @@ curl -X DELETE localhost:8080/tickerboard/stocks
 
 ##### Ethereum, BSC, and Polygon Gas Prices
 
+![GASETH](https://user-images.githubusercontent.com/7338312/126001497-28056ed7-11eb-467c-9a60-9c22aea6bed8.gif)
+![GASBSC](https://user-images.githubusercontent.com/7338312/126001507-ef53d741-4af4-4c4e-90a2-7c5c8ec4bae0.gif)
+![GASMATIC](https://user-images.githubusercontent.com/7338312/126001518-0d629875-90f7-46f3-965f-03b229595a99.gif)
+
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
 ###### List current running bots
@@ -394,6 +413,8 @@ curl -X DELETE localhost:8080/tickerboard/stocks
 ```
 
 ##### Ethereum, BSC, or Polygon Token Holders
+
+![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
