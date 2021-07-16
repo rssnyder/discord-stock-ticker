@@ -103,7 +103,7 @@ func (m *Manager) DeleteMatic(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to delete a ticker")
 
 	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
+	id := vars["id"]
 
 	if _, ok := m.WatchingMatic[id]; !ok {
 		logger.Error("Error: no ticker found")

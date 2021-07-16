@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -96,7 +95,7 @@ func (m *Manager) DeleteHolders(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to delete a holders")
 
 	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
+	id := vars["id"]
 
 	if _, ok := m.WatchingHolders[id]; !ok {
 		logger.Errorf("No holders found: %s", id)

@@ -70,100 +70,106 @@ func (g *Gas) watchGasPrice() {
 		g.Nickname = false
 	}
 
-	changeFrequency := time.Duration(g.Frequency) * time.Second
+	ticker := time.NewTicker(g.Frequency)
 	var nickname string
 
 	// watch gas price
 	for {
 
-		// get gas prices
-		gasPrices, err := utils.GetGasPrices(g.Network)
-		if err != nil {
-			fmt.Printf("Error getting rates: %s\n", err)
-			time.Sleep(changeFrequency)
-			continue
-		}
+		select {
+		case <-g.close:
+			logger.Infof("Shutting down price watching for %s", g.Network)
+			return
+		case <-ticker.C:
+			// get gas prices
+			gasPrices, err := utils.GetGasPrices(g.Network)
+			if err != nil {
+				fmt.Printf("Error getting rates: %s\n", err)
+				time.Sleep(g.Frequency)
+				continue
+			}
 
-		nickname = fmt.Sprintf("Standard: %dgwei", gasPrices.Standard)
+			nickname = fmt.Sprintf("Standard: %dgwei", gasPrices.Standard)
 
-		// change nickname
-		if g.Nickname {
+			// change nickname
+			if g.Nickname {
 
-			for _, g := range guilds {
+				for _, g := range guilds {
 
-				err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					if err != nil {
+						fmt.Printf("Error updating nickname: %s\n", err)
+						continue
+					} else {
+						fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+					}
+				}
+			} else {
+
+				err = dg.UpdateListeningStatus(nickname)
 				if err != nil {
-					fmt.Printf("Error updating nickname: %s\n", err)
-					continue
+					fmt.Printf("Unable to set activity: %s\n", err)
 				} else {
-					fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+					fmt.Printf("Set activity: %s\n", nickname)
 				}
 			}
-		} else {
 
-			err = dg.UpdateListeningStatus(nickname)
-			if err != nil {
-				fmt.Printf("Unable to set activity: %s\n", err)
+			time.Sleep(g.Frequency)
+
+			nickname = fmt.Sprintf("Fast: %dgwei", gasPrices.Fast)
+
+			// change nickname
+			if g.Nickname {
+
+				for _, g := range guilds {
+
+					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					if err != nil {
+						fmt.Printf("Error updating nickname: %s\n", err)
+						continue
+					} else {
+						fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+					}
+				}
 			} else {
-				fmt.Printf("Set activity: %s\n", nickname)
-			}
-		}
 
-		time.Sleep(changeFrequency)
-
-		nickname = fmt.Sprintf("Fast: %dgwei", gasPrices.Fast)
-
-		// change nickname
-		if g.Nickname {
-
-			for _, g := range guilds {
-
-				err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+				err = dg.UpdateListeningStatus(nickname)
 				if err != nil {
-					fmt.Printf("Error updating nickname: %s\n", err)
-					continue
+					fmt.Printf("Unable to set activity: %s\n", err)
 				} else {
-					fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+					fmt.Printf("Set activity: %s\n", nickname)
 				}
 			}
-		} else {
 
-			err = dg.UpdateListeningStatus(nickname)
-			if err != nil {
-				fmt.Printf("Unable to set activity: %s\n", err)
+			time.Sleep(g.Frequency)
+
+			nickname = fmt.Sprintf("Instant: %dgwei", gasPrices.Instant)
+
+			// change nickname
+			if g.Nickname {
+
+				for _, g := range guilds {
+
+					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					if err != nil {
+						fmt.Printf("Error updating nickname: %s\n", err)
+						continue
+					} else {
+						fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+					}
+				}
 			} else {
-				fmt.Printf("Set activity: %s\n", nickname)
-			}
-		}
 
-		time.Sleep(changeFrequency)
-
-		nickname = fmt.Sprintf("Instant: %dgwei", gasPrices.Instant)
-
-		// change nickname
-		if g.Nickname {
-
-			for _, g := range guilds {
-
-				err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+				err = dg.UpdateListeningStatus(nickname)
 				if err != nil {
-					fmt.Printf("Error updating nickname: %s\n", err)
-					continue
+					fmt.Printf("Unable to set activity: %s\n", err)
 				} else {
-					fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+					fmt.Printf("Set activity: %s\n", nickname)
 				}
 			}
-		} else {
 
-			err = dg.UpdateListeningStatus(nickname)
-			if err != nil {
-				fmt.Printf("Unable to set activity: %s\n", err)
-			} else {
-				fmt.Printf("Set activity: %s\n", nickname)
-			}
+			time.Sleep(g.Frequency)
 		}
-
-		time.Sleep(changeFrequency)
 	}
 
 }

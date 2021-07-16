@@ -13,7 +13,7 @@ import (
 // BoardRequest represents the json coming in from the request
 type BoardRequest struct {
 	Items      []string `json:"items"`
-	Token      string   `json:"token"`
+	Token      string   `json:"discord_bot_token"`
 	Name       string   `json:"name"`
 	Header     string   `json:"header"`
 	Nickname   bool     `json:"set_nickname"`

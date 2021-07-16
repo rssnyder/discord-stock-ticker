@@ -74,12 +74,15 @@ func (h *Holders) watchHolders() {
 		h.Nickname = false
 	}
 
-	ticker := time.NewTicker(time.Duration(h.Frequency) * time.Second)
+	ticker := time.NewTicker(h.Frequency)
 	var nickname string
 
 	for {
 
 		select {
+		case <-h.close:
+			logger.Infof("Shutting down price watching for %s", h.Activity)
+			return
 		case <-ticker.C:
 
 			nickname = utils.GetHolders(h.Network, h.Address)
