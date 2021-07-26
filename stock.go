@@ -432,6 +432,12 @@ func (s *Stock) watchCryptoPrice() {
 					fmtPrice = fmt.Sprintf("$%.7f", priceData.MarketData.CurrentPrice.USD)
 				case 8:
 					fmtPrice = fmt.Sprintf("$%.8f", priceData.MarketData.CurrentPrice.USD)
+				case 9:
+					fmtPrice = fmt.Sprintf("$%.9f", priceData.MarketData.CurrentPrice.USD)
+				case 10:
+					fmtPrice = fmt.Sprintf("$%.10f", priceData.MarketData.CurrentPrice.USD)
+				case 11:
+					fmtPrice = fmt.Sprintf("$%.11f", priceData.MarketData.CurrentPrice.USD)
 				default:
 
 					// Check for cryptos below 1c
