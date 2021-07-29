@@ -14,17 +14,7 @@ Now with five different types of tickers!
 
 ## Preview
 
-![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)
-
-![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)
-
-![GASETH](https://user-images.githubusercontent.com/7338312/126001497-28056ed7-11eb-467c-9a60-9c22aea6bed8.gif)
-
-![GASBSC](https://user-images.githubusercontent.com/7338312/126001507-ef53d741-4af4-4c4e-90a2-7c5c8ec4bae0.gif)
-
-![GASMATIC](https://user-images.githubusercontent.com/7338312/126001518-0d629875-90f7-46f3-965f-03b229595a99.gif)
-
-![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
+![image](https://user-images.githubusercontent.com/7338312/127577682-70b67f31-59c9-427b-b9dc-2736a2b4e378.png)![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
 
 ## Join the discord server
 [![Discord Chat](https://logo.clearbit.com/discord.com)](https://discord.gg/CQqnCYEtG7)
@@ -136,6 +126,10 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [fish](https://discord.com/api/oauth2/authorize?client_id=854499334455689267&permissions=0&scope=bot) | [spirit](https://discord.com/api/oauth2/authorize?client_id=854499653792956426&permissions=0&scope=bot) | [comfy](https://discord.com/api/oauth2/authorize?client_id=854764554985668629&permissions=0&scope=bot) |
 | [hodl](https://discord.com/api/oauth2/authorize?client_id=854764648938078240&permissions=0&scope=bot) | [prtcle](https://discord.com/api/oauth2/authorize?client_id=856537250833367081&permissions=0&scope=bot) | [1inch](https://discord.com/api/oauth2/authorize?client_id=856537449722019880&permissions=0&scope=bot) |
 | [dero](https://discord.com/api/oauth2/authorize?client_id=856537535597379605&permissions=0&scope=bot) | [zep](https://discord.com/api/oauth2/authorize?client_id=856537610054139929&permissions=0&scope=bot) | | 
+
+### Gas Prices
+
+[![Ethereum Invite Link](https://user-images.githubusercontent.com/7338312/127579033-8785ed17-2bcc-474c-80d4-8ea356da70e6.png)](https://discord.com/api/oauth2/authorize?client_id=833797002684661821&permissions=0&scope=bot)[![Binance Smart Chain Invite Link](https://user-images.githubusercontent.com/7338312/127578976-d47069cb-c162-4ab5-ad73-be17b2c1796d.png)](https://discord.com/api/oauth2/authorize?client_id=856947934452645898&permissions=0&scope=bot)[![Polygon Invite Link](https://user-images.githubusercontent.com/7338312/127578967-a7097067-9b0a-44d2-baf6-e3541a511c70.png)](https://discord.com/api/oauth2/authorize?client_id=857023179210096674&permissions=0&scope=bot)
 
 ## Premium
 
@@ -370,9 +364,7 @@ curl -X DELETE localhost:8080/tickerboard/stocks
 
 ##### Ethereum, BSC, and Polygon Gas Prices
 
-![GASETH](https://user-images.githubusercontent.com/7338312/126001497-28056ed7-11eb-467c-9a60-9c22aea6bed8.gif)
-![GASBSC](https://user-images.githubusercontent.com/7338312/126001507-ef53d741-4af4-4c4e-90a2-7c5c8ec4bae0.gif)
-![GASMATIC](https://user-images.githubusercontent.com/7338312/126001518-0d629875-90f7-46f3-965f-03b229595a99.gif)
+![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
