@@ -1,7 +1,9 @@
 # discord-stock-ticker
-Live stock tickers for your discord server.
+Live stock and crypto tickers for your discord server.
 
-🍾 250+ tickers with over 6,000 installs across 900 discord servers!
+Now with five different types of tickers!
+
+🍾 300+ public tickers with over 7k installs across 1k discord servers!
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -12,7 +14,7 @@ Live stock tickers for your discord server.
 
 ## Preview
 
-![Discord Sidebar w/ Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar.png)
+![image](https://user-images.githubusercontent.com/7338312/127577682-70b67f31-59c9-427b-b9dc-2736a2b4e378.png)![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
 
 ## Join the discord server
 [![Discord Chat](https://logo.clearbit.com/discord.com)](https://discord.gg/CQqnCYEtG7)
@@ -125,6 +127,10 @@ Don't see a stock or crypto that you need? Open a github issue or join our disco
 | [hodl](https://discord.com/api/oauth2/authorize?client_id=854764648938078240&permissions=0&scope=bot) | [prtcle](https://discord.com/api/oauth2/authorize?client_id=856537250833367081&permissions=0&scope=bot) | [1inch](https://discord.com/api/oauth2/authorize?client_id=856537449722019880&permissions=0&scope=bot) |
 | [dero](https://discord.com/api/oauth2/authorize?client_id=856537535597379605&permissions=0&scope=bot) | [zep](https://discord.com/api/oauth2/authorize?client_id=856537610054139929&permissions=0&scope=bot) | | 
 
+### Gas Prices
+
+[![Ethereum Invite Link](https://user-images.githubusercontent.com/7338312/127579033-8785ed17-2bcc-474c-80d4-8ea356da70e6.png)](https://discord.com/api/oauth2/authorize?client_id=833797002684661821&permissions=0&scope=bot)[![Binance Smart Chain Invite Link](https://user-images.githubusercontent.com/7338312/127578976-d47069cb-c162-4ab5-ad73-be17b2c1796d.png)](https://discord.com/api/oauth2/authorize?client_id=856947934452645898&permissions=0&scope=bot)[![Polygon Invite Link](https://user-images.githubusercontent.com/7338312/127578967-a7097067-9b0a-44d2-baf6-e3541a511c70.png)](https://discord.com/api/oauth2/authorize?client_id=857023179210096674&permissions=0&scope=bot)
+
 ## Premium
 
 ![Discord Sidebar w/ Premium Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar-premium.png)
@@ -221,7 +227,7 @@ systemctl daemon-reload
 systemctl start discord-stock-ticker.service
 ```
 
-##### Adding bots
+##### Stock and Crypto Price Tickers
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
@@ -237,15 +243,15 @@ Stock Payload:
 
 ```
 {
-  "ticker": "pfg",
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "name": "2) PFG",  # string/OPTIONAL: overwrites display name of bot
-  "frequency": 10,  # int/OPTIONAL: default 60
-  "set_nickname": true,  # bool/OPTIONAL
-  "set_color": true,  # bool/OPTIONAL: requires set_nickname
-  "decorator": "@",  # string/OPTIONAL: what to show instead of arrows
-  "currency": "aud",  # string/OPTIONAL: alternative curreny
-  "activity": "Hello;Its;Me",  # string/OPTIONAL: list of strings to show in activity section
+  "ticker": "pfg",                                  # string: symbol for the stock from yahoo finance
+  "name": "2) PFG",                                 # string/OPTIONAL: overwrites display name of bot
+  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "currency": "aud",                                # string/OPTIONAL: alternative curreny
+  "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
 }
 ```
 
@@ -254,18 +260,18 @@ Crypto Payload:
 
 ```
 {
-  "name": "bitcoin",
-  "crypto": true,
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
-  "ticker": "1) BTC",  # string/OPTIONAL: overwrites display name of bot
-  "frequency": 10,  # int/OPTIONAL: default 60
-  "set_nickname": true,  # bool/OPTIONAL
-  "set_color": true,  # bool/OPTIONAL: requires set_nickname
-  "decorator": "@",  # string/OPTIONAL: what to show instead of arrows
-  "currency": "aud",  # string/OPTIONAL: alternative curreny
-  "bitcoin": true,  # bool/OPTIONAL: show prices in BTC
-  "activity": "Hello;Its;Me",  # string/OPTIONAL: list of strings to show in activity section
-  "decimals": 3,  # int/OPTIONAL: set number of decimal places
+  "name": "bitcoin",                                # string: name of the crypto from coingecko
+  "crypto": true,                                   # bool: always true for crypto
+  "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
+  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "currency": "aud",                                # string/OPTIONAL: alternative curreny
+  "bitcoin": true,                                  # bool/OPTIONAL: show prices in BTC
+  "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
+  "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
 }
 ```
 
@@ -287,6 +293,247 @@ curl -X DELETE localhost:8080/ticker/pfg
 
 ```
 curl -X DELETE localhost:8080/ticker/bitcoin
+```
+
+##### Stock and Crypto Price Tickerboards
+
+
+![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)
+
+Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
+
+###### List current running bots
+
+```
+curl localhost:8080/tickerboard
+```
+
+###### Add a new bot
+
+Stock Payload: 
+
+```
+{
+  "name": "Stocks",                                 # string: name of your board
+  "items": ["PFG", "GME", "AMC"],                   # list of strings: symbols from yahoo finance to rotate through
+  "header": "1. ",                                  # string/OPTIONAL: adds a header to the nickname to help sort bots
+  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "arrows": true                                    # bool/OPTIONAL: show arrows in ticker names
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+}
+```
+
+Crypto Payload: 
+
+```
+{
+  "name": "Cryptos",                                # string: name of your board
+  "crypto": true,                                   # bool: always true for crypto
+  "items": ["bitcoin", "ethereum", "dogecoin"],     # list of strings: names from coingecko to rotate through
+  "header": "2. ",                                  # string/OPTIONAL: adds a header to the nickname to help sort bots
+  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "arrows": true                                    # bool/OPTIONAL: show arrows in ticker names
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+}
+```
+
+Example:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "Stocks",
+  "frequency": 3,
+  "set_nickname": true,
+  "set_color": true,
+  "percentage": true,
+  "arrows": true,
+  "discord_bot_token": "xxxxxxx",
+  "items": ["PFG", "GME", "AMC"]
+}' localhost:8080/tickerboard
+```
+
+###### Remove a bot
+
+```
+curl -X DELETE localhost:8080/tickerboard/stocks
+```
+
+##### Ethereum, BSC, and Polygon Gas Prices
+
+![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)
+
+Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
+
+###### List current running bots
+
+```
+curl localhost:8080/gas
+```
+
+###### Add a new bot
+
+Payload:
+
+```
+{
+  "network": "ethereum"                             # string: one of: ethereum, binance-smart-chain, or polygon
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+}
+```
+
+Example:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{
+  "network": "polygon",
+  "frequency": 3,
+  "set_nickname": true,
+  "discord_bot_token": "xxxxxxx",
+}' localhost:8080/gas
+```
+
+###### Remove a bot
+
+```
+curl -X DELETE localhost:8080/tickerboard/stocks
+```
+
+##### Ethereum, BSC, or Polygon Token Holders
+
+![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
+
+Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
+
+###### List current running bots
+
+```
+curl localhost:8080/holders
+```
+
+###### Add a new bot
+
+Payload:
+
+```
+{
+  "network": "ethereum"                             # string: one of: ethereum, binance-smart-chain, or polygon
+  "address": "0x00000000000000000000000000"         # string: address of contract for token
+  "activity": "ethereum"                            # string: text to show in activity section of the bot
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+}
+```
+
+Example:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{
+  "network": "ethereum",
+  "address": "0x00000000000000",
+  "activity": "Holders of MyToken",
+  "set_nickname": true,
+  "frequency": 120,
+  "discord_bot_token": "xxxxxxx",
+}' localhost:8080/gas
+```
+
+###### Remove a bot
+
+```
+curl -X DELETE localhost:8080/holders/ethereum-0x00000000000000
+```
+
+##### Plygon Token Price
+
+Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
+
+###### List current running bots
+
+```
+curl localhost:8080/matic
+```
+
+###### Add a new bot
+
+Payload:
+
+```
+{
+  "name": "my token"                                # string: display name of token
+  "contract": "0x00000"                             # string: contract address of token
+  "currency": "0x00000"                             # string/OPTIONAL: contract address of token to price against, default is USDC
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+}
+```
+
+Example:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{
+  "contract": "0x0000000",
+  "frequency": 3,
+  "set_nickname": true,
+  "discord_bot_token": "xxxxxxx",
+}' localhost:8080/matic
+```
+
+###### Remove a bot
+
+```
+curl -X DELETE localhost:8080/matic/stocks
+```
+
+##### Holders
+
+Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
+
+###### List current running bots
+
+```
+curl localhost:8080/holders
+```
+
+###### Add a new bot
+
+Payload:
+
+```
+{
+  "network": "ethereum"                             # string: one of: ethereum, binance-smart-chain, or polygon
+  "address": "0x00000000000000000000000000"         # string: address of contract for token
+  "activity": "ethereum"                            # string: text to show in activity section of the bot
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+}
+```
+
+Example:
+
+```
+curl -X POST -H "Content-Type: application/json" --data '{
+  "network": "ethereum",
+  "address": "0x00000000000000",
+  "activity": "Holders of MyToken",
+  "set_nickname": true,
+  "frequency": 120,
+  "discord_bot_token": "xxxxxxx",
+}' localhost:8080/gas
+```
+
+###### Remove a bot
+
+```
+curl -X DELETE localhost:8080/holders/stocks
 ```
 
 #### Docker
