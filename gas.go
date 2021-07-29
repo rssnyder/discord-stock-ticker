@@ -97,7 +97,7 @@ func (g *Gas) watchGasPrice() {
 
 				err = dg.UpdateGameStatus(0, "Fast, Avg, Slow")
 				if err != nil {
-					fmt.Printf("Unable to set activity: \n", err)
+					fmt.Printf("Unable to set activity: %s\n", err)
 				} else {
 					fmt.Println("Set activity")
 				}

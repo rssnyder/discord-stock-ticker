@@ -15,7 +15,7 @@ type Holders struct {
 	Activity  string        `json:"activity"`
 	Nickname  bool          `json:"set_nickname"`
 	Frequency time.Duration `json:"frequency"`
-	token     string        `json:"discord_bot_token"`
+	token     string        `json:"-"`
 	close     chan int      `json:"-"`
 }
 
@@ -61,7 +61,7 @@ func (h *Holders) watchHolders() {
 	if h.Nickname {
 		err = dg.UpdateGameStatus(0, h.Activity)
 		if err != nil {
-			fmt.Printf("Unable to set activity: \n", err)
+			fmt.Printf("Unable to set activity: %s\n", err)
 		} else {
 			fmt.Println("Set activity")
 		}

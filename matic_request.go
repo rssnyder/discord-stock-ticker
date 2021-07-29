@@ -88,7 +88,6 @@ func (m *Manager) AddMatic(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	return
 }
 
 func (m *Manager) addMatic(token *Matic) {
