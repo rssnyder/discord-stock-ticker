@@ -18,6 +18,7 @@ type MaticRequest struct {
 	Nickname  bool   `json:"set_nickname"`
 	Frequency int    `json:"frequency" default:"60"`
 	Currency  string `json:"currency" default:"0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"`
+	Decimals  int    `json:"decimals"`
 }
 
 // AddMatic adds a new Matic or crypto to the list of what to watch
@@ -78,7 +79,7 @@ func (m *Manager) AddMatic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := NewMatic(tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Currency)
+	token := NewMatic(tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Currency, tokenReq.Decimals)
 	m.addMatic(token)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

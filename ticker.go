@@ -414,8 +414,6 @@ func (s *Ticker) watchCryptoPrice() {
 
 				// Check for custom decimal places
 				switch s.Decimals {
-				// case 0:
-				// 	fmtPrice = fmt.Sprintf("$%.0f", priceData.MarketData.CurrentPrice.USD)
 				case 1:
 					fmtPrice = fmt.Sprintf("$%.1f", priceData.MarketData.CurrentPrice.USD)
 				case 2:
@@ -432,6 +430,12 @@ func (s *Ticker) watchCryptoPrice() {
 					fmtPrice = fmt.Sprintf("$%.7f", priceData.MarketData.CurrentPrice.USD)
 				case 8:
 					fmtPrice = fmt.Sprintf("$%.8f", priceData.MarketData.CurrentPrice.USD)
+				case 9:
+					fmtPrice = fmt.Sprintf("$%.9f", priceData.MarketData.CurrentPrice.USD)
+				case 10:
+					fmtPrice = fmt.Sprintf("$%.10f", priceData.MarketData.CurrentPrice.USD)
+				case 11:
+					fmtPrice = fmt.Sprintf("$%.11f", priceData.MarketData.CurrentPrice.USD)
 				default:
 
 					// Check for cryptos below 1c
@@ -574,9 +578,7 @@ func (s *Ticker) watchCryptoPrice() {
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 				}
-
 			}
-
 		}
 	}
 }

@@ -16,12 +16,13 @@ type Matic struct {
 	Nickname  bool          `json:"nickname"`
 	Frequency time.Duration `json:"frequency"`
 	Currency  string        `json:"currency"`
+	Decimals  int           `json:"decimals"`
 	token     string        `json:"-"`
 	close     chan int      `json:"-"`
 }
 
 // NewMatic saves information about the stock and starts up a watcher on it
-func NewMatic(contract string, token string, name string, nickname bool, frequency int, currency string) *Matic {
+func NewMatic(contract string, token string, name string, nickname bool, frequency int, currency string, decimals int) *Matic {
 	m := &Matic{
 		Contract:  contract,
 		Name:      name,
@@ -97,7 +98,34 @@ func (m *Matic) watchMaticPrice() {
 				var activity string
 
 				// format nickname & activity
-				nickname = fmt.Sprintf("%s - $%.2f", m.Name, fmtPrice)
+				// Check for custom decimal places
+				switch m.Decimals {
+				case 1:
+					nickname = fmt.Sprintf("%s - $%.1f", m.Name, fmtPrice)
+				case 2:
+					nickname = fmt.Sprintf("%s - $%.2f", m.Name, fmtPrice)
+				case 3:
+					nickname = fmt.Sprintf("%s - $%.3f", m.Name, fmtPrice)
+				case 4:
+					nickname = fmt.Sprintf("%s - $%.4f", m.Name, fmtPrice)
+				case 5:
+					nickname = fmt.Sprintf("%s - $%.5f", m.Name, fmtPrice)
+				case 6:
+					nickname = fmt.Sprintf("%s - $%.6f", m.Name, fmtPrice)
+				case 7:
+					nickname = fmt.Sprintf("%s - $%.7f", m.Name, fmtPrice)
+				case 8:
+					nickname = fmt.Sprintf("%s - $%.8f", m.Name, fmtPrice)
+				case 9:
+					nickname = fmt.Sprintf("%s - $%.9f", m.Name, fmtPrice)
+				case 10:
+					nickname = fmt.Sprintf("%s - $%.10f", m.Name, fmtPrice)
+				case 11:
+					nickname = fmt.Sprintf("%s - $%.11f", m.Name, fmtPrice)
+				default:
+					nickname = fmt.Sprintf("%s - $%.4f", m.Name, fmtPrice)
+				}
+
 				activity = "Using USDC on 1inch"
 
 				// Update nickname in guilds
@@ -126,11 +154,7 @@ func (m *Matic) watchMaticPrice() {
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
-
 			}
-
 		}
-
 	}
-
 }

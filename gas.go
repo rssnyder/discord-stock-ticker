@@ -79,7 +79,7 @@ func (g *Gas) watchGasPrice() {
 				continue
 			}
 
-			nickname = fmt.Sprintf(":zap: %d :thinking: %d :snail: %d", gasPrices.Instant, gasPrices.Fast, gasPrices.Standard)
+			nickname = fmt.Sprintf("⚡ %d 🤔 %d 🐌 %d", gasPrices.Instant, gasPrices.Fast, gasPrices.Standard)
 
 			// change nickname
 			if g.Nickname {
@@ -95,7 +95,7 @@ func (g *Gas) watchGasPrice() {
 					}
 				}
 
-				err = dg.UpdateListeningStatus(fmt.Sprintf("Fast, Avg, Slow", g.Network))
+				err = dg.UpdateGameStatus(0, "Fast, Avg, Slow")
 				if err != nil {
 					fmt.Printf("Unable to set activity: \n", err)
 				} else {
@@ -103,7 +103,7 @@ func (g *Gas) watchGasPrice() {
 				}
 			} else {
 
-				err = dg.UpdateListeningStatus(nickname)
+				err = dg.UpdateGameStatus(0, nickname)
 				if err != nil {
 					fmt.Printf("Unable to set activity: %s\n", err)
 				} else {
