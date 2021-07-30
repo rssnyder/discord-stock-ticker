@@ -14,4 +14,4 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /bin/ticker /bin/ticker
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/ticker"]
+ENTRYPOINT ["/bin/ticker", "-address", "0.0.0.0:8080"]

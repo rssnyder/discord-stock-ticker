@@ -541,29 +541,7 @@ curl -X DELETE localhost:8080/holders/stocks
 To run a simple version without any bots on startup (can add via the API as shown above) you can simply run with:
 
 ```
-docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:2.6.1
-```
-
-Here is an example docker compose file with environment variables set for adding a bot on startup. Notice the environment variables are the same as the JSON payload above, but in capital letters:
-
-```
----
-version: "2"
-services:
-
-  ticker-stock:
-    image: ghcr.io/rssnyder/discord-stock-ticker:2.6.1
-    container_name: discord-stock-ticker
-    environment:
-      - DISCORD_BOT_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      - TICKER=gme
-      - FREQUENCY=10  # OPTIONAL / seconds between price updates
-      - STOCK_NAME=1. GME  # OPTIONAL / overrides name of bot
-      - SET_NICKNAME=1  # OPTIONAL / uses server nickname to set price in bot name / requires "change nickname" perms
-      - SET_COLOR=1  # OPTIONAL / change colors based on day change / requires "manage roles" perms and tickers-green & ticker-red roles
-      - DECORATOR=@  # string/OPTIONAL: what to show instead of arrows
-      - CURRENCY=aud  # string/OPTIONAL: alternative curreny
-      - ACTIVITY="Hello;Its;Me"  # string/OPTIONAL: list of strings to show in activity section
+docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:3.0.1
 ```
 
 #### Kubernetes
