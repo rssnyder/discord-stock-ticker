@@ -470,6 +470,9 @@ Payload:
   "contract": "0x00000"                             # string: contract address of token
   "currency": "0x00000"                             # string/OPTIONAL: contract address of token to price against, default is USDC
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
 }

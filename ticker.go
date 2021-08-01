@@ -18,13 +18,13 @@ type Ticker struct {
 	Ticker    string          `json:"ticker"`
 	Name      string          `json:"name"`
 	Nickname  bool            `json:"nickname"`
+	Frequency time.Duration   `json:"frequency"`
 	Color     bool            `json:"color"`
 	Decorator string          `json:"decorator"`
-	Frequency time.Duration   `json:"frequency"`
 	Currency  string          `json:"currency"`
-	Bitcoin   bool            `json:"bitcoin"`
-	Activity  string          `json:"activity"`
 	Decimals  int             `json:"decimals"`
+	Activity  string          `json:"activity"`
+	Bitcoin   bool            `json:"bitcoin"`
 	Cache     *redis.Client   `json:"-"`
 	Context   context.Context `json:"-"`
 	token     string          `json:"-"`

@@ -18,6 +18,9 @@ type MaticRequest struct {
 	Nickname  bool   `json:"set_nickname"`
 	Frequency int    `json:"frequency" default:"60"`
 	Currency  string `json:"currency" default:"0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"`
+	Color     bool   `json:"set_color"`
+	Decorator string `json:"decorator" default:"-"`
+	Activity  string `json:"activity"`
 	Decimals  int    `json:"decimals"`
 }
 
@@ -79,7 +82,7 @@ func (m *Manager) AddMatic(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := NewMatic(tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Currency, tokenReq.Decimals)
+	token := NewMatic(tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Currency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator)
 	m.addMatic(token)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
