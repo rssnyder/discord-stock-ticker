@@ -15,20 +15,21 @@ import (
 )
 
 type Ticker struct {
-	Ticker    string          `json:"ticker"`
-	Name      string          `json:"name"`
-	Nickname  bool            `json:"nickname"`
-	Frequency time.Duration   `json:"frequency"`
-	Color     bool            `json:"color"`
-	Decorator string          `json:"decorator"`
-	Currency  string          `json:"currency"`
-	Decimals  int             `json:"decimals"`
-	Activity  string          `json:"activity"`
-	Bitcoin   bool            `json:"bitcoin"`
-	Cache     *redis.Client   `json:"-"`
-	Context   context.Context `json:"-"`
-	token     string          `json:"-"`
-	close     chan int        `json:"-"`
+	Ticker         string          `json:"ticker"`
+	Name           string          `json:"name"`
+	Nickname       bool            `json:"nickname"`
+	Frequency      time.Duration   `json:"frequency"`
+	Color          bool            `json:"color"`
+	Decorator      string          `json:"decorator"`
+	Currency       string          `json:"currency"`
+	CurrencySymbol string          `json:"currency_symbol"`
+	Decimals       int             `json:"decimals"`
+	Activity       string          `json:"activity"`
+	Bitcoin        bool            `json:"bitcoin"`
+	Cache          *redis.Client   `json:"-"`
+	Context        context.Context `json:"-"`
+	token          string          `json:"-"`
+	close          chan int        `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
@@ -53,22 +54,23 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, decimals int, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
-		Ticker:    ticker,
-		Name:      name,
-		Nickname:  nickname,
-		Color:     color,
-		Decorator: decorator,
-		Activity:  activity,
-		Decimals:  decimals,
-		Frequency: time.Duration(frequency) * time.Second,
-		Currency:  strings.ToUpper(currency),
-		Bitcoin:   bitcoin,
-		Cache:     cache,
-		Context:   context,
-		token:     token,
-		close:     make(chan int, 1),
+		Ticker:         ticker,
+		Name:           name,
+		Nickname:       nickname,
+		Color:          color,
+		Decorator:      decorator,
+		Activity:       activity,
+		Decimals:       decimals,
+		Frequency:      time.Duration(frequency) * time.Second,
+		Currency:       strings.ToUpper(currency),
+		CurrencySymbol: currencySymbol,
+		Bitcoin:        bitcoin,
+		Cache:          cache,
+		Context:        context,
+		token:          token,
+		close:          make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -206,8 +208,8 @@ func (s *Ticker) watchStockPrice() {
 				var activity string
 
 				// format nickname & activity
-				nickname = fmt.Sprintf("%s %s $%s", strings.ToUpper(s.Name), s.Decorator, fmtPrice)
-				activity = fmt.Sprintf("$%s (%s)", fmtDiffChange, fmtDiffPercent)
+				nickname = fmt.Sprintf("%s %s %s%s", strings.ToUpper(s.Name), s.Decorator, s.CurrencySymbol, fmtPrice)
+				activity = fmt.Sprintf("%s%s (%s)", s.CurrencySymbol, fmtDiffChange, fmtDiffPercent)
 
 				// Update nickname in guilds
 				for _, g := range guilds {
@@ -400,57 +402,46 @@ func (s *Ticker) watchCryptoPrice() {
 
 			fmtDiffPercent = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercent)
 
-			// Check if a crypto pair is set
-			if s.Bitcoin {
-				changeHeader = "₿"
+			fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
 
-				fmtPrice = fmt.Sprintf("₿%.6f", priceData.MarketData.CurrentPrice.BTC)
-				fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.BTC)
+			// Check for custom decimal places
+			switch s.Decimals {
+			case 1:
+				fmtPrice = fmt.Sprintf("%s%.1f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 2:
+				fmtPrice = fmt.Sprintf("%s%.2f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 3:
+				fmtPrice = fmt.Sprintf("%s%.3f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 4:
+				fmtPrice = fmt.Sprintf("%s%.4f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 5:
+				fmtPrice = fmt.Sprintf("%s%.5f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 6:
+				fmtPrice = fmt.Sprintf("%s%.6f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 7:
+				fmtPrice = fmt.Sprintf("%s%.7f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 8:
+				fmtPrice = fmt.Sprintf("%s%.8f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 9:
+				fmtPrice = fmt.Sprintf("%s%.9f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 10:
+				fmtPrice = fmt.Sprintf("%s%.10f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 11:
+				fmtPrice = fmt.Sprintf("%s%.11f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			default:
 
-			} else {
-				changeHeader = "$"
-
-				fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
-
-				// Check for custom decimal places
-				switch s.Decimals {
-				case 1:
-					fmtPrice = fmt.Sprintf("$%.1f", priceData.MarketData.CurrentPrice.USD)
-				case 2:
-					fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
-				case 3:
-					fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
-				case 4:
-					fmtPrice = fmt.Sprintf("$%.4f", priceData.MarketData.CurrentPrice.USD)
-				case 5:
-					fmtPrice = fmt.Sprintf("$%.5f", priceData.MarketData.CurrentPrice.USD)
-				case 6:
-					fmtPrice = fmt.Sprintf("$%.6f", priceData.MarketData.CurrentPrice.USD)
-				case 7:
-					fmtPrice = fmt.Sprintf("$%.7f", priceData.MarketData.CurrentPrice.USD)
-				case 8:
-					fmtPrice = fmt.Sprintf("$%.8f", priceData.MarketData.CurrentPrice.USD)
-				case 9:
-					fmtPrice = fmt.Sprintf("$%.9f", priceData.MarketData.CurrentPrice.USD)
-				case 10:
-					fmtPrice = fmt.Sprintf("$%.10f", priceData.MarketData.CurrentPrice.USD)
-				case 11:
-					fmtPrice = fmt.Sprintf("$%.11f", priceData.MarketData.CurrentPrice.USD)
-				default:
-
-					// Check for cryptos below 1c
-					if priceData.MarketData.CurrentPrice.USD < 0.01 {
-						priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
-						if priceData.MarketData.CurrentPrice.USD < 0.00001 {
-							fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
-						} else {
-							fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
-						}
-					} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
-						fmtPrice = fmt.Sprintf("$%.3f", priceData.MarketData.CurrentPrice.USD)
+				// Check for cryptos below 1c
+				if priceData.MarketData.CurrentPrice.USD < 0.01 {
+					priceData.MarketData.CurrentPrice.USD = priceData.MarketData.CurrentPrice.USD * 100
+					if priceData.MarketData.CurrentPrice.USD < 0.00001 {
+						fmtPrice = fmt.Sprintf("%.8f¢", priceData.MarketData.CurrentPrice.USD)
 					} else {
-						fmtPrice = fmt.Sprintf("$%.2f", priceData.MarketData.CurrentPrice.USD)
+						fmtPrice = fmt.Sprintf("%.6f¢", priceData.MarketData.CurrentPrice.USD)
 					}
+				} else if priceData.MarketData.CurrentPrice.USD < 1.0 {
+					fmtPrice = fmt.Sprintf("%s%.3f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+				} else {
+					fmtPrice = fmt.Sprintf("%s%.2f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 				}
 			}
 

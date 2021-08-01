@@ -11,18 +11,19 @@ import (
 
 // TickerRequest represents the json coming in from the request
 type TickerRequest struct {
-	Ticker    string `json:"ticker"`
-	Token     string `json:"discord_bot_token"`
-	Name      string `json:"name"`
-	Nickname  bool   `json:"set_nickname"`
-	Crypto    bool   `json:"crypto"`
-	Color     bool   `json:"set_color"`
-	Decorator string `json:"decorator" default:"-"`
-	Frequency int    `json:"frequency" default:"60"`
-	Currency  string `json:"currency" default:"usd"`
-	Bitcoin   bool   `json:"bitcoin"`
-	Activity  string `json:"activity"`
-	Decimals  int    `json:"decimals"`
+	Ticker         string `json:"ticker"`
+	Token          string `json:"discord_bot_token"`
+	Name           string `json:"name"`
+	Nickname       bool   `json:"set_nickname"`
+	Crypto         bool   `json:"crypto"`
+	Color          bool   `json:"set_color"`
+	Decorator      string `json:"decorator"`
+	Frequency      int    `json:"frequency"`
+	Currency       string `json:"currency"`
+	CurrencySymbol string `json:"currency_symbol"`
+	Bitcoin        bool   `json:"bitcoin"`
+	Activity       string `json:"activity"`
+	Decimals       int    `json:"decimals"`
 }
 
 // AddTicker adds a new Ticker or crypto to the list of what to watch
@@ -70,6 +71,11 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// ensure currency is set
+		if stockReq.CurrencySymbol == "" {
+			stockReq.CurrencySymbol = "$"
+		}
+
 		// check if already existing
 		if _, ok := m.WatchingTicker[strings.ToUpper(stockReq.Name)]; ok {
 			logger.Error("Ticker already exists")
@@ -77,7 +83,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Bitcoin, stockReq.Activity, stockReq.Decimals, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Bitcoin, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
 		m.addTicker(stockReq.Name, crypto)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
