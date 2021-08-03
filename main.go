@@ -36,10 +36,10 @@ var (
 			Help: "Number of gas.",
 		},
 	)
-	maticCount = prometheus.NewGauge(
+	tokenCount = prometheus.NewGauge(
 		prometheus.GaugeOpts{
-			Name: "matic_count",
-			Help: "Number of matics.",
+			Name: "token_count",
+			Help: "Number of tokens.",
 		},
 	)
 	holdersCount = prometheus.NewGauge(

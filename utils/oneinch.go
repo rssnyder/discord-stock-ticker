@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	OneInchURL = "https://api.1inch.exchange/v3.0/137/quote?fromTokenAddress=%s&toTokenAddress=%s&amount=10000000000000000000"
+	OneInchURL = "https://api.1inch.exchange/v3.0/%s/quote?fromTokenAddress=%s&toTokenAddress=%s&amount=10000000000000000000"
 )
 
 // The following is the API response 1inch gives
@@ -39,11 +39,24 @@ type ExchangeData struct {
 	Estimatedgas int `json:"estimatedGas"`
 }
 
-// GetMaticPrice retrieves the price of a given ticker using the 1inch API
-func GetMaticPrice(contract, currency string) (ExchangeData, error) {
+// GetTokenPrice retrieves the price of a given ticker using the 1inch API
+func GetTokenPrice(network, contract, currency string) (ExchangeData, error) {
 	var price ExchangeData
+	var networkId string
 
-	reqURL := fmt.Sprintf(OneInchURL, contract, currency)
+	// Get network id for 1inch, default to eth
+	switch network {
+	case "ethereum":
+		networkId = "1"
+	case "binance-smart-chain":
+		networkId = "56"
+	case "polygon":
+		networkId = "137"
+	default:
+		networkId = "1"
+	}
+
+	reqURL := fmt.Sprintf(OneInchURL, networkId, contract, currency)
 
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
