@@ -12,7 +12,8 @@ import (
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
-type Matic struct {
+type Token struct {
+	Network   string        `json:"network"`
 	Contract  string        `json:"contract"`
 	Name      string        `json:"name"`
 	Nickname  bool          `json:"nickname"`
@@ -26,9 +27,10 @@ type Matic struct {
 	close     chan int      `json:"-"`
 }
 
-// NewMatic saves information about the stock and starts up a watcher on it
-func NewMatic(contract string, token string, name string, nickname bool, frequency int, currency string, decimals int, activity string, color bool, decorator string) *Matic {
-	m := &Matic{
+// NewToken saves information about the stock and starts up a watcher on it
+func NewToken(network string, contract string, token string, name string, nickname bool, frequency int, currency string, decimals int, activity string, color bool, decorator string) *Token {
+	m := &Token{
+		Network:   network,
 		Contract:  contract,
 		Name:      name,
 		Nickname:  nickname,
@@ -42,16 +44,16 @@ func NewMatic(contract string, token string, name string, nickname bool, frequen
 	}
 
 	// spin off go routine to watch the price
-	go m.watchMaticPrice()
+	go m.watchTokenPrice()
 	return m
 }
 
 // Shutdown sends a signal to shut off the goroutine
-func (m *Matic) Shutdown() {
+func (m *Token) Shutdown() {
 	m.close <- 1
 }
 
-func (m *Matic) watchMaticPrice() {
+func (m *Token) watchTokenPrice() {
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + m.token)
@@ -109,7 +111,7 @@ func (m *Matic) watchMaticPrice() {
 			logger.Infof("Fetching stock price for %s", m.Name)
 
 			// save the price struct & do something with it
-			priceData, err := utils.GetMaticPrice(m.Contract, m.Currency)
+			priceData, err := utils.GetTokenPrice(m.Network, m.Contract, m.Currency)
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s", m.Name)
 			}

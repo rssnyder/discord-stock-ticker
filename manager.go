@@ -18,7 +18,7 @@ type Manager struct {
 	WatchingTicker  map[string]*Ticker
 	WatchingBoard   map[string]*Board
 	WatchingGas     map[string]*Gas
-	WatchingMatic   map[string]*Matic
+	WatchingToken   map[string]*Token
 	WatchingHolders map[string]*Holders
 	Cache           *redis.Client
 	Context         context.Context
@@ -31,7 +31,7 @@ func NewManager(address string, count prometheus.Gauge, cache *redis.Client, con
 		WatchingTicker:  make(map[string]*Ticker),
 		WatchingBoard:   make(map[string]*Board),
 		WatchingGas:     make(map[string]*Gas),
-		WatchingMatic:   make(map[string]*Matic),
+		WatchingToken:   make(map[string]*Token),
 		WatchingHolders: make(map[string]*Holders),
 		Cache:           cache,
 		Context:         context,
@@ -55,10 +55,10 @@ func NewManager(address string, count prometheus.Gauge, cache *redis.Client, con
 	r.HandleFunc("/gas/{id}", m.DeleteGas).Methods("DELETE")
 	r.HandleFunc("/gas", m.GetGas).Methods("GET")
 
-	// Matic
-	r.HandleFunc("/matic", m.AddMatic).Methods("POST")
-	r.HandleFunc("/matic/{id}", m.DeleteMatic).Methods("DELETE")
-	r.HandleFunc("/matic", m.GetMatic).Methods("GET")
+	// Token
+	r.HandleFunc("/token", m.AddToken).Methods("POST")
+	r.HandleFunc("/token/{id}", m.DeleteToken).Methods("DELETE")
+	r.HandleFunc("/token", m.GetToken).Methods("GET")
 
 	// Holders
 	r.HandleFunc("/holders", m.AddHolders).Methods("POST")
@@ -69,7 +69,7 @@ func NewManager(address string, count prometheus.Gauge, cache *redis.Client, con
 	prometheus.MustRegister(tickerCount)
 	prometheus.MustRegister(boardCount)
 	prometheus.MustRegister(gasCount)
-	prometheus.MustRegister(maticCount)
+	prometheus.MustRegister(tokenCount)
 	prometheus.MustRegister(holdersCount)
 	r.Path("/metrics").Handler(promhttp.Handler())
 

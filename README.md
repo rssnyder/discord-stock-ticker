@@ -450,14 +450,14 @@ curl -X POST -H "Content-Type: application/json" --data '{
 curl -X DELETE localhost:8080/holders/ethereum-0x00000000000000
 ```
 
-##### Plygon Token Price
+##### ETH/BSC/MATIC Token Price
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
 ###### List current running bots
 
 ```
-curl localhost:8080/matic
+curl localhost:8080/token
 ```
 
 ###### Add a new bot
@@ -466,6 +466,7 @@ Payload:
 
 ```
 {
+  "network": "ethereum"                             # string: network of token, options are ethereum, binance-smart-chain, or polygon
   "name": "my token"                                # string: display name of token
   "contract": "0x00000"                             # string: contract address of token
   "currency": "0x00000"                             # string/OPTIONAL: contract address of token to price against, default is USDC
@@ -482,17 +483,18 @@ Example:
 
 ```
 curl -X POST -H "Content-Type: application/json" --data '{
+  "network": "polygon"
   "contract": "0x0000000",
   "frequency": 3,
   "set_nickname": true,
   "discord_bot_token": "xxxxxxx",
-}' localhost:8080/matic
+}' localhost:8080/token
 ```
 
 ###### Remove a bot
 
 ```
-curl -X DELETE localhost:8080/matic/stocks
+curl -X DELETE localhost:8080/token/polygon-0x0000000
 ```
 
 ##### Holders
