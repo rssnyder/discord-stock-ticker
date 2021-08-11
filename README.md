@@ -183,9 +183,9 @@ The last two roles tickers-green and tickers-red need to be below the first role
 Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
 
 ```
-wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 
-tar zxf discord-stock-ticker-v2.0.0-linux-amd64.tar.gz
+tar zxf discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 
 ./discord-stock-ticker
 ```
@@ -210,9 +210,9 @@ There are options you can set for the service using flags:
 The below script (ran as root) will download and install a `discrod-stock-ticker` service on your linux machine with the API avalible on port `8080` to manage bots.
 
 ```
-wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.2.0/discord-stock-ticker-v2.2.0-linux-amd64.tar.gz
+wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v3.3.0/discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 
-tar zxf discord-stock-ticker-v2.2.0-linux-amd64.tar.gz
+tar zxf discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 
 mkdir -p /etc/discord-stock-ticker
 
@@ -251,7 +251,7 @@ Stock Payload:
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -271,7 +271,7 @@ Crypto Payload:
   "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -321,7 +321,7 @@ Stock Payload:
   "arrows": true                                    # bool/OPTIONAL: show arrows in ticker names
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -337,7 +337,7 @@ Crypto Payload:
   "arrows": true                                    # bool/OPTIONAL: show arrows in ticker names
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -383,7 +383,7 @@ Payload:
   "network": "ethereum"                             # string: one of: ethereum, binance-smart-chain, or polygon
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -394,7 +394,7 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "network": "polygon",
   "frequency": 3,
   "set_nickname": true,
-  "discord_bot_token": "xxxxxxx",
+  "discord_bot_token": "xxxxxxx"
 }' localhost:8080/gas
 ```
 
@@ -427,7 +427,7 @@ Payload:
   "activity": "ethereum"                            # string: text to show in activity section of the bot
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -440,7 +440,7 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "activity": "Holders of MyToken",
   "set_nickname": true,
   "frequency": 120,
-  "discord_bot_token": "xxxxxxx",
+  "discord_bot_token": "xxxxxxx"
 }' localhost:8080/gas
 ```
 
@@ -475,7 +475,7 @@ Payload:
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -487,7 +487,7 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "contract": "0x0000000",
   "frequency": 3,
   "set_nickname": true,
-  "discord_bot_token": "xxxxxxx",
+  "discord_bot_token": "xxxxxxx"
 }' localhost:8080/token
 ```
 
@@ -518,7 +518,7 @@ Payload:
   "activity": "ethereum"                            # string: text to show in activity section of the bot
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
-  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx",  # string: dicord bot token
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
 
@@ -531,7 +531,7 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "activity": "Holders of MyToken",
   "set_nickname": true,
   "frequency": 120,
-  "discord_bot_token": "xxxxxxx",
+  "discord_bot_token": "xxxxxxx"
 }' localhost:8080/gas
 ```
 
@@ -604,7 +604,7 @@ If you have a request for a new ticker or issues with a current one, please open
 
 Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder)! Or send some crypto to help keep these bots running:
 
-eth: 0x27B6896cC68838bc8adE6407C8283a214ecD4ffE
+eth/bsc: 0x27B6896cC68838bc8adE6407C8283a214ecD4ffE
 
 doge: DTWkUvFakt12yUEssTbdCe2R7TepExBA2G
 
