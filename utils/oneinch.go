@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	OneInchURL = "https://api.1inch.exchange/v3.0/%s/quote?fromTokenAddress=%s&toTokenAddress=%s&amount=10000000000000000000"
+	OneInchURL = "https://api.1inch.exchange/v3.0/%s/quote?fromTokenAddress=%s&toTokenAddress=%s&amount=%s"
 )
 
 // The following is the API response 1inch gives
@@ -43,20 +43,25 @@ type ExchangeData struct {
 func GetTokenPrice(network, contract, currency string) (ExchangeData, error) {
 	var price ExchangeData
 	var networkId string
+	var amount string
 
 	// Get network id for 1inch, default to eth
 	switch network {
 	case "ethereum":
 		networkId = "1"
+		amount = "10000000000000000000"
 	case "binance-smart-chain":
 		networkId = "56"
+		amount = "10"
 	case "polygon":
 		networkId = "137"
+		amount = "10000000000000000000"
 	default:
 		networkId = "1"
+		amount = "10000000000000000000"
 	}
 
-	reqURL := fmt.Sprintf(OneInchURL, networkId, contract, currency)
+	reqURL := fmt.Sprintf(OneInchURL, networkId, contract, currency, amount)
 
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
