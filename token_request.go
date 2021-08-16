@@ -18,11 +18,11 @@ type TokenRequest struct {
 	Name      string `json:"name"`
 	Nickname  bool   `json:"set_nickname"`
 	Frequency int    `json:"frequency" default:"60"`
-	Currency  string `json:"currency" default:"0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"`
 	Color     bool   `json:"set_color"`
 	Decorator string `json:"decorator" default:"-"`
 	Activity  string `json:"activity"`
 	Decimals  int    `json:"decimals"`
+	Source  string `json:"source"`
 }
 
 // AddToken adds a new Token or crypto to the list of what to watch
@@ -63,21 +63,6 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		tokenReq.Network = "ethereum"
 	}
 
-	// ensure currency is set, default to USDC
-	if tokenReq.Currency == "" {
-		// Get contract address for usdc
-		switch tokenReq.Network {
-		case "ethereum":
-			tokenReq.Currency = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-		case "binance-smart-chain":
-			tokenReq.Currency = "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"
-		case "polygon":
-			tokenReq.Currency = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
-		default:
-			tokenReq.Currency = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
-		}
-	}
-
 	// ensure freq is set
 	if tokenReq.Frequency == 0 {
 		tokenReq.Frequency = 60
@@ -98,7 +83,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := NewToken(tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Currency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator)
+	token := NewToken(tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source)
 	m.addToken(token)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
