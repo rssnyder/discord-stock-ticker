@@ -125,6 +125,10 @@ func (m *Token) watchTokenPrice() {
 				}
 
 				bnbRate, err := utils.GetCryptoPrice("binancecoin")
+				if err != nil {
+					logger.Errorf("Unable to fetch bnb price for %s", m.Name)
+					continue
+				}
 
 				if fmtPriceRaw, err = strconv.ParseFloat(priceData, 64); err != nil {
 					logger.Errorf("Error with price format for %s", m.Name)

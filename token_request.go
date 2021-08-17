@@ -22,7 +22,7 @@ type TokenRequest struct {
 	Decorator string `json:"decorator" default:"-"`
 	Activity  string `json:"activity"`
 	Decimals  int    `json:"decimals"`
-	Source  string `json:"source"`
+	Source    string `json:"source"`
 }
 
 // AddToken adds a new Token or crypto to the list of what to watch
