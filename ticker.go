@@ -490,10 +490,10 @@ func (s *Ticker) watchCryptoPrice() {
 					if err != nil {
 						logger.Errorf("Unable to fetch pair price for %s: %s", s.Pair, err)
 						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+					} else {
+						pairPrice := priceData.MarketData.CurrentPrice.USD / pairPriceData.MarketData.CurrentPrice.USD
+						activity = fmt.Sprintf("%.2f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
 					}
-
-					pairPrice := priceData.MarketData.CurrentPrice.USD / pairPriceData.MarketData.CurrentPrice.USD
-					activity = fmt.Sprintf("%.2f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
 				} else {
 					activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
 				}
