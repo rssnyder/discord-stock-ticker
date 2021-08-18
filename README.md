@@ -268,7 +268,7 @@ Crypto Payload:
   "set_color": true,                                # bool/OPTIONAL: requires set_nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
-  "bitcoin": true,                                  # bool/OPTIONAL: show prices in BTC
+  "pair": "binancecoin",                            # string/OPTIONAL: pair the coin with another coin, replaces activity section
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity

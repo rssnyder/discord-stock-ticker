@@ -25,7 +25,7 @@ type Ticker struct {
 	CurrencySymbol string          `json:"currency_symbol"`
 	Decimals       int             `json:"decimals"`
 	Activity       string          `json:"activity"`
-	Bitcoin        bool            `json:"bitcoin"`
+	Pair           string          `json:"pair"`
 	Cache          *redis.Client   `json:"-"`
 	Context        context.Context `json:"-"`
 	token          string          `json:"-"`
@@ -54,7 +54,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, bitcoin bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
@@ -66,7 +66,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Frequency:      time.Duration(frequency) * time.Second,
 		Currency:       strings.ToUpper(currency),
 		CurrencySymbol: currencySymbol,
-		Bitcoin:        bitcoin,
+		Pair:           pair,
 		Cache:          cache,
 		Context:        context,
 		token:          token,
@@ -476,7 +476,27 @@ func (s *Ticker) watchCryptoPrice() {
 
 				// format nickname
 				nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
-				activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+
+				// format activity
+				if s.Pair != "" {
+
+					// get price of target pair
+					var pairPriceData utils.GeckoPriceResults
+					if s.Cache == rdb {
+						pairPriceData, err = utils.GetCryptoPrice(s.Pair)
+					} else {
+						pairPriceData, err = utils.GetCryptoPriceCache(s.Cache, s.Context, s.Pair)
+					}
+					if err != nil {
+						logger.Errorf("Unable to fetch pair price for %s: %s", s.Pair, err)
+						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+					} else {
+						pairPrice := priceData.MarketData.CurrentPrice.USD / pairPriceData.MarketData.CurrentPrice.USD
+						activity = fmt.Sprintf("%.2f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
+					}
+				} else {
+					activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+				}
 
 				// Update nickname in guilds
 				for _, g := range guilds {

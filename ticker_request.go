@@ -21,7 +21,7 @@ type TickerRequest struct {
 	Frequency      int    `json:"frequency"`
 	Currency       string `json:"currency"`
 	CurrencySymbol string `json:"currency_symbol"`
-	Bitcoin        bool   `json:"bitcoin"`
+	Pair           string `json:"pair"`
 	Activity       string `json:"activity"`
 	Decimals       int    `json:"decimals"`
 }
@@ -83,7 +83,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Bitcoin, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Pair, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
 		m.addTicker(stockReq.Name, crypto)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
