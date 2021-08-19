@@ -26,6 +26,7 @@ type Ticker struct {
 	Decimals       int             `json:"decimals"`
 	Activity       string          `json:"activity"`
 	Pair           string          `json:"pair"`
+	PairFlip       bool            `json:"pair_flip"`
 	Cache          *redis.Client   `json:"-"`
 	Context        context.Context `json:"-"`
 	token          string          `json:"-"`
@@ -54,7 +55,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
@@ -67,6 +68,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Currency:       strings.ToUpper(currency),
 		CurrencySymbol: currencySymbol,
 		Pair:           pair,
+		PairFlip:       pairFlip,
 		Cache:          cache,
 		Context:        context,
 		token:          token,
@@ -366,6 +368,7 @@ func (s *Ticker) watchCryptoPrice() {
 		custom_activity = strings.Split(s.Activity, ";")
 	}
 
+	// create timer
 	ticker := time.NewTicker(s.Frequency)
 	logger.Debugf("Watching crypto price for %s", s.Name)
 
@@ -384,7 +387,7 @@ func (s *Ticker) watchCryptoPrice() {
 			var changeHeader string
 			var fmtDiffPercent string
 
-			// save the price struct & do something with it
+			// get the coin price data
 			if s.Cache == rdb {
 				priceData, err = utils.GetCryptoPrice(s.Name)
 			} else {
@@ -400,8 +403,8 @@ func (s *Ticker) watchCryptoPrice() {
 				priceData.MarketData.PriceChangeCurrency.USD = exRate * priceData.MarketData.PriceChangeCurrency.USD
 			}
 
+			// format the price changes
 			fmtDiffPercent = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangePercent)
-
 			fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
 
 			// Check for custom decimal places
@@ -455,6 +458,7 @@ func (s *Ticker) watchCryptoPrice() {
 				increase = true
 			}
 
+			// set arrows based on movement
 			if arrows {
 				s.Decorator = "⬊"
 				if increase {
@@ -462,12 +466,13 @@ func (s *Ticker) watchCryptoPrice() {
 				}
 			}
 
+			// update nickname instead of activity
 			if s.Nickname {
-				// update nickname instead of activity
 				var displayName string
 				var nickname string
 				var activity string
 
+				// override coin symbol
 				if s.Ticker != "" {
 					displayName = s.Ticker
 				} else {
@@ -491,11 +496,23 @@ func (s *Ticker) watchCryptoPrice() {
 						logger.Errorf("Unable to fetch pair price for %s: %s", s.Pair, err)
 						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
 					} else {
-						pairPrice := priceData.MarketData.CurrentPrice.USD / pairPriceData.MarketData.CurrentPrice.USD
-						if pairPrice < 0.1 {
-							activity = fmt.Sprintf("%.4f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
+
+						// set pair
+						var pairPrice float64
+						var pairSymbol string
+						if s.PairFlip {
+							pairPrice = pairPriceData.MarketData.CurrentPrice.USD / priceData.MarketData.CurrentPrice.USD
+							pairSymbol = fmt.Sprintf("%s/%s", strings.ToUpper(pairPriceData.Symbol), displayName)
 						} else {
-							activity = fmt.Sprintf("%.2f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
+							pairPrice = priceData.MarketData.CurrentPrice.USD / pairPriceData.MarketData.CurrentPrice.USD
+							pairSymbol = fmt.Sprintf("%s/%s", displayName, strings.ToUpper(pairPriceData.Symbol))
+						}
+
+						// format decimals
+						if pairPrice < 0.1 {
+							activity = fmt.Sprintf("%.4f %s", pairPrice, pairSymbol)
+						} else {
+							activity = fmt.Sprintf("%.2f %s", pairPrice, pairSymbol)
 						}
 					}
 				} else {
@@ -511,11 +528,12 @@ func (s *Ticker) watchCryptoPrice() {
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 
+					// change coin color
 					if s.Color {
-						// get roles for colors
 						var redRole string
 						var greeenRole string
 
+						// get the roles for color changing
 						roles, err := dg.GuildRoles(g.ID)
 						if err != nil {
 							logger.Errorf("Getting guilds: %s", err)
@@ -531,6 +549,7 @@ func (s *Ticker) watchCryptoPrice() {
 							}
 						}
 
+						// make sure roles exist
 						if len(redRole) == 0 || len(greeenRole) == 0 {
 							logger.Error("Unable to find roles for color changes")
 							continue
@@ -576,6 +595,7 @@ func (s *Ticker) watchCryptoPrice() {
 					}
 				}
 
+				// set activity
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
