@@ -492,7 +492,11 @@ func (s *Ticker) watchCryptoPrice() {
 						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
 					} else {
 						pairPrice := priceData.MarketData.CurrentPrice.USD / pairPriceData.MarketData.CurrentPrice.USD
-						activity = fmt.Sprintf("%.2f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
+						if pairPrice < 0.1 {
+							activity = fmt.Sprintf("%.4f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
+						} else {
+							activity = fmt.Sprintf("%.2f %s/%s", pairPrice, displayName, strings.ToUpper(pairPriceData.Symbol))
+						}
 					}
 				} else {
 					activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
