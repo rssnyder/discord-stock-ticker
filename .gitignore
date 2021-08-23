@@ -15,3 +15,5 @@
 # vendor/
 
 bin*
+test.sh
+load.py
