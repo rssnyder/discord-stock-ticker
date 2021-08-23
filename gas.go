@@ -42,21 +42,21 @@ func (g *Gas) watchGasPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + g.token)
 	if err != nil {
-		logger.Errorf("Error creating Discord session: ", err)
+		logger.Errorf("Error creating Discord session: %s\n", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("error opening discord connection,", err)
+		logger.Errorf("error opening discord connection: %s\n", err)
 		return
 	}
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		logger.Errorf("Error getting guilds: ", err)
+		logger.Errorf("Error getting guilds: %s\n", err)
 		g.Nickname = false
 	}
 
@@ -68,7 +68,7 @@ func (g *Gas) watchGasPrice() {
 
 		select {
 		case <-g.close:
-			logger.Infof("Shutting down price watching for %s", g.Network)
+			logger.Infof("Shutting down price watching for %s\n", g.Network)
 			return
 		case <-ticker.C:
 			// get gas prices
