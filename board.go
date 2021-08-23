@@ -198,7 +198,7 @@ func (b *Board) watchStockPrice() {
 				for _, g := range guilds {
 					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 					if err != nil {
-						logger.Errorf("Error updating nickname: ", err)
+						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
@@ -210,7 +210,7 @@ func (b *Board) watchStockPrice() {
 
 						roles, err := dg.GuildRoles(g.ID)
 						if err != nil {
-							logger.Errorf("Error getting guilds: ", err)
+							logger.Errorf("Error getting roles: %s\n", err)
 							continue
 						}
 
@@ -399,7 +399,7 @@ func (b *Board) watchCryptoPrice() {
 				for _, g := range guilds {
 					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 					if err != nil {
-						logger.Errorf("Error updating nickname: ", err)
+						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
@@ -454,7 +454,7 @@ func (b *Board) watchCryptoPrice() {
 
 				err = dg.UpdateGameStatus(0, b.Name)
 				if err != nil {
-					logger.Error("Unable to set activity: %s\n", err)
+					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
@@ -465,7 +465,7 @@ func (b *Board) watchCryptoPrice() {
 				activity := fmt.Sprintf("%s $%s %s %s", strings.ToUpper(priceData.Symbol), fmtPrice, decorator, fmtDiff)
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
-					logger.Error("Unable to set activity: %s\n", err)
+					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
 					logger.Infof("Set activity: %s", activity)
 				}
