@@ -80,28 +80,28 @@ func (b *Board) watchStockPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + b.token)
 	if err != nil {
-		logger.Errorf("Error creating Discord session: ", err)
+		logger.Errorf("Error creating Discord session: %s\n", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("error opening discord connection,", err)
+		logger.Errorf("error opening discord connection: %s\n", err)
 		return
 	}
 
 	// get bot id
 	botUser, err := dg.User("@me")
 	if err != nil {
-		logger.Errorf("Error getting bot id: ", err)
+		logger.Errorf("Error getting bot id: %s\n", err)
 		return
 	}
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		logger.Errorf("Error getting guilds: ", err)
+		logger.Errorf("Error getting guilds: %s\n", err)
 		b.Nickname = false
 	}
 
@@ -433,20 +433,20 @@ func (b *Board) watchCryptoPrice() {
 						if increase {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to remove role: %s\n", err)
+								logger.Errorf("Unable to remove role: %s\n", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to set role: %s\n", err)
+								logger.Errorf("Unable to set role: %s\n", err)
 							}
 						} else {
 							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 							if err != nil {
-								logger.Error("Unable to remove role: %s\n", err)
+								logger.Errorf("Unable to remove role: %s\n", err)
 							}
 							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 							if err != nil {
-								logger.Error("Unable to set role: %s\n", err)
+								logger.Errorf("Unable to set role: %s\n", err)
 							}
 						}
 					}
