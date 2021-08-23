@@ -27,6 +27,7 @@ type Ticker struct {
 	Activity       string          `json:"activity"`
 	Pair           string          `json:"pair"`
 	PairFlip       bool            `json:"pair_flip"`
+	TwelveDataKey  string          `json:"-"`
 	Cache          *redis.Client   `json:"-"`
 	Context        context.Context `json:"-"`
 	token          string          `json:"-"`
@@ -34,19 +35,20 @@ type Ticker struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int) *Ticker {
+func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string) *Ticker {
 	s := &Ticker{
-		Ticker:    ticker,
-		Name:      name,
-		Nickname:  nickname,
-		Color:     color,
-		Decorator: decorator,
-		Activity:  activity,
-		Decimals:  decimals,
-		Frequency: time.Duration(frequency) * time.Second,
-		Currency:  strings.ToUpper(currency),
-		token:     token,
-		close:     make(chan int, 1),
+		Ticker:        ticker,
+		Name:          name,
+		Nickname:      nickname,
+		Color:         color,
+		Decorator:     decorator,
+		Activity:      activity,
+		Decimals:      decimals,
+		Frequency:     time.Duration(frequency) * time.Second,
+		Currency:      strings.ToUpper(currency),
+		TwelveDataKey: twelveDataKey,
+		token:         token,
+		close:         make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -152,39 +154,80 @@ func (s *Ticker) watchStockPrice() {
 		case <-ticker.C:
 			logger.Debugf("Fetching stock price for %s", s.Name)
 
-			var priceData utils.PriceResults
 			var fmtPrice string
 			var fmtDiffPercent string
 			var fmtDiffChange string
 
-			// save the price struct & do something with it
-			priceData, err = utils.GetStockPrice(s.Ticker)
-			if err != nil {
-				logger.Errorf("Unable to fetch stock price for %s", s.Name)
-			}
+			// use twelve data as source
+			if s.TwelveDataKey != "" {
+				priceDataTS, err := utils.GetTimeSeries(s.Ticker, "min", s.TwelveDataKey)
+				if err != nil {
+					logger.Errorf("Unable to fetch twelvedata stock price for %s", s.Name)
+					continue
+				}
+				if len(priceDataTS.Values) == 0 {
+					logger.Errorf("Unable to fetch twelvedata stock price for %s", s.Name)
+					continue
+				}
 
-			if len(priceData.QuoteSummary.Results) == 0 {
-				logger.Errorf("Yahoo returned bad data for %s", s.Name)
-				continue
-			}
-			fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
+				fmtPrice = priceDataTS.Values[0].Close
 
-			// Check if conversion is needed
-			if exRate != 0 {
-				rawPrice := exRate * priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
-				fmtPrice = strconv.FormatFloat(rawPrice, 'f', 2, 64)
-			}
+				priceDataDay, err := utils.GetTimeSeries(s.Ticker, "day", s.TwelveDataKey)
+				if err != nil {
+					logger.Errorf("Unable to fetch twelvedata stock price for %s", s.Name)
+					continue
+				}
+				if len(priceDataDay.Values) == 0 {
+					logger.Errorf("Unable to fetch twelvedata stock price for %s", s.Name)
+					continue
+				}
 
-			// check for day or after hours change
-			if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
-				fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.PostMarketChangePercent.Fmt
-				fmtDiffChange = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
-			} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
-				fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.PreMarketChangePercent.Fmt
-				fmtDiffChange = priceData.QuoteSummary.Results[0].Price.PreMarketChange.Fmt
+				nowRaw, err := strconv.ParseFloat(fmtPrice, 64)
+				if err != nil {
+					logger.Errorf("Unable to deal with twelvedata ts data %s", fmtPrice)
+					continue
+				}
+
+				openRaw, err := strconv.ParseFloat(priceDataDay.Values[0].Open, 64)
+				if err != nil {
+					logger.Errorf("Unable to deal with twelvedata day data %s", priceDataDay.Values[0].Open)
+					continue
+				}
+
+				fmtDiff := openRaw - nowRaw
+				fmtDiffChange = fmt.Sprintf("%.2f", fmtDiff)
+				fmtDiffPercent = fmt.Sprintf("%.2f%%", (fmtDiff/openRaw)*100)
 			} else {
-				fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.RegularMarketChangePercent.Fmt
-				fmtDiffChange = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
+				// use yahoo as source
+				priceData, err := utils.GetStockPrice(s.Ticker)
+				if err != nil {
+					logger.Errorf("Unable to fetch yahoo stock price for %s", s.Name)
+					continue
+				}
+
+				if len(priceData.QuoteSummary.Results) == 0 {
+					logger.Errorf("Yahoo returned bad data for %s", s.Name)
+					continue
+				}
+				fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
+
+				// Check if conversion is needed
+				if exRate != 0 {
+					rawPrice := exRate * priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+					fmtPrice = strconv.FormatFloat(rawPrice, 'f', 2, 64)
+				}
+
+				// check for day or after hours change
+				if priceData.QuoteSummary.Results[0].Price.MarketState == "POST" {
+					fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.PostMarketChangePercent.Fmt
+					fmtDiffChange = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
+				} else if priceData.QuoteSummary.Results[0].Price.MarketState == "PRE" {
+					fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.PreMarketChangePercent.Fmt
+					fmtDiffChange = priceData.QuoteSummary.Results[0].Price.PreMarketChange.Fmt
+				} else {
+					fmtDiffPercent = priceData.QuoteSummary.Results[0].Price.RegularMarketChangePercent.Fmt
+					fmtDiffChange = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
+				}
 			}
 
 			// calculate if price has moved up or down

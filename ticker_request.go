@@ -25,6 +25,7 @@ type TickerRequest struct {
 	PairFlip       bool   `json:"pair_flip"`
 	Activity       string `json:"activity"`
 	Decimals       int    `json:"decimals"`
+	TwelveDataKey  string `json:"twelve_data_key"`
 }
 
 // AddTicker adds a new Ticker or crypto to the list of what to watch
@@ -116,7 +117,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals)
+	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.TwelveDataKey)
 	m.addTicker(stockReq.Ticker, stock)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
