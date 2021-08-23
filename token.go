@@ -58,14 +58,14 @@ func (m *Token) watchTokenPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + m.token)
 	if err != nil {
-		fmt.Println("Error creating Discord session: ", err)
+		logger.Errorf("Error creating Discord session: %s\n", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("error opening discord connection,", err)
+		logger.Errorf("error opening discord connection: %s\n", err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (m *Token) watchTokenPrice() {
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		fmt.Println("Error getting guilds: ", err)
+		logger.Errorf("Error getting guilds: %s\n", err)
 		m.Nickname = false
 	}
 
@@ -218,7 +218,7 @@ func (m *Token) watchTokenPrice() {
 				for _, g := range guilds {
 					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 					if err != nil {
-						fmt.Println("Error updating nickname: ", err)
+						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					}
 					logger.Infof("Set nickname in %s: %s", g.Name, nickname)

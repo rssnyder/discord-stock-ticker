@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -86,7 +85,7 @@ func NewManager(address string, count prometheus.Gauge, cache *redis.Client, con
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
+			logger.Fatal(err)
 		}
 	}()
 
