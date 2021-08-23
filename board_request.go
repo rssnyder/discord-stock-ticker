@@ -29,7 +29,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
 
-	logger.Debugf("Got an API request to add a ticker")
+	logger.Debugf("Got an API request to add a board")
 
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
@@ -75,7 +75,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCryptoBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Percentage, boardReq.Arrows, boardReq.Frequency, m.Cache, m.Context)
+		crypto := NewCryptoBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Percentage, boardReq.Arrows, boardReq.Frequency, lastUpdate, m.Cache, m.Context)
 		m.addBoard(crypto)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -94,7 +94,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStockBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Percentage, boardReq.Arrows, boardReq.Frequency)
+	stock := NewStockBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Percentage, boardReq.Arrows, boardReq.Frequency, lastUpdate)
 	m.addBoard(stock)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

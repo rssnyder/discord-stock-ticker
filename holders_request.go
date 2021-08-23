@@ -70,7 +70,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	holders := NewHolders(holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency)
+	holders := NewHolders(holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency, lastUpdate)
 	m.addHolders(holders)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

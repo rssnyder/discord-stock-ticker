@@ -61,7 +61,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gas := NewGas(gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
+	gas := NewGas(gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency, lastUpdate)
 	m.addGas(gasReq.Network, gas)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
