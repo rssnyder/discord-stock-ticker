@@ -132,17 +132,35 @@ func (m *Token) watchTokenPrice() {
 
 				if fmtPriceRaw, err = strconv.ParseFloat(priceData, 64); err != nil {
 					logger.Errorf("Error with price format for %s", m.Name)
+					continue
 				}
 				fmtPrice = bnbRate.MarketData.CurrentPrice.USD * fmtPriceRaw
+
+			case "dexlab":
+				logger.Infof("Using %s to get price: %s", m.Source, m.Name)
+
+				// Get price from dexlab in USDT
+				priceData, err = utils.GetDexLabPrice(m.Contract)
+				if err != nil {
+					logger.Errorf("Unable to fetch token price from %s: %s", m.Source, m.Name)
+					continue
+				}
+
+				if fmtPrice, err = strconv.ParseFloat(priceData, 64); err != nil {
+					logger.Errorf("Error with price format for %s", m.Name)
+					continue
+				}
 
 			default:
 				priceData, err = utils.Get1inchTokenPrice(m.Network, m.Contract)
 				if err != nil {
 					logger.Errorf("Unable to fetch token price for %s", m.Name)
+					continue
 				}
 
 				if fmtPriceRaw, err = strconv.ParseFloat(priceData, 64); err != nil {
 					logger.Errorf("Error with price format for %s", m.Name)
+					continue
 				}
 				fmtPrice = fmtPriceRaw / 10000000
 			}
@@ -195,8 +213,6 @@ func (m *Token) watchTokenPrice() {
 				default:
 					nickname = fmt.Sprintf("%s %s $%.4f", m.Name, m.Decorator, fmtPrice)
 				}
-
-				activity = "Using USDC on 1inch"
 
 				// Update nickname in guilds
 				for _, g := range guilds {
@@ -255,6 +271,7 @@ func (m *Token) watchTokenPrice() {
 					}
 				}
 
+				activity = ""
 				// Custom activity messages
 				if len(custom_activity) > 0 {
 

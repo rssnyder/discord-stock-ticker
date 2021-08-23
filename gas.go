@@ -42,21 +42,21 @@ func (g *Gas) watchGasPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + g.token)
 	if err != nil {
-		fmt.Println("Error creating Discord session: ", err)
+		logger.Errorf("Error creating Discord session: ", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("error opening discord connection,", err)
+		logger.Errorf("error opening discord connection,", err)
 		return
 	}
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		fmt.Println("Error getting guilds: ", err)
+		logger.Errorf("Error getting guilds: ", err)
 		g.Nickname = false
 	}
 
@@ -74,7 +74,7 @@ func (g *Gas) watchGasPrice() {
 			// get gas prices
 			gasPrices, err := utils.GetGasPrices(g.Network)
 			if err != nil {
-				fmt.Printf("Error getting rates: %s\n", err)
+				logger.Errorf("Error getting rates: %s\n", err)
 				time.Sleep(g.Frequency)
 				continue
 			}
@@ -88,26 +88,26 @@ func (g *Gas) watchGasPrice() {
 
 					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 					if err != nil {
-						fmt.Printf("Error updating nickname: %s\n", err)
+						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					} else {
-						fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+						logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
 					}
 				}
 
 				err = dg.UpdateGameStatus(0, "Fast, Avg, Slow")
 				if err != nil {
-					fmt.Printf("Unable to set activity: %s\n", err)
+					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					fmt.Println("Set activity")
+					logger.Infof("Set activity")
 				}
 			} else {
 
 				err = dg.UpdateGameStatus(0, nickname)
 				if err != nil {
-					fmt.Printf("Unable to set activity: %s\n", err)
+					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					fmt.Printf("Set activity: %s\n", nickname)
+					logger.Infof("Set activity: %s\n", nickname)
 				}
 			}
 		}

@@ -253,6 +253,7 @@ Stock Payload:
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "twelve_data_key": "xxx",                         # string/OPTIONAL: use twelve data as source, pass in api key
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```
@@ -320,7 +321,7 @@ Stock Payload:
   "items": ["PFG", "GME", "AMC"],                   # list of strings: symbols from yahoo finance to rotate through
   "header": "1. ",                                  # string/OPTIONAL: adds a header to the nickname to help sort bots
   "set_color": true,                                # bool/OPTIONAL: requires set_nickname
-  "arrows": true                                    # bool/OPTIONAL: show arrows in ticker names
+  "arrows": true,                                   # bool/OPTIONAL: show arrows in ticker names
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
@@ -336,7 +337,7 @@ Crypto Payload:
   "items": ["bitcoin", "ethereum", "dogecoin"],     # list of strings: names from coingecko to rotate through
   "header": "2. ",                                  # string/OPTIONAL: adds a header to the nickname to help sort bots
   "set_color": true,                                # bool/OPTIONAL: requires set_nickname
-  "arrows": true                                    # bool/OPTIONAL: show arrows in ticker names
+  "arrows": true,                                   # bool/OPTIONAL: show arrows in ticker names
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
@@ -382,7 +383,7 @@ Payload:
 
 ```
 {
-  "network": "ethereum"                             # string: one of: ethereum, binance-smart-chain, or polygon
+  "network": "ethereum",                            # string: one of: ethereum, binance-smart-chain, or polygon
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
@@ -424,9 +425,9 @@ Payload:
 
 ```
 {
-  "network": "ethereum"                             # string: one of: ethereum, binance-smart-chain, or polygon
-  "address": "0x00000000000000000000000000"         # string: address of contract for token
-  "activity": "ethereum"                            # string: text to show in activity section of the bot
+  "network": "ethereum",                            # string: one of: ethereum, binance-smart-chain, or polygon
+  "address": "0x00000000000000000000000000",        # string: address of contract for token
+  "activity": "ethereum",                           # string: text to show in activity section of the bot
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
@@ -443,7 +444,7 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "set_nickname": true,
   "frequency": 120,
   "discord_bot_token": "xxxxxxx"
-}' localhost:8080/gas
+}' localhost:8080/holders
 ```
 
 ###### Remove a bot
@@ -468,15 +469,15 @@ Payload:
 
 ```
 {
-  "network": "ethereum"                             # string: network of token, options are ethereum, binance-smart-chain, or polygon
-  "name": "my token"                                # string: display name of token
-  "contract": "0x00000"                             # string: contract address of token
-  "currency": "0x00000"                             # string/OPTIONAL: contract address of token to price against, default is USDC
+  "network": "ethereum",                            # string: network of token, options are ethereum, binance-smart-chain, or polygon
+  "name": "my token",                               # string: display name of token
+  "contract": "0x00000",                            # string: contract address of token
+  "currency": "0x00000",                            # string/OPTIONAL: contract address of token to price against, default is USDC
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
   "set_color": true,                                # bool/OPTIONAL: requires set_nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
-  "source": "pancakeswap",                          # string/OPTIONAL: if the token is a BSC token, you can set pancakeswap here to use it vs 1inch
+  "source": "pancakeswap",                          # string/OPTIONAL: if the token is a BSC token, you can set pancakeswap here to use it vs 1inch; you can also set dexlab for solana tokens
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
@@ -486,7 +487,7 @@ Example:
 
 ```
 curl -X POST -H "Content-Type: application/json" --data '{
-  "network": "polygon"
+  "network": "polygon",
   "contract": "0x0000000",
   "frequency": 3,
   "set_nickname": true,

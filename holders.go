@@ -61,7 +61,7 @@ func (h *Holders) watchHolders() {
 	if h.Nickname {
 		err = dg.UpdateGameStatus(0, h.Activity)
 		if err != nil {
-			fmt.Printf("Unable to set activity: %s\n", err)
+			logger.Errorf("Unable to set activity: %s\n", err)
 		} else {
 			fmt.Println("Set activity")
 		}
@@ -93,19 +93,19 @@ func (h *Holders) watchHolders() {
 
 					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 					if err != nil {
-						fmt.Printf("Error updating nickname: %s\n", err)
+						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					} else {
-						fmt.Printf("Set nickname in %s: %s\n", g.Name, nickname)
+						logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
 					}
 				}
 			} else {
 
 				err = dg.UpdateGameStatus(0, nickname)
 				if err != nil {
-					fmt.Printf("Unable to set activity: %s\n", err)
+					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					fmt.Printf("Set activity: %s\n", nickname)
+					logger.Infof("Set activity: %s\n", nickname)
 				}
 			}
 		}
