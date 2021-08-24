@@ -84,28 +84,28 @@ func (b *Board) watchStockPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + b.token)
 	if err != nil {
-		fmt.Println("Error creating Discord session: ", err)
+		logger.Errorf("Error creating Discord session: %s\n", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("error opening discord connection,", err)
+		logger.Errorf("error opening discord connection: %s\n", err)
 		return
 	}
 
 	// get bot id
 	botUser, err := dg.User("@me")
 	if err != nil {
-		fmt.Println("Error getting bot id: ", err)
+		logger.Errorf("Error getting bot id: %s\n", err)
 		return
 	}
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		fmt.Println("Error getting guilds: ", err)
+		logger.Errorf("Error getting guilds: %s\n", err)
 		b.Nickname = false
 	}
 
@@ -203,7 +203,7 @@ func (b *Board) watchStockPrice() {
 					for _, g := range guilds {
 						err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 						if err != nil {
-							fmt.Println("Error updating nickname: ", err)
+							logger.Errorf("Error updating nickname: %s\n", err)
 							continue
 						}
 						logger.Infof("Set nickname in %s: %s", g.Name, nickname)
@@ -216,7 +216,7 @@ func (b *Board) watchStockPrice() {
 
 							roles, err := dg.GuildRoles(g.ID)
 							if err != nil {
-								fmt.Println("Error getting guilds: ", err)
+								logger.Errorf("Error getting guilds: %s\n", err)
 								continue
 							}
 
@@ -238,20 +238,20 @@ func (b *Board) watchStockPrice() {
 							if increase {
 								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 								if err != nil {
-									logger.Error("Unable to remove role: ", err)
+									logger.Errorf("Unable to remove role: %s\n", err)
 								}
 								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 								if err != nil {
-									logger.Error("Unable to set role: ", err)
+									logger.Errorf("Unable to set role: %s\n", err)
 								}
 							} else {
 								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 								if err != nil {
-									logger.Error("Unable to remove role: ", err)
+									logger.Errorf("Unable to remove role: %s\n", err)
 								}
 								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 								if err != nil {
-									logger.Error("Unable to set role: ", err)
+									logger.Errorf("Unable to set role: %s\n", err)
 								}
 							}
 						}
@@ -259,7 +259,7 @@ func (b *Board) watchStockPrice() {
 
 					err = dg.UpdateGameStatus(0, b.Name)
 					if err != nil {
-						logger.Error("Unable to set activity: ", err)
+						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
 					}
@@ -276,7 +276,7 @@ func (b *Board) watchStockPrice() {
 
 					err = dg.UpdateGameStatus(0, activity)
 					if err != nil {
-						logger.Error("Unable to set activity: ", err)
+						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
 					}
@@ -292,28 +292,28 @@ func (b *Board) watchCryptoPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + b.token)
 	if err != nil {
-		fmt.Println("Error creating Discord session: ", err)
+		logger.Errorf("Error creating Discord session: %s\n", err)
 		return
 	}
 
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		fmt.Println("error opening discord connection,", err)
+		logger.Errorf("error opening discord connection: %s\n", err)
 		return
 	}
 
 	// get bot id
 	botUser, err := dg.User("@me")
 	if err != nil {
-		fmt.Println("Error getting bot id: ", err)
+		logger.Errorf("Error getting bot id: %s\n", err)
 		return
 	}
 
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		fmt.Println("Error getting guilds: ", err)
+		logger.Errorf("Error getting guilds: %s\n", err)
 		b.Nickname = false
 	}
 
@@ -407,7 +407,7 @@ func (b *Board) watchCryptoPrice() {
 					for _, g := range guilds {
 						err = dg.GuildMemberNickname(g.ID, "@me", nickname)
 						if err != nil {
-							fmt.Println("Error updating nickname: ", err)
+							logger.Errorf("Error updating nickname: %s\n", err)
 							continue
 						}
 						logger.Infof("Set nickname in %s: %s", g.Name, nickname)
@@ -420,7 +420,7 @@ func (b *Board) watchCryptoPrice() {
 
 							roles, err := dg.GuildRoles(g.ID)
 							if err != nil {
-								fmt.Println("Error getting guilds: ", err)
+								logger.Errorf("Error getting guilds: %s\n", err)
 								continue
 							}
 
@@ -442,20 +442,20 @@ func (b *Board) watchCryptoPrice() {
 							if increase {
 								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
 								if err != nil {
-									logger.Error("Unable to remove role: ", err)
+									logger.Errorf("Unable to remove role: %s\n", err)
 								}
 								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
 								if err != nil {
-									logger.Error("Unable to set role: ", err)
+									logger.Errorf("Unable to set role: %s\n", err)
 								}
 							} else {
 								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
 								if err != nil {
-									logger.Error("Unable to remove role: ", err)
+									logger.Errorf("Unable to remove role: %s\n", err)
 								}
 								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
 								if err != nil {
-									logger.Error("Unable to set role: ", err)
+									logger.Errorf("Unable to set role: %s\n", err)
 								}
 							}
 						}
@@ -463,7 +463,7 @@ func (b *Board) watchCryptoPrice() {
 
 					err = dg.UpdateGameStatus(0, b.Name)
 					if err != nil {
-						logger.Error("Unable to set activity: ", err)
+						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
 					}
@@ -474,7 +474,7 @@ func (b *Board) watchCryptoPrice() {
 					activity := fmt.Sprintf("%s $%s %s %s", strings.ToUpper(priceData.Symbol), fmtPrice, decorator, fmtDiff)
 					err = dg.UpdateGameStatus(0, activity)
 					if err != nil {
-						logger.Error("Unable to set activity: ", err)
+						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
 					}
