@@ -3,7 +3,7 @@ Live stock and crypto tickers for your discord server.
 
 Now with five different types of tickers!
 
-🍾 300+ public tickers with over 7k installs across 1k discord servers!
+🍾 400+ public tickers with over 14k installs across 2.5k discord servers!
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -24,7 +24,7 @@ Now with five different types of tickers!
 
 <a href="https://www.digitalocean.com/?refcode=1acd6d377e8b&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg" alt="DigitalOcean Referral Badge" /></a>
 
-Love these bots? You can support this project by subscribing to the [premium version](https://github.com/rssnyder/discord-stock-ticker/blob/master/README.md#premium), [buying me a coffee](https://ko-fi.com/rileysnyder), [using my digital ocean referral link](https://m.do.co/c/1acd6d377e8b), or [hiring me](https://github.com/rssnyder) to write or host **your** discord bot!
+Use these bots? You can support this project by subscribing to the [premium version](https://github.com/rssnyder/discord-stock-ticker/blob/master/README.md#premium), [buying me a coffee](https://ko-fi.com/rileysnyder), [using my digital ocean referral link](https://m.do.co/c/1acd6d377e8b), or [hiring me](https://github.com/rssnyder) to write or host **your** discord bot!
 
 ## Related Projects
 
@@ -39,6 +39,7 @@ Don't see a stock or crypto that you need? Join our discord server to use the br
 ![Ticker creation bot](https://s3.cloud.rileysnyder.org/public/assets/ticker-bot.png)
 
 ### Stocks
+*these lists are not updated frequently, to view the full list of bots avalible join the support discord server*
 
  x|x|x
 ------------ | ------------- | -------------
