@@ -215,6 +215,8 @@ This bot is distributed as a docker image and a binary.
 
 The program acts as a manager of one to many bots. You can have one running instance of the program and have any number of bots running within it.
 
+[Click here](https://youtu.be/LhgCdtE8kmc) to watch a quick video tutorial on how to self-host these bots on linux.
+
 ### Roles for colors
 
 To enable color changing you will need to create three roles.
