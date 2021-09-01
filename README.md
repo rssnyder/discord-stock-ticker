@@ -227,6 +227,8 @@ Then you need to make two other roles. These roles need to be named _exactly_ **
 
 The last two roles tickers-green and tickers-red need to be below the first role in the role list in your server settings. You should then add all your ticker bots to the first role.
 
+![roles example](https://user-images.githubusercontent.com/7338312/131678207-b1510955-f762-46e3-ae5c-1b5eddb68844.jpg)
+
 ### Using the binary
 
 Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
