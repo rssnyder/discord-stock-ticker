@@ -94,7 +94,7 @@ func (m *Manager) addHolders(holders *Holders) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'holders' AND network = ? AND address = ?")
+	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'holders' AND network = ? AND address = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query holders in db %s: %s", id, err)
 		return

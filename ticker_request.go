@@ -148,7 +148,7 @@ func (m *Manager) addTicker(crypto bool, stock *Ticker) {
 	// query
 	var existingId int
 	if crypto {
-		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'ticker' AND name = ?")
+		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'ticker' AND name = ? LIMIT 1")
 		if err != nil {
 			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
 			return

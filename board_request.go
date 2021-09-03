@@ -115,7 +115,7 @@ func (m *Manager) addBoard(crypto bool, board *Board) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'board' AND name = ?")
+	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'board' AND name = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query board in db %s: %s", id, err)
 		return

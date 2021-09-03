@@ -106,7 +106,7 @@ func (m *Manager) addToken(token *Token) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'token' AND network = ? AND contract = ?")
+	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'token' AND network = ? AND contract = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query token in db %s: %s", id, err)
 		return

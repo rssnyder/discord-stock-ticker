@@ -85,7 +85,7 @@ func (m *Manager) addGas(gas *Gas) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'gas' AND network = ?")
+	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'gas' AND network = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query gas in db %s: %s", id, err)
 		return
