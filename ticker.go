@@ -194,7 +194,7 @@ func (s *Ticker) watchStockPrice() {
 					continue
 				}
 
-				fmtDiff := openRaw - nowRaw
+				fmtDiff := nowRaw - openRaw
 				fmtDiffChange = fmt.Sprintf("%.2f", fmtDiff)
 				fmtDiffPercent = fmt.Sprintf("%.2f%%", (fmtDiff/openRaw)*100)
 			} else {
