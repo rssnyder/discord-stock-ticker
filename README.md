@@ -31,7 +31,7 @@ Love these bots? You can support this project by subscribing to the [premium ver
 
 ## Related Projects
 
-Discord bot to create new tickers (avalible on the support server): https://github.com/rssnyder/discord-stock-ticker-bot
+Discord bot to create new tickers (available on the support server): https://github.com/rssnyder/discord-stock-ticker-bot
 
 Cache-like system to get around coingecko api limits: https://github.com/rssnyder/coingecko-cache
 
@@ -278,7 +278,7 @@ systemctl daemon-reload
 systemctl start discord-stock-ticker.service
 ```
 
-If you need ot make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`.
+If you need to make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`.
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
@@ -417,7 +417,7 @@ curl -X DELETE localhost:8080/tickerboard/stocks
 
 ## Ethereum, BSC, and Polygon Gas Prices
 
-These bots shows the current reccomended gas prices for three types of transactions. You can choose either the ethereum, binance smart chain, or polygon blockchain.
+These bots shows the current recommended gas prices for three types of transactions. You can choose either the ethereum, binance smart chain, or polygon blockchain.
 
 ![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)
 
@@ -505,7 +505,7 @@ curl -X DELETE localhost:8080/holders/ethereum-0x00000000000000
 
 ## ETH/BSC/MATIC Token Price
 
-This bot get the current rate for a given token. You can choose another token to pair with on price, or by default USDC is used. You can choose either the ethereum, binance smart chain, or polygon blockchain.
+This bot gets the current rate for a given token. You can choose another token to pair with on price, or by default USDC is used. You can choose either the ethereum, binance smart chain, or polygon blockchain.
 
 ### List current running Tokens
 
