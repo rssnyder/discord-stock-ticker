@@ -148,7 +148,7 @@ func (m *Manager) addTicker(crypto bool, stock *Ticker) {
 	// query
 	var existingId int
 	if crypto {
-		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'ticker' AND name = ? LIMIT 1")
+		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE name = ? LIMIT 1")
 		if err != nil {
 			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
 			return
@@ -169,7 +169,7 @@ func (m *Manager) addTicker(crypto bool, stock *Ticker) {
 		}
 		rows.Close()
 	} else {
-		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'ticker' AND ticker = ?")
+		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE ticker = ?")
 		if err != nil {
 			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
 			return
@@ -216,13 +216,13 @@ func (m *Manager) addTicker(crypto bool, stock *Ticker) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, ticker, name, nickname, color, crypto, activity, decorator, decimals, currency, currencySymbol, pair, pairFlip, twelveDataKey, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO tickers(token, ticker, name, nickname, color, crypto, activity, decorator, decimals, currency, currencySymbol, pair, pairFlip, twelveDataKey, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec("ticker", stock.token, stock.Ticker, stock.Name, stock.Nickname, stock.Color, crypto, stock.Activity, stock.Decorator, stock.Decimals, stock.Currency, stock.CurrencySymbol, stock.Pair, stock.PairFlip, stock.TwelveDataKey, stock.Frequency)
+		res, err := stmt.Exec(stock.token, stock.Ticker, stock.Name, stock.Nickname, stock.Color, crypto, stock.Activity, stock.Decorator, stock.Decimals, stock.Currency, stock.CurrencySymbol, stock.Pair, stock.PairFlip, stock.TwelveDataKey, stock.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
 			return

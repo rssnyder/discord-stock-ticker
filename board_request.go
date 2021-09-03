@@ -115,7 +115,7 @@ func (m *Manager) addBoard(crypto bool, board *Board) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'board' AND name = ? LIMIT 1")
+	stmt, err := m.DB.Prepare("SELECT id FROM boards WHERE name = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query board in db %s: %s", id, err)
 		return
@@ -141,7 +141,7 @@ func (m *Manager) addBoard(crypto bool, board *Board) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update tickers set token = ?, name = ?, nickname = ?, color = ?, crypto = ?, header = ?, items = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update boards set token = ?, name = ?, nickname = ?, color = ?, crypto = ?, header = ?, items = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update board in db %s: %s", id, err)
 			return
@@ -163,13 +163,13 @@ func (m *Manager) addBoard(crypto bool, board *Board) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, name, nickname, color, crypto, header, items, frequency) values(?,?,?,?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO boards(token, name, nickname, color, crypto, header, items, frequency) values(?,?,?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store board in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec("board", board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, ";"), board.Frequency)
+		res, err := stmt.Exec(board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, ";"), board.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store board in db %s: %s", id, err)
 			return

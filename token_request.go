@@ -106,7 +106,7 @@ func (m *Manager) addToken(token *Token) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'token' AND network = ? AND contract = ? LIMIT 1")
+	stmt, err := m.DB.Prepare("SELECT id FROM tokens WHERE network = ? AND contract = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query token in db %s: %s", id, err)
 		return
@@ -132,7 +132,7 @@ func (m *Manager) addToken(token *Token) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update tickers set token = ?, name = ?, nickname = ?, color = ?, activity = ?, network = ?, contract = ?, decorator = ?, decimals = ?, source = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update tokens set token = ?, name = ?, nickname = ?, color = ?, activity = ?, network = ?, contract = ?, decorator = ?, decimals = ?, source = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update token in db %s: %s", id, err)
 			return
@@ -154,13 +154,13 @@ func (m *Manager) addToken(token *Token) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO tokens(token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store token in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec("token", token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
+		res, err := stmt.Exec(token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store token in db %s: %s", id, err)
 			return

@@ -94,7 +94,7 @@ func (m *Manager) addHolders(holders *Holders) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'holders' AND network = ? AND address = ? LIMIT 1")
+	stmt, err := m.DB.Prepare("SELECT id FROM holders WHERE network = ? AND address = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query holders in db %s: %s", id, err)
 		return
@@ -120,7 +120,7 @@ func (m *Manager) addHolders(holders *Holders) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update tickers set token = ?, nickname = ?, activity = ?, network = ?, address = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update holders set token = ?, nickname = ?, activity = ?, network = ?, address = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update holders in db %s: %s", id, err)
 			return
@@ -142,13 +142,13 @@ func (m *Manager) addHolders(holders *Holders) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO holders(token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store holders in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec("holders", holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
+		res, err := stmt.Exec(holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store holders in db %s: %s", id, err)
 			return

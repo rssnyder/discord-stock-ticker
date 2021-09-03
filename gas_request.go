@@ -85,7 +85,7 @@ func (m *Manager) addGas(gas *Gas) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'gas' AND network = ? LIMIT 1")
+	stmt, err := m.DB.Prepare("SELECT id FROM gases WHERE network = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query gas in db %s: %s", id, err)
 		return
@@ -111,7 +111,7 @@ func (m *Manager) addGas(gas *Gas) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update tickers set token = ?, nickname = ?, network = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update gases set token = ?, nickname = ?, network = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update gas in db %s: %s", id, err)
 			return
@@ -133,13 +133,13 @@ func (m *Manager) addGas(gas *Gas) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, nickname, network, frequency) values(?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO gases(token, nickname, network, frequency) values(?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store gas in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec("gas", gas.token, gas.Nickname, gas.Network, gas.Frequency)
+		res, err := stmt.Exec(gas.token, gas.Nickname, gas.Network, gas.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store gas in db %s: %s", id, err)
 			return

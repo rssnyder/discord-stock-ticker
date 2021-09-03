@@ -113,7 +113,6 @@ func dbInit(fileName string) *sql.DB {
 
 	bootstrap := `CREATE TABLE IF NOT EXISTS tickers (
 		id integer primary key autoincrement,
-		tickerType string,
 		clientId string,
 		token string,
 		frequency integer,
@@ -123,18 +122,57 @@ func dbInit(fileName string) *sql.DB {
 		color bool,
 		crypto bool,
 		activity string,
-		network string,
-		contract string,
 		decorator string,
 		decimals integer,
-		header string,
-		source string,
-		address string,
 		currency string,
 		currencySymbol string,
 		pair string,
 		pairFlip bool,
-		twelveDataKey string,
+		twelveDataKey string
+	);
+	CREATE TABLE IF NOT EXISTS tokens (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		name string,
+		nickname bool,
+		color bool,
+		activity string,
+		network string,
+		contract string,
+		decorator string,
+		decimals integer,
+		source string
+	);
+	CREATE TABLE IF NOT EXISTS holders (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		nickname bool,
+		activity string,
+		network string,
+		address string
+	);
+	CREATE TABLE IF NOT EXISTS gases (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		nickname bool,
+		network string
+	);
+	CREATE TABLE IF NOT EXISTS boards (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		name string,
+		nickname bool,
+		color bool,
+		crypto bool,
+		header string,
 		items string
 	);`
 
