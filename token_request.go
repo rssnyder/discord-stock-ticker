@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -96,7 +97,81 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) addToken(token *Token) {
 	tokenCount.Inc()
-	m.WatchingToken[fmt.Sprintf("%s-%s", token.Network, token.Contract)] = token
+	id := fmt.Sprintf("%s-%s", token.Network, token.Contract)
+	m.WatchingToken[id] = token
+
+	var noDB *sql.DB
+	if m.DB == noDB {
+		return
+	}
+
+	// query
+	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'token' AND network = ? AND contract = ?")
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
+
+	rows, err := stmt.Query(token.Network, token.Contract)
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
+
+	var existingId int
+
+	for rows.Next() {
+		err = rows.Scan(&existingId)
+		if err != nil {
+			logger.Warningf("Unable to query token in db %s: %s", id, err)
+			return
+		}
+	}
+	rows.Close()
+
+	if existingId != 0 {
+
+		// update entry in db
+		stmt, err := m.DB.Prepare("update tickers set token = ?, name = ?, nickname = ?, color = ?, activity = ?, network = ?, contract = ?, decorator = ?, decimals = ?, source = ?, frequency = ? WHERE id = ?")
+		if err != nil {
+			logger.Warningf("Unable to update token in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec(token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency, existingId)
+		if err != nil {
+			logger.Warningf("Unable to update token in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to update token in db %s: %s", id, err)
+			return
+		}
+
+		logger.Infof("Updated token in db %s", id)
+	} else {
+
+		// store new entry in db
+		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
+		if err != nil {
+			logger.Warningf("Unable to store token in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec("token", token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
+		if err != nil {
+			logger.Warningf("Unable to store token in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to store token in db %s: %s", id, err)
+			return
+		}
+	}
 }
 
 // DeleteToken addds a new token or crypto to the list of what to watch

@@ -142,7 +142,7 @@ func (s *Ticker) watchStockPrice() {
 		custom_activity = strings.Split(s.Activity, ";")
 	}
 
-	logger.Infof("Watching stock price for %s", s.Name)
+	logger.Debugf("Watching stock price for %s", s.Name)
 	ticker := time.NewTicker(s.Frequency)
 
 	// continuously watch

@@ -97,7 +97,7 @@ func (m *Token) watchTokenPrice() {
 		custom_activity = strings.Split(m.Activity, ";")
 	}
 
-	logger.Infof("Watching token price for %s", m.Name)
+	logger.Debugf("Watching token price for %s", m.Name)
 	ticker := time.NewTicker(m.Frequency)
 
 	// continuously watch
@@ -108,14 +108,14 @@ func (m *Token) watchTokenPrice() {
 			logger.Infof("Shutting down price watching for %s", m.Name)
 			return
 		case <-ticker.C:
-			logger.Infof("Fetching stock price for %s", m.Name)
+			logger.Debugf("Fetching stock price for %s", m.Name)
 			var priceData string
 			var fmtPriceRaw float64
 			var fmtPrice float64
 
 			switch m.Source {
 			case "pancakeswap":
-				logger.Infof("Using %s to get price: %s", m.Source, m.Name)
+				logger.Debugf("Using %s to get price: %s", m.Source, m.Name)
 
 				// Get price from Ps in BNB
 				priceData, err = utils.GetPancakeTokenPrice(m.Contract)
@@ -137,7 +137,7 @@ func (m *Token) watchTokenPrice() {
 				fmtPrice = bnbRate.MarketData.CurrentPrice.USD * fmtPriceRaw
 
 			case "dexlab":
-				logger.Infof("Using %s to get price: %s", m.Source, m.Name)
+				logger.Debugf("Using %s to get price: %s", m.Source, m.Name)
 
 				// Get price from dexlab in USDT
 				priceData, err = utils.GetDexLabPrice(m.Contract)
@@ -221,7 +221,7 @@ func (m *Token) watchTokenPrice() {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					}
-					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
+					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 
 					if m.Color {
 						// get roles for colors
@@ -293,7 +293,7 @@ func (m *Token) watchTokenPrice() {
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 
 			} else {
@@ -303,7 +303,7 @@ func (m *Token) watchTokenPrice() {
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 			}
 			oldPrice = fmtPrice

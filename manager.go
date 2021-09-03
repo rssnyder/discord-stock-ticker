@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -19,19 +21,21 @@ type Manager struct {
 	WatchingGas     map[string]*Gas
 	WatchingToken   map[string]*Token
 	WatchingHolders map[string]*Holders
+	DB              *sql.DB
 	Cache           *redis.Client
 	Context         context.Context
 	sync.RWMutex
 }
 
 // NewManager stores all the information about the current stocks being watched and
-func NewManager(address string, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
+func NewManager(address string, dbFile string, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
 		WatchingTicker:  make(map[string]*Ticker),
 		WatchingBoard:   make(map[string]*Board),
 		WatchingGas:     make(map[string]*Gas),
 		WatchingToken:   make(map[string]*Token),
 		WatchingHolders: make(map[string]*Holders),
+		DB:              dbInit(dbFile),
 		Cache:           cache,
 		Context:         context,
 	}
@@ -90,4 +94,59 @@ func NewManager(address string, count prometheus.Gauge, cache *redis.Client, con
 	}()
 
 	return m
+}
+
+func dbInit(fileName string) *sql.DB {
+	var db *sql.DB
+
+	if fileName == "" {
+		logger.Warning("Will not be storing state.")
+		return db
+	}
+
+	db, err := sql.Open("sqlite3", fileName)
+	if err != nil {
+		logger.Errorf("Unable to open db file: %s\n", err)
+		logger.Warning("Will not be storing state.")
+		return db
+	}
+
+	bootstrap := `CREATE TABLE IF NOT EXISTS tickers (
+		id integer primary key autoincrement,
+		tickerType string,
+		clientId string,
+		token string,
+		frequency integer,
+		ticker string,
+		name string,
+		nickname bool,
+		color bool,
+		crypto bool,
+		activity string,
+		network string,
+		contract string,
+		decorator string,
+		decimals integer,
+		header string,
+		source string,
+		address string,
+		currency string,
+		currencySymbol string,
+		pair string,
+		pairFlip bool,
+		twelveDataKey string,
+		items string
+	);`
+
+	_, err = db.Exec(bootstrap)
+	if err != nil {
+		logger.Errorf("Unable to bootstrap db file: %s\n", err)
+		logger.Warning("Will not be storing state.")
+		var dbNull *sql.DB
+		return dbNull
+	}
+
+	logger.Infof("Will be storing state in %s\n", fileName)
+
+	return db
 }

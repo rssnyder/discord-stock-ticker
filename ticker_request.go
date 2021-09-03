@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -86,7 +87,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		}
 
 		crypto := NewCrypto(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Pair, stockReq.PairFlip, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
-		m.addTicker(stockReq.Name, crypto)
+		m.addTicker(true, crypto)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
@@ -118,7 +119,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stock := NewStock(stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.TwelveDataKey)
-	m.addTicker(stockReq.Ticker, stock)
+	m.addTicker(false, stock)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -129,10 +130,110 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *Manager) addTicker(ticker string, stock *Ticker) {
+func (m *Manager) addTicker(crypto bool, stock *Ticker) {
 	tickerCount.Inc()
-	stock.Ticker = strings.ToUpper(stock.Ticker)
-	m.WatchingTicker[strings.ToUpper(ticker)] = stock
+	var id string
+	if crypto {
+		id = strings.ToUpper(stock.Name)
+	} else {
+		id = strings.ToUpper(stock.Ticker)
+	}
+	m.WatchingTicker[id] = stock
+
+	var noDB *sql.DB
+	if m.DB == noDB {
+		return
+	}
+
+	// query
+	var existingId int
+	if crypto {
+		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'ticker' AND name = ?")
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+
+		rows, err := stmt.Query(stock.Name)
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+
+		for rows.Next() {
+			err = rows.Scan(&existingId)
+			if err != nil {
+				logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+				return
+			}
+		}
+		rows.Close()
+	} else {
+		stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'ticker' AND ticker = ?")
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+
+		rows, err := stmt.Query(stock.Ticker)
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+
+		for rows.Next() {
+			err = rows.Scan(&existingId)
+			if err != nil {
+				logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+				return
+			}
+		}
+		rows.Close()
+	}
+
+	if existingId != 0 {
+
+		// update entry in db
+		stmt, err := m.DB.Prepare("update tickers set token = ?, ticker = ?, name = ?, nickname = ?, color = ?, crypto = ?, activity = ?, decorator = ?, decimals = ?, currency = ?, currencySymbol = ?, pair = ?, pairFlip = ?, twelveDataKey = ?, frequency = ? WHERE id = ?")
+		if err != nil {
+			logger.Warningf("Unable to update ticker in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec(stock.token, stock.Ticker, stock.Name, stock.Nickname, stock.Color, crypto, stock.Activity, stock.Decorator, stock.Decimals, stock.Currency, stock.CurrencySymbol, stock.Pair, stock.PairFlip, stock.TwelveDataKey, stock.Frequency, existingId)
+		if err != nil {
+			logger.Warningf("Unable to update ticker in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to update ticker in db %s: %s", id, err)
+			return
+		}
+
+		logger.Infof("Updated ticker in db %s", id)
+	} else {
+
+		// store new entry in db
+		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, ticker, name, nickname, color, crypto, activity, decorator, decimals, currency, currencySymbol, pair, pairFlip, twelveDataKey, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+		if err != nil {
+			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec("ticker", stock.token, stock.Ticker, stock.Name, stock.Nickname, stock.Color, crypto, stock.Activity, stock.Decorator, stock.Decimals, stock.Currency, stock.CurrencySymbol, stock.Pair, stock.PairFlip, stock.TwelveDataKey, stock.Frequency)
+		if err != nil {
+			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
+			return
+		}
+	}
 }
 
 // DeleteTicker addds a new Ticker or crypto to the list of what to watch

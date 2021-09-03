@@ -13,34 +13,30 @@ import (
 )
 
 type Board struct {
-	Items      []string        `json:"items"`
-	Name       string          `json:"name"`
-	Header     string          `json:"header"`
-	Nickname   bool            `json:"nickname"`
-	Color      bool            `json:"color"`
-	Percentage bool            `json:"percentage"`
-	Arrows     bool            `json:"arrows"`
-	Frequency  time.Duration   `json:"frequency"`
-	Price      int             `json:"-"`
-	Cache      *redis.Client   `json:"-"`
-	Context    context.Context `json:"-"`
-	token      string          `json:"-"`
-	close      chan int        `json:"-"`
+	Items     []string        `json:"items"`
+	Name      string          `json:"name"`
+	Header    string          `json:"header"`
+	Nickname  bool            `json:"nickname"`
+	Color     bool            `json:"color"`
+	Frequency time.Duration   `json:"frequency"`
+	Price     int             `json:"-"`
+	Cache     *redis.Client   `json:"-"`
+	Context   context.Context `json:"-"`
+	token     string          `json:"-"`
+	close     chan int        `json:"-"`
 }
 
 // NewBoard saves information about the board and starts up a watcher on it
-func NewStockBoard(items []string, token string, name string, header string, nickname bool, color bool, percentage bool, arrows bool, frequency int) *Board {
+func NewStockBoard(items []string, token string, name string, header string, nickname bool, color bool, frequency int) *Board {
 	b := &Board{
-		Items:      items,
-		Name:       name,
-		Header:     header,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Frequency:  time.Duration(frequency) * time.Second,
-		token:      token,
-		close:      make(chan int, 1),
+		Items:     items,
+		Name:      name,
+		Header:    header,
+		Nickname:  nickname,
+		Color:     color,
+		Frequency: time.Duration(frequency) * time.Second,
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -49,20 +45,18 @@ func NewStockBoard(items []string, token string, name string, header string, nic
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCryptoBoard(items []string, token string, name string, header string, nickname bool, color bool, percentage bool, arrows bool, frequency int, cache *redis.Client, context context.Context) *Board {
+func NewCryptoBoard(items []string, token string, name string, header string, nickname bool, color bool, frequency int, cache *redis.Client, context context.Context) *Board {
 	b := &Board{
-		Items:      items,
-		Name:       name,
-		Header:     header,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Frequency:  time.Duration(frequency) * time.Second,
-		Cache:      cache,
-		Context:    context,
-		token:      token,
-		close:      make(chan int, 1),
+		Items:     items,
+		Name:      name,
+		Header:    header,
+		Nickname:  nickname,
+		Color:     color,
+		Frequency: time.Duration(frequency) * time.Second,
+		Cache:     cache,
+		Context:   context,
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -135,27 +129,15 @@ func (b *Board) watchStockPrice() {
 
 			var activityHeader string
 
-			if b.Percentage {
-				activityHeader = ""
-			} else {
-				activityHeader = "$"
-			}
+			activityHeader = "$"
 
 			// check for day or after hours change
 			var emptyChange utils.Change
 
 			if priceData.QuoteSummary.Results[0].Price.PostMarketChange != emptyChange {
-				if b.Percentage {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChangePercent.Fmt
-				} else {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
-				}
+				fmtDiff = priceData.QuoteSummary.Results[0].Price.PostMarketChange.Fmt
 			} else {
-				if b.Percentage {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChangePercent.Fmt
-				} else {
-					fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
-				}
+				fmtDiff = priceData.QuoteSummary.Results[0].Price.RegularMarketChange.Fmt
 			}
 
 			// calculate if price has moved up or down
@@ -171,10 +153,6 @@ func (b *Board) watchStockPrice() {
 			decorator := "⬊"
 			if increase {
 				decorator = "⬈"
-			}
-
-			if !b.Arrows {
-				decorator = "-"
 			}
 
 			if b.Nickname {
@@ -341,15 +319,9 @@ func (b *Board) watchCryptoPrice() {
 			var activityHeader string
 			var activityFooter string
 
-			if b.Percentage {
-				change = priceData.MarketData.PriceChangePercent
-				activityHeader = ""
-				activityFooter = "%"
-			} else {
-				change = priceData.MarketData.CurrentPrice.USD
-				activityHeader = "$"
-				activityFooter = ""
-			}
+			change = priceData.MarketData.CurrentPrice.USD
+			activityHeader = "$"
+			activityFooter = ""
 
 			// Check for cryptos below 1c
 			if priceData.MarketData.CurrentPrice.USD < 0.01 {
@@ -376,10 +348,6 @@ func (b *Board) watchCryptoPrice() {
 			decorator := "⬊"
 			if increase {
 				decorator = "⬈"
-			}
-
-			if !b.Arrows {
-				decorator = "-"
 			}
 
 			if b.Nickname {

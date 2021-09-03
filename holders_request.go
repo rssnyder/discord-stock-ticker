@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -84,7 +85,81 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) addHolders(holders *Holders) {
 	holdersCount.Inc()
-	m.WatchingHolders[fmt.Sprintf("%s-%s", holders.Network, holders.Address)] = holders
+	id := fmt.Sprintf("%s-%s", holders.Network, holders.Address)
+	m.WatchingHolders[id] = holders
+
+	var noDB *sql.DB
+	if m.DB == noDB {
+		return
+	}
+
+	// query
+	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'holders' AND network = ? AND address = ?")
+	if err != nil {
+		logger.Warningf("Unable to query holders in db %s: %s", id, err)
+		return
+	}
+
+	rows, err := stmt.Query(holders.Network, holders.Address)
+	if err != nil {
+		logger.Warningf("Unable to query holders in db %s: %s", id, err)
+		return
+	}
+
+	var existingId int
+
+	for rows.Next() {
+		err = rows.Scan(&existingId)
+		if err != nil {
+			logger.Warningf("Unable to query holders in db %s: %s", id, err)
+			return
+		}
+	}
+	rows.Close()
+
+	if existingId != 0 {
+
+		// update entry in db
+		stmt, err := m.DB.Prepare("update tickers set token = ?, nickname = ?, activity = ?, network = ?, address = ?, frequency = ? WHERE id = ?")
+		if err != nil {
+			logger.Warningf("Unable to update holders in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec(holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency, existingId)
+		if err != nil {
+			logger.Warningf("Unable to update holders in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to update holders in db %s: %s", id, err)
+			return
+		}
+
+		logger.Infof("Updated holders in db %s", id)
+	} else {
+
+		// store new entry in db
+		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?,?)")
+		if err != nil {
+			logger.Warningf("Unable to store holders in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec("holders", holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
+		if err != nil {
+			logger.Warningf("Unable to store holders in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to store holders in db %s: %s", id, err)
+			return
+		}
+	}
 }
 
 // DeleteHolders addds a new holders or crypto to the list of what to watch

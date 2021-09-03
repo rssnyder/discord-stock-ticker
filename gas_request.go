@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -62,7 +63,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gas := NewGas(gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
-	m.addGas(gasReq.Network, gas)
+	m.addGas(gas)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -73,9 +74,83 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *Manager) addGas(network string, gas *Gas) {
+func (m *Manager) addGas(gas *Gas) {
 	gasCount.Inc()
-	m.WatchingGas[strings.ToUpper(network)] = gas
+	id := gas.Network
+	m.WatchingGas[id] = gas
+
+	var noDB *sql.DB
+	if m.DB == noDB {
+		return
+	}
+
+	// query
+	stmt, err := m.DB.Prepare("SELECT id FROM tickers WHERE tickerType = 'gas' AND network = ?")
+	if err != nil {
+		logger.Warningf("Unable to query gas in db %s: %s", id, err)
+		return
+	}
+
+	rows, err := stmt.Query(gas.Network)
+	if err != nil {
+		logger.Warningf("Unable to query gas in db %s: %s", id, err)
+		return
+	}
+
+	var existingId int
+
+	for rows.Next() {
+		err = rows.Scan(&existingId)
+		if err != nil {
+			logger.Warningf("Unable to query gas in db %s: %s", id, err)
+			return
+		}
+	}
+	rows.Close()
+
+	if existingId != 0 {
+
+		// update entry in db
+		stmt, err := m.DB.Prepare("update tickers set token = ?, nickname = ?, network = ?, frequency = ? WHERE id = ?")
+		if err != nil {
+			logger.Warningf("Unable to update gas in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec(gas.token, gas.Nickname, gas.Network, gas.Frequency, existingId)
+		if err != nil {
+			logger.Warningf("Unable to update gas in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to update gas in db %s: %s", id, err)
+			return
+		}
+
+		logger.Infof("Updated gas in db %s", id)
+	} else {
+
+		// store new entry in db
+		stmt, err := m.DB.Prepare("INSERT INTO tickers(tickerType, token, nickname, network, frequency) values(?,?,?,?,?)")
+		if err != nil {
+			logger.Warningf("Unable to store gas in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec("gas", gas.token, gas.Nickname, gas.Network, gas.Frequency)
+		if err != nil {
+			logger.Warningf("Unable to store gas in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to store gas in db %s: %s", id, err)
+			return
+		}
+	}
 }
 
 // DeleteGas addds a new gas or crypto to the list of what to watch

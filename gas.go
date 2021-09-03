@@ -91,7 +91,7 @@ func (g *Gas) watchGasPrice() {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					} else {
-						logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
+						logger.Debugf("Set nickname in %s: %s\n", g.Name, nickname)
 					}
 				}
 
@@ -99,7 +99,7 @@ func (g *Gas) watchGasPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Infof("Set activity")
+					logger.Debugf("Set activity")
 				}
 			} else {
 
@@ -107,7 +107,7 @@ func (g *Gas) watchGasPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Infof("Set activity: %s\n", nickname)
+					logger.Debugf("Set activity: %s\n", nickname)
 				}
 			}
 		}
