@@ -4,7 +4,9 @@ Live stock and crypto tickers for your discord server.
 
 Now with five different types of tickers!
 
-🍾 300+ public tickers with over 7k installs across 1k discord servers!
+🍾 400+ public tickers with over 15k installs across 3k discord servers!
+
+*Are you just looking to add free tickers to your discord server? Click the discord icon below to join the support server and get the list of avalible bots!*
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
