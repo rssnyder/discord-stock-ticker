@@ -11,6 +11,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var (
+	itemSplit = ";"
+)
+
 // BoardRequest represents the json coming in from the request
 type BoardRequest struct {
 	Items     []string `json:"items"`
@@ -21,6 +25,40 @@ type BoardRequest struct {
 	Crypto    bool     `json:"crypto"`
 	Color     bool     `json:"set_color"`
 	Frequency int      `json:"frequency"`
+}
+
+// ImportBoard pulls in bots from the provided db
+func (m *Manager) ImportBoard() {
+
+	// query
+	rows, err := m.DB.Query("SELECT token, name, nickname, color, crypto, header, items, frequency FROM boards")
+	if err != nil {
+		logger.Warningf("Unable to query tokens in db: %s", err)
+		return
+	}
+
+	// load existing bots from db
+	for rows.Next() {
+		var token, name, header, itemsBulk string
+		var nickname, color, crypto bool
+		var frequency int
+		err = rows.Scan(&token, &name, &nickname, &color, &crypto, &header, &itemsBulk, &frequency)
+		if err != nil {
+			logger.Errorf("Unable to load token from db: %s", err)
+			continue
+		}
+
+		items := strings.Split(itemsBulk, itemSplit)
+		if crypto {
+			b := NewCryptoBoard(items, token, name, header, nickname, color, frequency, m.Cache, m.Context)
+			m.addBoard(true, b, false)
+		} else {
+			b := NewStockBoard(items, token, name, header, nickname, color, frequency)
+			m.addBoard(true, b, false)
+		}
+		logger.Infof("Loaded board from db: %s", name)
+	}
+	rows.Close()
 }
 
 // AddBoard adds a new board to the list of what to watch
@@ -75,7 +113,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 		}
 
 		crypto := NewCryptoBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency, m.Cache, m.Context)
-		m.addBoard(true, crypto)
+		m.addBoard(true, crypto, true)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusOK)
@@ -94,7 +132,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stock := NewStockBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency)
-	m.addBoard(false, stock)
+	m.addBoard(false, stock, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -104,13 +142,13 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *Manager) addBoard(crypto bool, board *Board) {
+func (m *Manager) addBoard(crypto bool, board *Board, update bool) {
 	boardCount.Inc()
 	id := board.Name
 	m.WatchingBoard[id] = board
 
 	var noDB *sql.DB
-	if m.DB == noDB {
+	if (m.DB == noDB) || !update {
 		return
 	}
 
@@ -147,7 +185,7 @@ func (m *Manager) addBoard(crypto bool, board *Board) {
 			return
 		}
 
-		res, err := stmt.Exec(board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, ";"), board.Frequency, existingId)
+		res, err := stmt.Exec(board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, itemSplit), board.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update board in db %s: %s", id, err)
 			return
@@ -169,7 +207,7 @@ func (m *Manager) addBoard(crypto bool, board *Board) {
 			return
 		}
 
-		res, err := stmt.Exec(board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, ";"), board.Frequency)
+		res, err := stmt.Exec(board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, itemSplit), board.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store board in db %s: %s", id, err)
 			return

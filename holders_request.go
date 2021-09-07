@@ -20,6 +20,34 @@ type HoldersRequest struct {
 	Frequency int    `json:"frequency" default:"60"`
 }
 
+// ImportHolder pulls in bots from the provided db
+func (m *Manager) ImportHolder() {
+
+	// query
+	rows, err := m.DB.Query("SELECT token, nickname, activity, network, address, frequency FROM holders")
+	if err != nil {
+		logger.Warningf("Unable to query tokens in db: %s", err)
+		return
+	}
+
+	// load existing bots from db
+	for rows.Next() {
+		var token, activity, network, address string
+		var nickname bool
+		var frequency int
+		err = rows.Scan(&token, &nickname, &activity, &network, &address, &frequency)
+		if err != nil {
+			logger.Errorf("Unable to load token from db: %s", err)
+			continue
+		}
+
+		h := NewHolders(network, address, activity, token, nickname, frequency)
+		m.addHolders(h, false)
+		logger.Infof("Loaded holder from db: %s-%s", network, address)
+	}
+	rows.Close()
+}
+
 // AddTicker adds a new Ticker or crypto to the list of what to watch
 func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
@@ -72,7 +100,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	holders := NewHolders(holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency)
-	m.addHolders(holders)
+	m.addHolders(holders, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -83,13 +111,13 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *Manager) addHolders(holders *Holders) {
+func (m *Manager) addHolders(holders *Holders, update bool) {
 	holdersCount.Inc()
 	id := fmt.Sprintf("%s-%s", holders.Network, holders.Address)
 	m.WatchingHolders[id] = holders
 
 	var noDB *sql.DB
-	if m.DB == noDB {
+	if (m.DB == noDB) || !update {
 		return
 	}
 

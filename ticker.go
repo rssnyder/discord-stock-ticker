@@ -18,7 +18,7 @@ type Ticker struct {
 	Ticker         string          `json:"ticker"`
 	Name           string          `json:"name"`
 	Nickname       bool            `json:"nickname"`
-	Frequency      time.Duration   `json:"frequency"`
+	Frequency      int             `json:"frequency"`
 	Color          bool            `json:"color"`
 	Decorator      string          `json:"decorator"`
 	Currency       string          `json:"currency"`
@@ -44,7 +44,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 		Decorator:     decorator,
 		Activity:      activity,
 		Decimals:      decimals,
-		Frequency:     time.Duration(frequency) * time.Second,
+		Frequency:     frequency,
 		Currency:      strings.ToUpper(currency),
 		TwelveDataKey: twelveDataKey,
 		token:         token,
@@ -66,7 +66,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Decorator:      decorator,
 		Activity:       activity,
 		Decimals:       decimals,
-		Frequency:      time.Duration(frequency) * time.Second,
+		Frequency:      frequency,
 		Currency:       strings.ToUpper(currency),
 		CurrencySymbol: currencySymbol,
 		Pair:           pair,
@@ -143,7 +143,7 @@ func (s *Ticker) watchStockPrice() {
 	}
 
 	logger.Debugf("Watching stock price for %s", s.Name)
-	ticker := time.NewTicker(s.Frequency)
+	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
 
 	// continuously watch
 	for {
@@ -412,7 +412,7 @@ func (s *Ticker) watchCryptoPrice() {
 	}
 
 	// create timer
-	ticker := time.NewTicker(s.Frequency)
+	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
 	logger.Debugf("Watching crypto price for %s", s.Name)
 
 	// continuously watch

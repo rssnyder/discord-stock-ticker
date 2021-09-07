@@ -10,18 +10,18 @@ import (
 
 // Gas represents the gas data
 type Gas struct {
-	Network   string        `json:"network"`
-	Nickname  bool          `json:"set_nickname"`
-	Frequency time.Duration `json:"frequency"`
-	token     string        `json:"-"`
-	close     chan int      `json:"-"`
+	Network   string   `json:"network"`
+	Nickname  bool     `json:"set_nickname"`
+	Frequency int      `json:"frequency"`
+	token     string   `json:"-"`
+	close     chan int `json:"-"`
 }
 
 func NewGas(network string, token string, nickname bool, frequency int) *Gas {
 	g := &Gas{
 		Network:   network,
 		Nickname:  nickname,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -60,7 +60,7 @@ func (g *Gas) watchGasPrice() {
 		g.Nickname = false
 	}
 
-	ticker := time.NewTicker(g.Frequency)
+	ticker := time.NewTicker(time.Duration(g.Frequency) * time.Second)
 	var nickname string
 
 	// watch gas price
@@ -75,7 +75,6 @@ func (g *Gas) watchGasPrice() {
 			gasPrices, err := utils.GetGasPrices(g.Network)
 			if err != nil {
 				logger.Errorf("Error getting rates: %s\n", err)
-				time.Sleep(g.Frequency)
 				continue
 			}
 

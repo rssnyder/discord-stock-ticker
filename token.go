@@ -13,18 +13,18 @@ import (
 )
 
 type Token struct {
-	Network   string        `json:"network"`
-	Contract  string        `json:"contract"`
-	Name      string        `json:"name"`
-	Nickname  bool          `json:"nickname"`
-	Frequency time.Duration `json:"frequency"`
-	Color     bool          `json:"color"`
-	Decorator string        `json:"decorator"`
-	Decimals  int           `json:"decimals"`
-	Activity  string        `json:"activity"`
-	Source    string        `json:"source"`
-	token     string        `json:"-"`
-	close     chan int      `json:"-"`
+	Network   string   `json:"network"`
+	Contract  string   `json:"contract"`
+	Name      string   `json:"name"`
+	Nickname  bool     `json:"nickname"`
+	Frequency int      `json:"frequency"`
+	Color     bool     `json:"color"`
+	Decorator string   `json:"decorator"`
+	Decimals  int      `json:"decimals"`
+	Activity  string   `json:"activity"`
+	Source    string   `json:"source"`
+	token     string   `json:"-"`
+	close     chan int `json:"-"`
 }
 
 // NewToken saves information about the stock and starts up a watcher on it
@@ -34,7 +34,7 @@ func NewToken(network string, contract string, token string, name string, nickna
 		Contract:  contract,
 		Name:      name,
 		Nickname:  nickname,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
 		Color:     color,
 		Decorator: decorator,
 		Activity:  activity,
@@ -98,7 +98,7 @@ func (m *Token) watchTokenPrice() {
 	}
 
 	logger.Debugf("Watching token price for %s", m.Name)
-	ticker := time.NewTicker(m.Frequency)
+	ticker := time.NewTicker(time.Duration(m.Frequency) * time.Second)
 
 	// continuously watch
 	var oldPrice float64
@@ -108,7 +108,7 @@ func (m *Token) watchTokenPrice() {
 			logger.Infof("Shutting down price watching for %s", m.Name)
 			return
 		case <-ticker.C:
-			logger.Debugf("Fetching stock price for %s", m.Name)
+			logger.Debugf("Fetching token price for %s", m.Name)
 			var priceData string
 			var fmtPriceRaw float64
 			var fmtPrice float64

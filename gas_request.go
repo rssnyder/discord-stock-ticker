@@ -18,6 +18,34 @@ type GasRequest struct {
 	Frequency int    `json:"frequency" default:"60"`
 }
 
+// ImportGas pulls in bots from the provided db
+func (m *Manager) ImportGas() {
+
+	// query
+	rows, err := m.DB.Query("SELECT token, nickname, network, frequency FROM gases")
+	if err != nil {
+		logger.Warningf("Unable to query tokens in db: %s", err)
+		return
+	}
+
+	// load existing bots from db
+	for rows.Next() {
+		var token, network string
+		var nickname bool
+		var frequency int
+		err = rows.Scan(&token, &nickname, &network, &frequency)
+		if err != nil {
+			logger.Errorf("Unable to load token from db: %s", err)
+			continue
+		}
+
+		g := NewGas(network, token, nickname, frequency)
+		m.addGas(g, false)
+		logger.Infof("Loaded gas from db: %s", network)
+	}
+	rows.Close()
+}
+
 // AddTicker adds a new Ticker or crypto to the list of what to watch
 func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
@@ -63,7 +91,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gas := NewGas(gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
-	m.addGas(gas)
+	m.addGas(gas, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -74,13 +102,13 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *Manager) addGas(gas *Gas) {
+func (m *Manager) addGas(gas *Gas, update bool) {
 	gasCount.Inc()
 	id := gas.Network
 	m.WatchingGas[id] = gas
 
 	var noDB *sql.DB
-	if m.DB == noDB {
+	if (m.DB == noDB) || !update {
 		return
 	}
 

@@ -9,13 +9,13 @@ import (
 
 // Holders represents the json for holders
 type Holders struct {
-	Network   string        `json:"network"`
-	Address   string        `json:"address"`
-	Activity  string        `json:"activity"`
-	Nickname  bool          `json:"set_nickname"`
-	Frequency time.Duration `json:"frequency"`
-	token     string        `json:"-"`
-	close     chan int      `json:"-"`
+	Network   string   `json:"network"`
+	Address   string   `json:"address"`
+	Activity  string   `json:"activity"`
+	Nickname  bool     `json:"set_nickname"`
+	Frequency int      `json:"frequency"`
+	token     string   `json:"-"`
+	close     chan int `json:"-"`
 }
 
 // NewHolders saves information about the stock and starts up a watcher on it
@@ -25,7 +25,7 @@ func NewHolders(network string, address string, activity string, token string, n
 		Address:   address,
 		Activity:  activity,
 		Nickname:  nickname,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -73,7 +73,7 @@ func (h *Holders) watchHolders() {
 		h.Nickname = false
 	}
 
-	ticker := time.NewTicker(h.Frequency)
+	ticker := time.NewTicker(time.Duration(h.Frequency) * time.Second)
 	var nickname string
 
 	for {

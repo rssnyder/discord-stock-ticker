@@ -76,6 +76,16 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	prometheus.MustRegister(holdersCount)
 	r.Path("/metrics").Handler(promhttp.Handler())
 
+	// Pull in existing bots
+	var noDB *sql.DB
+	if m.DB != noDB {
+		m.ImportToken()
+		m.ImportTicker()
+		m.ImportHolder()
+		m.ImportGas()
+		m.ImportBoard()
+	}
+
 	srv := &http.Server{
 		Addr:         address,
 		WriteTimeout: time.Second * 15,

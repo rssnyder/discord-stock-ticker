@@ -12,14 +12,16 @@ import (
 )
 
 var (
-	logger       = log.New()
-	address      *string
-	db           *string
-	redisAddress *string
-	cache        *bool
-	rdb          *redis.Client
-	ctx          context.Context
-	tickerCount  = prometheus.NewGauge(
+	logger        = log.New()
+	address       *string
+	db            *string
+	redisAddress  *string
+	redisPassword *string
+	redisDB       *int
+	cache         *bool
+	rdb           *redis.Client
+	ctx           context.Context
+	tickerCount   = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "ticker_count",
 			Help: "Number of tickers.",
@@ -57,6 +59,8 @@ func init() {
 	address = flag.String("address", "localhost:8080", "address:port to bind http server to.")
 	db = flag.String("db", "", "file to store tickers in")
 	redisAddress = flag.String("redisAddress", "localhost:6379", "address:port for redis server.")
+	redisPassword = flag.String("redisPassword", "", "redis password")
+	redisDB = flag.Int("redisDB", 0, "redis db to use")
 	cache = flag.Bool("cache", false, "enable cache for coingecko")
 	flag.Parse()
 	logger.Out = os.Stdout
@@ -75,8 +79,8 @@ func main() {
 	if *cache {
 		rdb = redis.NewClient(&redis.Options{
 			Addr:     *redisAddress,
-			Password: "",
-			DB:       0,
+			Password: *redisPassword,
+			DB:       *redisDB,
 		})
 		ctx = context.Background()
 	}

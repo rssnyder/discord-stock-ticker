@@ -18,7 +18,7 @@ type Board struct {
 	Header    string          `json:"header"`
 	Nickname  bool            `json:"nickname"`
 	Color     bool            `json:"color"`
-	Frequency time.Duration   `json:"frequency"`
+	Frequency int             `json:"frequency"`
 	Price     int             `json:"-"`
 	Cache     *redis.Client   `json:"-"`
 	Context   context.Context `json:"-"`
@@ -34,7 +34,7 @@ func NewStockBoard(items []string, token string, name string, header string, nic
 		Header:    header,
 		Nickname:  nickname,
 		Color:     color,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -52,7 +52,7 @@ func NewCryptoBoard(items []string, token string, name string, header string, ni
 		Header:    header,
 		Nickname:  nickname,
 		Color:     color,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
 		Cache:     cache,
 		Context:   context,
 		token:     token,
@@ -99,7 +99,7 @@ func (b *Board) watchStockPrice() {
 		b.Nickname = false
 	}
 
-	ticker := time.NewTicker(b.Frequency)
+	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
 
 	// continuously watch
 	for _, symbol := range b.Items {
@@ -288,7 +288,7 @@ func (b *Board) watchCryptoPrice() {
 		b.Nickname = false
 	}
 
-	ticker := time.NewTicker(b.Frequency)
+	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
 	logger.Debugf("Watching crypto price for %s", b.Name)
 
 	// continuously watch

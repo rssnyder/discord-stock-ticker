@@ -26,6 +26,35 @@ type TokenRequest struct {
 	Source    string `json:"source"`
 }
 
+// ImportToken pulls in bots from the provided db
+func (m *Manager) ImportToken() {
+
+	// query
+	rows, err := m.DB.Query("SELECT token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency FROM tokens")
+	if err != nil {
+		logger.Warningf("Unable to query tokens in db: %s", err)
+		return
+	}
+
+	// load existing bots from db
+	for rows.Next() {
+		var token, name, activity, network, contract, decorator, source string
+		var nickname, color bool
+		var decimals, frequency int
+		err = rows.Scan(&token, &name, &nickname, &color, &activity, &network, &contract, &decorator, &decimals, &source, &frequency)
+		if err != nil {
+			logger.Errorf("Unable to load token from db: %s", err)
+			continue
+		}
+
+		// activate bot
+		t := NewToken(network, contract, token, name, nickname, frequency, decimals, activity, color, decorator, source)
+		m.addToken(t, false)
+		logger.Infof("Loaded token from db: %s-%s", network, contract)
+	}
+	rows.Close()
+}
+
 // AddToken adds a new Token or crypto to the list of what to watch
 func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
@@ -85,7 +114,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := NewToken(tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source)
-	m.addToken(token)
+	m.addToken(token, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -95,13 +124,13 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (m *Manager) addToken(token *Token) {
+func (m *Manager) addToken(token *Token, update bool) {
 	tokenCount.Inc()
 	id := fmt.Sprintf("%s-%s", token.Network, token.Contract)
 	m.WatchingToken[id] = token
 
 	var noDB *sql.DB
-	if m.DB == noDB {
+	if (m.DB == noDB) || !update {
 		return
 	}
 
