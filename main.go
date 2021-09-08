@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"flag"
 	"os"
 	"sync"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/namsral/flag"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )

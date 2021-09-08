@@ -8,6 +8,7 @@ require (
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/gorilla/mux v1.8.0
 	github.com/mattn/go-sqlite3 v1.14.8 // indirect
+	github.com/namsral/flag v1.7.4-pre // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
