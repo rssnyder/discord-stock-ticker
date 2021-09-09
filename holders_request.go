@@ -42,7 +42,7 @@ func (m *Manager) ImportHolder() {
 			continue
 		}
 
-		h := NewHolders(clientID, network, address, activity, token, nickname, frequency)
+		h := NewHolders(clientID, network, address, activity, token, nickname, frequency, lastUpdate)
 		m.addHolders(h, false)
 		logger.Infof("Loaded holder from db: %s-%s", network, address)
 	}
@@ -100,7 +100,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	holders := NewHolders(holdersReq.ClientID, holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency)
+	holders := NewHolders(holdersReq.ClientID, holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency, lastUpdate)
 	m.addHolders(holders, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

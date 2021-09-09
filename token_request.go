@@ -49,7 +49,7 @@ func (m *Manager) ImportToken() {
 		}
 
 		// activate bot
-		t := NewToken(clientID, network, contract, token, name, nickname, frequency, decimals, activity, color, decorator, source)
+		t := NewToken(clientID, network, contract, token, name, nickname, frequency, decimals, activity, color, decorator, source, lastUpdate)
 		m.addToken(t, false)
 		logger.Infof("Loaded token from db: %s-%s", network, contract)
 	}
@@ -114,7 +114,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := NewToken(tokenReq.ClientID, tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source)
+	token := NewToken(tokenReq.ClientID, tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source, lastUpdate)
 	m.addToken(token, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

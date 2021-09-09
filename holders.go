@@ -1,26 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
 // Holders represents the json for holders
 type Holders struct {
-	Network   string   `json:"network"`
-	Address   string   `json:"address"`
-	Activity  string   `json:"activity"`
-	Nickname  bool     `json:"set_nickname"`
-	Frequency int      `json:"frequency"`
-	ClientID  string   `json:"client_id"`
-	token     string   `json:"-"`
-	close     chan int `json:"-"`
+	Network   string               `json:"network"`
+	Address   string               `json:"address"`
+	Activity  string               `json:"activity"`
+	Nickname  bool                 `json:"set_nickname"`
+	Frequency int                  `json:"frequency"`
+	ClientID  string               `json:"client_id"`
+	updated   *prometheus.GaugeVec `json:"-"`
+	token     string               `json:"-"`
+	close     chan int             `json:"-"`
 }
 
 // NewHolders saves information about the stock and starts up a watcher on it
-func NewHolders(clientID string, network string, address string, activity string, token string, nickname bool, frequency int) *Holders {
+func NewHolders(clientID string, network string, address string, activity string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Holders {
 	h := &Holders{
 		Network:   network,
 		Address:   address,
@@ -28,6 +32,7 @@ func NewHolders(clientID string, network string, address string, activity string
 		Nickname:  nickname,
 		Frequency: frequency,
 		ClientID:  clientID,
+		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -99,6 +104,8 @@ func (h *Holders) watchHolders() {
 					} else {
 						logger.Debugf("Set nickname in %s: %s\n", g.Name, nickname)
 					}
+					logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
+					h.updated.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
 				}
 			} else {
 

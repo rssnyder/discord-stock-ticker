@@ -51,10 +51,10 @@ func (m *Manager) ImportBoard() {
 
 		items := strings.Split(itemsBulk, itemSplit)
 		if crypto {
-			b := NewCryptoBoard(clientID, items, token, name, header, nickname, color, frequency, m.Cache, m.Context)
+			b := NewCryptoBoard(clientID, items, token, name, header, nickname, color, frequency, lastUpdate, m.Cache, m.Context)
 			m.addBoard(true, b, false)
 		} else {
-			b := NewStockBoard(clientID, items, token, name, header, nickname, color, frequency)
+			b := NewStockBoard(clientID, items, token, name, header, nickname, color, frequency, lastUpdate)
 			m.addBoard(true, b, false)
 		}
 		logger.Infof("Loaded board from db: %s", name)
@@ -67,7 +67,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
 
-	logger.Debugf("Got an API request to add a ticker")
+	logger.Debugf("Got an API request to add a board")
 
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
@@ -113,7 +113,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCryptoBoard(boardReq.ClientID, boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency, m.Cache, m.Context)
+		crypto := NewCryptoBoard(boardReq.ClientID, boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency, lastUpdate, m.Cache, m.Context)
 		m.addBoard(true, crypto, true)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -132,7 +132,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStockBoard(boardReq.ClientID, boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency)
+	stock := NewStockBoard(boardReq.ClientID, boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency, lastUpdate)
 	m.addBoard(false, stock, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

@@ -10,33 +10,35 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis/v8"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
 type Ticker struct {
-	Ticker         string          `json:"ticker"`
-	Name           string          `json:"name"`
-	Nickname       bool            `json:"nickname"`
-	Frequency      int             `json:"frequency"`
-	Color          bool            `json:"color"`
-	Decorator      string          `json:"decorator"`
-	Currency       string          `json:"currency"`
-	CurrencySymbol string          `json:"currency_symbol"`
-	Decimals       int             `json:"decimals"`
-	Activity       string          `json:"activity"`
-	Pair           string          `json:"pair"`
-	PairFlip       bool            `json:"pair_flip"`
-	ClientID       string          `json:"client_id"`
-	TwelveDataKey  string          `json:"-"`
-	Cache          *redis.Client   `json:"-"`
-	Context        context.Context `json:"-"`
-	token          string          `json:"-"`
-	close          chan int        `json:"-"`
+	Ticker         string               `json:"ticker"`
+	Name           string               `json:"name"`
+	Nickname       bool                 `json:"nickname"`
+	Frequency      int                  `json:"frequency"`
+	Color          bool                 `json:"color"`
+	Decorator      string               `json:"decorator"`
+	Currency       string               `json:"currency"`
+	CurrencySymbol string               `json:"currency_symbol"`
+	Decimals       int                  `json:"decimals"`
+	Activity       string               `json:"activity"`
+	Pair           string               `json:"pair"`
+	PairFlip       bool                 `json:"pair_flip"`
+	ClientID       string               `json:"client_id"`
+	TwelveDataKey  string               `json:"-"`
+	Cache          *redis.Client        `json:"-"`
+	Context        context.Context      `json:"-"`
+	updated        *prometheus.GaugeVec `json:"-"`
+	token          string               `json:"-"`
+	close          chan int             `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string) *Ticker {
+func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string, updated *prometheus.GaugeVec) *Ticker {
 	s := &Ticker{
 		Ticker:        ticker,
 		Name:          name,
@@ -49,6 +51,7 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 		Currency:      strings.ToUpper(currency),
 		ClientID:      clientID,
 		TwelveDataKey: twelveDataKey,
+		updated:       updated,
 		token:         token,
 		close:         make(chan int, 1),
 	}
@@ -59,7 +62,7 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
@@ -76,6 +79,7 @@ func NewCrypto(clientID string, ticker string, token string, name string, nickna
 		ClientID:       clientID,
 		Cache:          cache,
 		Context:        context,
+		updated:        updated,
 		token:          token,
 		close:          make(chan int, 1),
 	}
@@ -267,6 +271,7 @@ func (s *Ticker) watchStockPrice() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
+					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": g.Name}).SetToCurrentTime()
 
 					if s.Color {
 						// get roles for colors
@@ -441,6 +446,7 @@ func (s *Ticker) watchCryptoPrice() {
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
+				continue
 			}
 
 			// Check if conversion is needed
@@ -573,6 +579,7 @@ func (s *Ticker) watchCryptoPrice() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
+					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": g.Name}).SetToCurrentTime()
 
 					// change coin color
 					if s.Color {

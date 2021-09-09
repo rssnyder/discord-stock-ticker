@@ -40,7 +40,7 @@ func (m *Manager) ImportGas() {
 			continue
 		}
 
-		g := NewGas(clientID, network, token, nickname, frequency)
+		g := NewGas(clientID, network, token, nickname, frequency, lastUpdate)
 		m.addGas(g, false)
 		logger.Infof("Loaded gas from db: %s", network)
 	}
@@ -91,7 +91,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gas := NewGas(gasReq.ClientID, gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
+	gas := NewGas(gasReq.ClientID, gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency, lastUpdate)
 	m.addGas(gas, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

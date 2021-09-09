@@ -14,6 +14,50 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+var (
+	tickerCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "ticker_count",
+			Help: "Number of tickers.",
+		},
+	)
+	boardCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "board_count",
+			Help: "Number of board.",
+		},
+	)
+	gasCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "gas_count",
+			Help: "Number of gas.",
+		},
+	)
+	tokenCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "token_count",
+			Help: "Number of tokens.",
+		},
+	)
+	holdersCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "holders_count",
+			Help: "Number of holders.",
+		},
+	)
+	lastUpdate = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "time_of_last_update",
+			Help: "Number of seconds since the ticker last updated.",
+		},
+		[]string{
+			"ticker",
+			"type",
+			"guild",
+		},
+	)
+)
+
 // Manager holds a list of the crypto and stocks we are watching
 type Manager struct {
 	WatchingTicker  map[string]*Ticker
@@ -74,6 +118,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	prometheus.MustRegister(gasCount)
 	prometheus.MustRegister(tokenCount)
 	prometheus.MustRegister(holdersCount)
+	prometheus.MustRegister(lastUpdate)
 	r.Path("/metrics").Handler(promhttp.Handler())
 
 	// Pull in existing bots
