@@ -5,23 +5,27 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
 // Gas represents the gas data
 type Gas struct {
-	Network   string        `json:"network"`
-	Nickname  bool          `json:"set_nickname"`
-	Frequency time.Duration `json:"frequency"`
-	token     string        `json:"-"`
-	close     chan int      `json:"-"`
+	Network   string               `json:"network"`
+	Nickname  bool                 `json:"set_nickname"`
+	Frequency time.Duration        `json:"frequency"`
+	updated   *prometheus.GaugeVec `json:"-"`
+	token     string               `json:"-"`
+	close     chan int             `json:"-"`
 }
 
-func NewGas(network string, token string, nickname bool, frequency int) *Gas {
+func NewGas(network string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Gas {
 	g := &Gas{
 		Network:   network,
 		Nickname:  nickname,
 		Frequency: time.Duration(frequency) * time.Second,
+		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -84,15 +88,15 @@ func (g *Gas) watchGasPrice() {
 			// change nickname
 			if g.Nickname {
 
-				for _, g := range guilds {
+				for _, gu := range guilds {
 
-					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					err = dg.GuildMemberNickname(gu.ID, "@me", nickname)
 					if err != nil {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
-					} else {
-						logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
 					}
+					fmt.Printf("Set nickname in %s: %s\n", gu.Name, nickname)
+					g.updated.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": gu.Name}).SetToCurrentTime()
 				}
 
 				err = dg.UpdateGameStatus(0, "Fast, Avg, Slow")

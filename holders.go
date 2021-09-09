@@ -1,31 +1,36 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
 // Holders represents the json for holders
 type Holders struct {
-	Network   string        `json:"network"`
-	Address   string        `json:"address"`
-	Activity  string        `json:"activity"`
-	Nickname  bool          `json:"set_nickname"`
-	Frequency time.Duration `json:"frequency"`
-	token     string        `json:"-"`
-	close     chan int      `json:"-"`
+	Network   string               `json:"network"`
+	Address   string               `json:"address"`
+	Activity  string               `json:"activity"`
+	Nickname  bool                 `json:"set_nickname"`
+	Frequency time.Duration        `json:"frequency"`
+	updated   *prometheus.GaugeVec `json:"-"`
+	token     string               `json:"-"`
+	close     chan int             `json:"-"`
 }
 
 // NewHolders saves information about the stock and starts up a watcher on it
-func NewHolders(network string, address string, activity string, token string, nickname bool, frequency int) *Holders {
+func NewHolders(network string, address string, activity string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Holders {
 	h := &Holders{
 		Network:   network,
 		Address:   address,
 		Activity:  activity,
 		Nickname:  nickname,
 		Frequency: time.Duration(frequency) * time.Second,
+		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -94,9 +99,9 @@ func (h *Holders) watchHolders() {
 					if err != nil {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
-					} else {
-						logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
 					}
+					logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
+					h.updated.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
 				}
 			} else {
 

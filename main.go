@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -18,36 +17,6 @@ var (
 	cache        *bool
 	rdb          *redis.Client
 	ctx          context.Context
-	tickerCount  = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "ticker_count",
-			Help: "Number of tickers.",
-		},
-	)
-	boardCount = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "board_count",
-			Help: "Number of board.",
-		},
-	)
-	gasCount = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "gas_count",
-			Help: "Number of gas.",
-		},
-	)
-	tokenCount = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "token_count",
-			Help: "Number of tokens.",
-		},
-	)
-	holdersCount = prometheus.NewGauge(
-		prometheus.GaugeOpts{
-			Name: "holders_count",
-			Help: "Number of holders.",
-		},
-	)
 )
 
 func init() {
