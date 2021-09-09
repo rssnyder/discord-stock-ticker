@@ -25,13 +25,14 @@ type BoardRequest struct {
 	Crypto    bool     `json:"crypto"`
 	Color     bool     `json:"set_color"`
 	Frequency int      `json:"frequency"`
+	ClientID  string   `json:"client_id"`
 }
 
 // ImportBoard pulls in bots from the provided db
 func (m *Manager) ImportBoard() {
 
 	// query
-	rows, err := m.DB.Query("SELECT token, name, nickname, color, crypto, header, items, frequency FROM boards")
+	rows, err := m.DB.Query("SELECT clientID, token, name, nickname, color, crypto, header, items, frequency FROM boards")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -39,10 +40,10 @@ func (m *Manager) ImportBoard() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var token, name, header, itemsBulk string
+		var clientID, token, name, header, itemsBulk string
 		var nickname, color, crypto bool
 		var frequency int
-		err = rows.Scan(&token, &name, &nickname, &color, &crypto, &header, &itemsBulk, &frequency)
+		err = rows.Scan(&clientID, &token, &name, &nickname, &color, &crypto, &header, &itemsBulk, &frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
@@ -50,10 +51,10 @@ func (m *Manager) ImportBoard() {
 
 		items := strings.Split(itemsBulk, itemSplit)
 		if crypto {
-			b := NewCryptoBoard(items, token, name, header, nickname, color, frequency, m.Cache, m.Context)
+			b := NewCryptoBoard(clientID, items, token, name, header, nickname, color, frequency, m.Cache, m.Context)
 			m.addBoard(true, b, false)
 		} else {
-			b := NewStockBoard(items, token, name, header, nickname, color, frequency)
+			b := NewStockBoard(clientID, items, token, name, header, nickname, color, frequency)
 			m.addBoard(true, b, false)
 		}
 		logger.Infof("Loaded board from db: %s", name)
@@ -112,7 +113,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCryptoBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency, m.Cache, m.Context)
+		crypto := NewCryptoBoard(boardReq.ClientID, boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency, m.Cache, m.Context)
 		m.addBoard(true, crypto, true)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -131,7 +132,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStockBoard(boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency)
+	stock := NewStockBoard(boardReq.ClientID, boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency)
 	m.addBoard(false, stock, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -179,13 +180,13 @@ func (m *Manager) addBoard(crypto bool, board *Board, update bool) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update boards set token = ?, name = ?, nickname = ?, color = ?, crypto = ?, header = ?, items = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update boards set clientId = ?, token = ?, name = ?, nickname = ?, color = ?, crypto = ?, header = ?, items = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update board in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, itemSplit), board.Frequency, existingId)
+		res, err := stmt.Exec(board.ClientID, board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, itemSplit), board.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update board in db %s: %s", id, err)
 			return
@@ -201,13 +202,13 @@ func (m *Manager) addBoard(crypto bool, board *Board, update bool) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO boards(token, name, nickname, color, crypto, header, items, frequency) values(?,?,?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO boards(clientId, token, name, nickname, color, crypto, header, items, frequency) values(?,?,?,?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store board in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, itemSplit), board.Frequency)
+		res, err := stmt.Exec(board.ClientID, board.token, board.Name, board.Nickname, board.Color, crypto, board.Header, strings.Join(board.Items, itemSplit), board.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store board in db %s: %s", id, err)
 			return

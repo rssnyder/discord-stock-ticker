@@ -19,6 +19,7 @@ type Board struct {
 	Nickname  bool            `json:"nickname"`
 	Color     bool            `json:"color"`
 	Frequency int             `json:"frequency"`
+	ClientID  string          `json:"client_id"`
 	Price     int             `json:"-"`
 	Cache     *redis.Client   `json:"-"`
 	Context   context.Context `json:"-"`
@@ -27,7 +28,7 @@ type Board struct {
 }
 
 // NewBoard saves information about the board and starts up a watcher on it
-func NewStockBoard(items []string, token string, name string, header string, nickname bool, color bool, frequency int) *Board {
+func NewStockBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int) *Board {
 	b := &Board{
 		Items:     items,
 		Name:      name,
@@ -35,6 +36,7 @@ func NewStockBoard(items []string, token string, name string, header string, nic
 		Nickname:  nickname,
 		Color:     color,
 		Frequency: frequency,
+		ClientID:  clientID,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -45,7 +47,7 @@ func NewStockBoard(items []string, token string, name string, header string, nic
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCryptoBoard(items []string, token string, name string, header string, nickname bool, color bool, frequency int, cache *redis.Client, context context.Context) *Board {
+func NewCryptoBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int, cache *redis.Client, context context.Context) *Board {
 	b := &Board{
 		Items:     items,
 		Name:      name,
@@ -109,7 +111,7 @@ func (b *Board) watchStockPrice() {
 			return
 		case <-ticker.C:
 
-			logger.Infof("Fetching stock price for %s", symbol)
+			logger.Debugf("Fetching stock price for %s", symbol)
 
 			var priceData utils.PriceResults
 			var fmtPrice string
@@ -179,7 +181,7 @@ func (b *Board) watchStockPrice() {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					}
-					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
+					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 
 					if b.Color {
 						// get roles for colors
@@ -233,7 +235,7 @@ func (b *Board) watchStockPrice() {
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 
 			} else {
@@ -250,7 +252,7 @@ func (b *Board) watchStockPrice() {
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 			}
 		}
@@ -370,7 +372,7 @@ func (b *Board) watchCryptoPrice() {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					}
-					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
+					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 
 					if b.Color {
 						// get roles for colors
@@ -424,7 +426,7 @@ func (b *Board) watchCryptoPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 
 			} else {
@@ -435,7 +437,7 @@ func (b *Board) watchCryptoPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 			}
 		}

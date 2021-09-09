@@ -27,6 +27,7 @@ type Ticker struct {
 	Activity       string          `json:"activity"`
 	Pair           string          `json:"pair"`
 	PairFlip       bool            `json:"pair_flip"`
+	ClientID       string          `json:"client_id"`
 	TwelveDataKey  string          `json:"-"`
 	Cache          *redis.Client   `json:"-"`
 	Context        context.Context `json:"-"`
@@ -35,7 +36,7 @@ type Ticker struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string) *Ticker {
+func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string) *Ticker {
 	s := &Ticker{
 		Ticker:        ticker,
 		Name:          name,
@@ -46,6 +47,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 		Decimals:      decimals,
 		Frequency:     frequency,
 		Currency:      strings.ToUpper(currency),
+		ClientID:      clientID,
 		TwelveDataKey: twelveDataKey,
 		token:         token,
 		close:         make(chan int, 1),
@@ -57,7 +59,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
@@ -71,6 +73,7 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		CurrencySymbol: currencySymbol,
 		Pair:           pair,
 		PairFlip:       pairFlip,
+		ClientID:       clientID,
 		Cache:          cache,
 		Context:        context,
 		token:          token,

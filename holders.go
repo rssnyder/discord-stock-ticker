@@ -14,18 +14,20 @@ type Holders struct {
 	Activity  string   `json:"activity"`
 	Nickname  bool     `json:"set_nickname"`
 	Frequency int      `json:"frequency"`
+	ClientID  string   `json:"client_id"`
 	token     string   `json:"-"`
 	close     chan int `json:"-"`
 }
 
 // NewHolders saves information about the stock and starts up a watcher on it
-func NewHolders(network string, address string, activity string, token string, nickname bool, frequency int) *Holders {
+func NewHolders(clientID string, network string, address string, activity string, token string, nickname bool, frequency int) *Holders {
 	h := &Holders{
 		Network:   network,
 		Address:   address,
 		Activity:  activity,
 		Nickname:  nickname,
 		Frequency: frequency,
+		ClientID:  clientID,
 		token:     token,
 		close:     make(chan int, 1),
 	}

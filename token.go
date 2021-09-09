@@ -23,12 +23,13 @@ type Token struct {
 	Decimals  int      `json:"decimals"`
 	Activity  string   `json:"activity"`
 	Source    string   `json:"source"`
+	ClientID  string   `json:"client_id"`
 	token     string   `json:"-"`
 	close     chan int `json:"-"`
 }
 
 // NewToken saves information about the stock and starts up a watcher on it
-func NewToken(network string, contract string, token string, name string, nickname bool, frequency int, decimals int, activity string, color bool, decorator string, source string) *Token {
+func NewToken(clientID string, network string, contract string, token string, name string, nickname bool, frequency int, decimals int, activity string, color bool, decorator string, source string) *Token {
 	m := &Token{
 		Network:   network,
 		Contract:  contract,
@@ -39,6 +40,7 @@ func NewToken(network string, contract string, token string, name string, nickna
 		Decorator: decorator,
 		Activity:  activity,
 		Source:    source,
+		ClientID:  clientID,
 		token:     token,
 		close:     make(chan int, 1),
 	}

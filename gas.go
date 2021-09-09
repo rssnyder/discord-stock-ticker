@@ -13,15 +13,17 @@ type Gas struct {
 	Network   string   `json:"network"`
 	Nickname  bool     `json:"set_nickname"`
 	Frequency int      `json:"frequency"`
+	ClientID  string   `json:"client_id"`
 	token     string   `json:"-"`
 	close     chan int `json:"-"`
 }
 
-func NewGas(network string, token string, nickname bool, frequency int) *Gas {
+func NewGas(clientID string, network string, token string, nickname bool, frequency int) *Gas {
 	g := &Gas{
 		Network:   network,
 		Nickname:  nickname,
 		Frequency: frequency,
+		ClientID:  clientID,
 		token:     token,
 		close:     make(chan int, 1),
 	}

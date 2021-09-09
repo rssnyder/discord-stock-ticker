@@ -24,13 +24,14 @@ type TokenRequest struct {
 	Activity  string `json:"activity"`
 	Decimals  int    `json:"decimals"`
 	Source    string `json:"source"`
+	ClientID  string `json:"client_id"`
 }
 
 // ImportToken pulls in bots from the provided db
 func (m *Manager) ImportToken() {
 
 	// query
-	rows, err := m.DB.Query("SELECT token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency FROM tokens")
+	rows, err := m.DB.Query("SELECT clientID, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency FROM tokens")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -38,17 +39,17 @@ func (m *Manager) ImportToken() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var token, name, activity, network, contract, decorator, source string
+		var clientID, token, name, activity, network, contract, decorator, source string
 		var nickname, color bool
 		var decimals, frequency int
-		err = rows.Scan(&token, &name, &nickname, &color, &activity, &network, &contract, &decorator, &decimals, &source, &frequency)
+		err = rows.Scan(&clientID, &token, &name, &nickname, &color, &activity, &network, &contract, &decorator, &decimals, &source, &frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
 		// activate bot
-		t := NewToken(network, contract, token, name, nickname, frequency, decimals, activity, color, decorator, source)
+		t := NewToken(clientID, network, contract, token, name, nickname, frequency, decimals, activity, color, decorator, source)
 		m.addToken(t, false)
 		logger.Infof("Loaded token from db: %s-%s", network, contract)
 	}
@@ -113,7 +114,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := NewToken(tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source)
+	token := NewToken(tokenReq.ClientID, tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source)
 	m.addToken(token, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -161,13 +162,13 @@ func (m *Manager) addToken(token *Token, update bool) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update tokens set token = ?, name = ?, nickname = ?, color = ?, activity = ?, network = ?, contract = ?, decorator = ?, decimals = ?, source = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update tokens set clientId = ?, token = ?, name = ?, nickname = ?, color = ?, activity = ?, network = ?, contract = ?, decorator = ?, decimals = ?, source = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update token in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency, existingId)
+		res, err := stmt.Exec(token.ClientID, token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update token in db %s: %s", id, err)
 			return
@@ -183,13 +184,13 @@ func (m *Manager) addToken(token *Token, update bool) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tokens(token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO tokens(clientId, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store token in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
+		res, err := stmt.Exec(token.ClientID, token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store token in db %s: %s", id, err)
 			return

@@ -18,13 +18,14 @@ type HoldersRequest struct {
 	Token     string `json:"discord_bot_token"`
 	Nickname  bool   `json:"set_nickname"`
 	Frequency int    `json:"frequency" default:"60"`
+	ClientID  string `json:"client_id"`
 }
 
 // ImportHolder pulls in bots from the provided db
 func (m *Manager) ImportHolder() {
 
 	// query
-	rows, err := m.DB.Query("SELECT token, nickname, activity, network, address, frequency FROM holders")
+	rows, err := m.DB.Query("SELECT clientID, token, nickname, activity, network, address, frequency FROM holders")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -32,16 +33,16 @@ func (m *Manager) ImportHolder() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var token, activity, network, address string
+		var clientID, token, activity, network, address string
 		var nickname bool
 		var frequency int
-		err = rows.Scan(&token, &nickname, &activity, &network, &address, &frequency)
+		err = rows.Scan(&clientID, &token, &nickname, &activity, &network, &address, &frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
-		h := NewHolders(network, address, activity, token, nickname, frequency)
+		h := NewHolders(clientID, network, address, activity, token, nickname, frequency)
 		m.addHolders(h, false)
 		logger.Infof("Loaded holder from db: %s-%s", network, address)
 	}
@@ -99,7 +100,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	holders := NewHolders(holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency)
+	holders := NewHolders(holdersReq.ClientID, holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency)
 	m.addHolders(holders, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -148,13 +149,13 @@ func (m *Manager) addHolders(holders *Holders, update bool) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update holders set token = ?, nickname = ?, activity = ?, network = ?, address = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update holders set clientId = ?, token = ?, nickname = ?, activity = ?, network = ?, address = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update holders in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency, existingId)
+		res, err := stmt.Exec(holders.ClientID, holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update holders in db %s: %s", id, err)
 			return
@@ -170,13 +171,13 @@ func (m *Manager) addHolders(holders *Holders, update bool) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO holders(token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO holders(clientId, token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store holders in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
+		res, err := stmt.Exec(holders.ClientID, holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store holders in db %s: %s", id, err)
 			return

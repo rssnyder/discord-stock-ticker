@@ -16,13 +16,14 @@ type GasRequest struct {
 	Token     string `json:"discord_bot_token"`
 	Nickname  bool   `json:"set_nickname"`
 	Frequency int    `json:"frequency" default:"60"`
+	ClientID  string `json:"client_id"`
 }
 
 // ImportGas pulls in bots from the provided db
 func (m *Manager) ImportGas() {
 
 	// query
-	rows, err := m.DB.Query("SELECT token, nickname, network, frequency FROM gases")
+	rows, err := m.DB.Query("SELECT clientID, token, nickname, network, frequency FROM gases")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -30,16 +31,16 @@ func (m *Manager) ImportGas() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var token, network string
+		var clientID, token, network string
 		var nickname bool
 		var frequency int
-		err = rows.Scan(&token, &nickname, &network, &frequency)
+		err = rows.Scan(&clientID, &token, &nickname, &network, &frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
-		g := NewGas(network, token, nickname, frequency)
+		g := NewGas(clientID, network, token, nickname, frequency)
 		m.addGas(g, false)
 		logger.Infof("Loaded gas from db: %s", network)
 	}
@@ -90,7 +91,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gas := NewGas(gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
+	gas := NewGas(gasReq.ClientID, gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
 	m.addGas(gas, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -139,13 +140,13 @@ func (m *Manager) addGas(gas *Gas, update bool) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update gases set token = ?, nickname = ?, network = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update gases set clientId = ?, token = ?, nickname = ?, network = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update gas in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(gas.token, gas.Nickname, gas.Network, gas.Frequency, existingId)
+		res, err := stmt.Exec(gas.ClientID, gas.token, gas.Nickname, gas.Network, gas.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update gas in db %s: %s", id, err)
 			return
@@ -161,13 +162,13 @@ func (m *Manager) addGas(gas *Gas, update bool) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO gases(token, nickname, network, frequency) values(?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO gases(clientId, token, nickname, network, frequency) values(?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store gas in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(gas.token, gas.Nickname, gas.Network, gas.Frequency)
+		res, err := stmt.Exec(gas.ClientID, gas.token, gas.Nickname, gas.Network, gas.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store gas in db %s: %s", id, err)
 			return
