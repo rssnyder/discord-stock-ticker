@@ -122,6 +122,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 		}
+		logger.Infof("Added board: %s\n", crypto.Name)
 		return
 	}
 
@@ -141,6 +142,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
+	logger.Infof("Added board: %s\n", stock.Name)
 }
 
 func (m *Manager) addBoard(crypto bool, board *Board, update bool) {
@@ -241,6 +243,19 @@ func (m *Manager) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 	// send shutdown sign
 	m.WatchingBoard[id].Shutdown()
 	boardCount.Dec()
+
+	// remove from db
+	stmt, err := m.DB.Prepare("DELETE FROM boards WHERE name = ?")
+	if err != nil {
+		logger.Warningf("Unable to query board in db %s: %s", id, err)
+		return
+	}
+
+	_, err = stmt.Exec(m.WatchingBoard[id].Name)
+	if err != nil {
+		logger.Warningf("Unable to query board in db %s: %s", id, err)
+		return
+	}
 
 	// remove from cache
 	delete(m.WatchingBoard, id)

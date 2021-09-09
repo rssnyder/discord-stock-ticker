@@ -132,6 +132,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf("Unable to encode ticker: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
 		}
+		logger.Infof("Added crypto: %s\n", crypto.Name)
 		return
 	}
 
@@ -164,6 +165,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		logger.Errorf("Unable to encode ticker: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
+	logger.Infof("Added stock: %s\n", stock.Ticker)
 }
 
 func (m *Manager) addTicker(crypto bool, stock *Ticker, update bool) {
@@ -290,6 +292,33 @@ func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 	// send shutdown sign
 	m.WatchingTicker[id].Shutdown()
 	tickerCount.Dec()
+
+	// remove from db
+	if m.WatchingTicker[id].Crypto {
+		stmt, err := m.DB.Prepare("DELETE FROM tickers WHERE name = ?")
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+
+		_, err = stmt.Exec(m.WatchingTicker[id].Name)
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+	} else {
+		stmt, err := m.DB.Prepare("DELETE FROM tickers WHERE ticker = ?")
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+
+		_, err = stmt.Exec(m.WatchingTicker[id].Ticker)
+		if err != nil {
+			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+			return
+		}
+	}
 
 	// remove from cache
 	delete(m.WatchingTicker, id)

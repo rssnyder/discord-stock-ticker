@@ -110,6 +110,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		logger.Errorf("Unable to encode holders: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
+	logger.Infof("Added holder: %s-%s\n", holders.Network, holders.Address)
 }
 
 func (m *Manager) addHolders(holders *Holders, update bool) {
@@ -209,6 +210,19 @@ func (m *Manager) DeleteHolders(w http.ResponseWriter, r *http.Request) {
 	// send shutdown sign
 	m.WatchingHolders[id].Shutdown()
 	holdersCount.Dec()
+
+	// remove from db
+	stmt, err := m.DB.Prepare("DELETE FROM holders WHERE network = ? AND address = ?")
+	if err != nil {
+		logger.Warningf("Unable to query holder in db %s: %s", id, err)
+		return
+	}
+
+	_, err = stmt.Exec(m.WatchingHolders[id].Network, m.WatchingHolders[id].Address)
+	if err != nil {
+		logger.Warningf("Unable to query holder in db %s: %s", id, err)
+		return
+	}
 
 	// remove from cache
 	delete(m.WatchingHolders, id)

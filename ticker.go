@@ -29,6 +29,7 @@ type Ticker struct {
 	Pair           string               `json:"pair"`
 	PairFlip       bool                 `json:"pair_flip"`
 	ClientID       string               `json:"client_id"`
+	Crypto         bool                 `json:"crypto"`
 	TwelveDataKey  string               `json:"-"`
 	Cache          *redis.Client        `json:"-"`
 	Context        context.Context      `json:"-"`
@@ -50,6 +51,7 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 		Frequency:     frequency,
 		Currency:      strings.ToUpper(currency),
 		ClientID:      clientID,
+		Crypto:        false,
 		TwelveDataKey: twelveDataKey,
 		updated:       updated,
 		token:         token,
@@ -77,6 +79,7 @@ func NewCrypto(clientID string, ticker string, token string, name string, nickna
 		Pair:           pair,
 		PairFlip:       pairFlip,
 		ClientID:       clientID,
+		Crypto:         true,
 		Cache:          cache,
 		Context:        context,
 		updated:        updated,

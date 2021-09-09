@@ -123,6 +123,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
+	logger.Infof("Added token: %s-%s\n", token.Network, token.Contract)
 }
 
 func (m *Manager) addToken(token *Token, update bool) {
@@ -223,6 +224,19 @@ func (m *Manager) DeleteToken(w http.ResponseWriter, r *http.Request) {
 	// send shutdown sign
 	m.WatchingToken[id].Shutdown()
 	tokenCount.Dec()
+
+	// remove from db
+	stmt, err := m.DB.Prepare("DELETE FROM tokens WHERE network = ? AND contract = ?")
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
+
+	_, err = stmt.Exec(m.WatchingToken[id].Network, m.WatchingToken[id].Contract)
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
 
 	// remove from cache
 	delete(m.WatchingToken, id)

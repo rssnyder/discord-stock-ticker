@@ -101,6 +101,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		logger.Errorf("Unable to encode gas: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
+	logger.Infof("Added gas: %s\n", gas.Network)
 }
 
 func (m *Manager) addGas(gas *Gas, update bool) {
@@ -190,7 +191,7 @@ func (m *Manager) DeleteGas(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to delete a gas")
 
 	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
+	id := vars["id"]
 
 	if _, ok := m.WatchingGas[id]; !ok {
 		logger.Errorf("No gas found: %s", id)
@@ -200,6 +201,19 @@ func (m *Manager) DeleteGas(w http.ResponseWriter, r *http.Request) {
 	// send shutdown sign
 	m.WatchingGas[id].Shutdown()
 	gasCount.Dec()
+
+	// remove from db
+	stmt, err := m.DB.Prepare("DELETE FROM gases WHERE network = ?")
+	if err != nil {
+		logger.Warningf("Unable to query holder in db %s: %s", id, err)
+		return
+	}
+
+	_, err = stmt.Exec(m.WatchingGas[id].Network)
+	if err != nil {
+		logger.Warningf("Unable to query holder in db %s: %s", id, err)
+		return
+	}
 
 	// remove from cache
 	delete(m.WatchingGas, id)
