@@ -1,9 +1,12 @@
 # discord-stock-ticker
+
 Live stock and crypto tickers for your discord server.
 
 Now with five different types of tickers!
 
-🍾 300+ public tickers with over 7k installs across 1k discord servers!
+🍾 400+ public tickers with over 15k installs across 3k discord servers!
+
+*Are you just looking to add free tickers to your discord server? Click the discord icon below to join the support server and get the list of avalible bots!*
 
 [![Releases](https://github.com/rssnyder/discord-stock-ticker/workflows/Build%20and%20Publish%20Container%20Image/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/releases)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -17,9 +20,11 @@ Now with five different types of tickers!
 ![image](https://user-images.githubusercontent.com/7338312/127577682-70b67f31-59c9-427b-b9dc-2736a2b4e378.png)![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
 
 ## Join the discord server
+
 [![Discord Chat](https://logo.clearbit.com/discord.com)](https://discord.gg/CQqnCYEtG7)
 
 ## Support this project
+
 <a href='https://ko-fi.com/rileysnyder' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee' /></a>
 
 <a href="https://www.digitalocean.com/?refcode=1acd6d377e8b&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge"><img src="https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg" alt="DigitalOcean Referral Badge" /></a>
@@ -28,11 +33,55 @@ Love these bots? You can support this project by subscribing to the [premium ver
 
 ## Related Projects
 
-Discord bot to create new tickers (avalible on the support server): https://github.com/rssnyder/discord-stock-ticker-bot
+Discord bot to create new tickers (available on the support server): https://github.com/rssnyder/discord-stock-ticker-bot
 
 Cache-like system to get around coingecko api limits: https://github.com/rssnyder/coingecko-cache
 
-## Add free tickers to your servers (click the stock/crypto symbol in the charts below to add)
+## Contents
+
+- [discord-stock-ticker](#discord-stock-ticker)
+  - [Preview](#preview)
+  - [Join the discord server](#join-the-discord-server)
+  - [Support this project](#support-this-project)
+  - [Related Projects](#related-projects)
+  - [Contents](#contents)
+  - [Add free tickers](#add-free-tickers-to-your-servers-click-the-stockcrypto-symbol-in-the-charts-below-to-add)
+    - [Stocks](#stocks)
+    - [Crypto](#crypto)
+    - [Gas Prices](#gas-prices)
+  - [Premium](#premium)
+  - [Self-Hosting](#self-hosting)
+    - [Roles for colors](#roles-for-colors)
+    - [Using the binary](#using-the-binary)
+      - [Setting options](#setting-options)
+      - [Systemd service](#systemd-service)
+    - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
+    - [List current running bots](#list-current-running-bots)
+    - [Add a new bot](#add-a-new-bot)
+    - [Remove a bot](#remove-a-bot)
+  - [Stock and Crypto Price Tickerboards](#stock-and-crypto-price-tickerboards)
+    - [List current running Boards](#list-current-running-boards)
+    - [Add a new Board](#add-a-new-board)
+    - [Remove a Board](#remove-a-board)
+  - [Ethereum, BSC, and Polygon Gas Prices](#ethereum-bsc-and-polygon-gas-prices)
+    - [List current running Gas](#list-current-running-gas)
+    - [Add a new Gas](#add-a-new-gas)
+    - [Remove a Gas](#remove-a-gas)
+  - [Ethereum, BSC, or Polygon Token Holders](#ethereum-bsc-or-polygon-token-holders)
+    - [List current running Holders](#list-current-running-holders)
+    - [Add a new Holder](#add-a-new-holder)
+    - [Remove a Holder](#remove-a-holder)
+  - [ETH/BSC/MATIC Token Price](#ethbscmatic-token-price)
+    - [List current running Tokens](#list-current-running-tokens)
+    - [Add a new Token](#add-a-new-token)
+    - [Remove a Token](#remove-a-token)
+  - [Docker](#docker)
+  - [Kubernetes](#kubernetes)
+  - [Louie](#louie)
+
+## Add free tickers to your servers
+
+*Click the stock/crypto symbol in the charts below to add*
 
 Don't see a stock or crypto that you need? Join our discord server to use the broker bot!
 
@@ -127,7 +176,7 @@ Don't see a stock or crypto that you need? Join our discord server to use the br
 | [xusd](https://discord.com/api/oauth2/authorize?client_id=854392452034986024&permissions=0&scope=bot) | [evai](https://discord.com/api/oauth2/authorize?client_id=854392532544520292&permissions=0&scope=bot) | [chee](https://discord.com/api/oauth2/authorize?client_id=854764729771098163&permissions=0&scope=bot) |
 | [fish](https://discord.com/api/oauth2/authorize?client_id=854499334455689267&permissions=0&scope=bot) | [spirit](https://discord.com/api/oauth2/authorize?client_id=854499653792956426&permissions=0&scope=bot) | [comfy](https://discord.com/api/oauth2/authorize?client_id=854764554985668629&permissions=0&scope=bot) |
 | [hodl](https://discord.com/api/oauth2/authorize?client_id=854764648938078240&permissions=0&scope=bot) | [prtcle](https://discord.com/api/oauth2/authorize?client_id=856537250833367081&permissions=0&scope=bot) | [1inch](https://discord.com/api/oauth2/authorize?client_id=856537449722019880&permissions=0&scope=bot) |
-| [dero](https://discord.com/api/oauth2/authorize?client_id=856537535597379605&permissions=0&scope=bot) | [zep](https://discord.com/api/oauth2/authorize?client_id=856537610054139929&permissions=0&scope=bot) | | 
+| [dero](https://discord.com/api/oauth2/authorize?client_id=856537535597379605&permissions=0&scope=bot) | [zep](https://discord.com/api/oauth2/authorize?client_id=856537610054139929&permissions=0&scope=bot) | |
 
 ### Gas Prices
 
@@ -143,7 +192,7 @@ If you wish to host your bots on your own hardware, but need help getting set up
 
 If you are interested please see the [contact info on my github page](https://github.com/rssnyder) and send me a messgae via your platform of choice (discord perferred). For a live demo, join the support discord linked at the top or bottom of this page.
 
-```                 
+```shell
                                                                      +-----+    
                                                                ----> |yahoo|    
                                                      ---------/      +-----+    
@@ -162,13 +211,15 @@ If you are interested please see the [contact info on my github page](https://gi
                     +---------------+                                           
 ```
 
-### Self-Hosting
+## Self-Hosting
 
 This bot is distributed as a docker image and a binary.
 
 The program acts as a manager of one to many bots. You can have one running instance of the program and have any number of bots running within it.
 
-#### Roles for colors
+[Click here](https://youtu.be/LhgCdtE8kmc) to watch a quick video tutorial on how to self-host these bots on linux.
+
+### Roles for colors
 
 To enable color changing you will need to create three roles.
 
@@ -178,11 +229,13 @@ Then you need to make two other roles. These roles need to be named _exactly_ **
 
 The last two roles tickers-green and tickers-red need to be below the first role in the role list in your server settings. You should then add all your ticker bots to the first role.
 
-#### Using the binary
+![roles example](https://user-images.githubusercontent.com/7338312/131678207-b1510955-f762-46e3-ae5c-1b5eddb68844.jpg)
+
+### Using the binary
 
 Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
 
-```
+```shell
 wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 
 tar zxf discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
@@ -190,11 +243,11 @@ tar zxf discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 ./discord-stock-ticker
 ```
 
-##### Setting options
+#### Setting options
 
 There are options you can set for the service using flags:
 
-```
+```shell
   -address string
         address:port to bind http server to. (default "localhost:8080")
   -cache
@@ -205,11 +258,11 @@ There are options you can set for the service using flags:
         address:port for redis server. (default "localhost:6379")
 ```
 
-##### Systemd service
+#### Systemd service
 
 The script here (ran as root) will download and install a `discord-stock-ticker` service on your linux machine with an API avalible on port `8080` to manage bots.
 
-```
+```shell
 wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v3.3.0/discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 
 tar zxf discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
@@ -227,23 +280,23 @@ systemctl daemon-reload
 systemctl start discord-stock-ticker.service
 ```
 
-If you need ot make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`.
+If you need to make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`.
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
-##### Stock and Crypto Price Tickers
+### Stock and Crypto Price Tickers
 
-###### List current running bots
+### List current running bots
 
-```
+```shell
 curl localhost:8080/ticker
 ```
 
-###### Add a new bot
+### Add a new bot
 
-Stock Payload: 
+Stock Payload:
 
-```
+```json
 {
   "ticker": "pfg",                                  # string: symbol for the stock from yahoo finance
   "name": "2) PFG",                                 # string/OPTIONAL: overwrites display name of bot
@@ -258,10 +311,9 @@ Stock Payload:
 }
 ```
 
+Crypto Payload:
 
-Crypto Payload: 
-
-```
+```json
 {
   "name": "bitcoin",                                # string: name of the crypto from coingecko
   "crypto": true,                                   # bool: always true for crypto
@@ -281,7 +333,7 @@ Crypto Payload:
 
 Example:
 
-```
+```shell
 curl -X POST -H "Content-Type: application/json" --data '{
   "ticker": "pfg",
   "name": "PFG",
@@ -289,33 +341,33 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/ticker
 ```
 
-###### Remove a bot
+### Remove a bot
 
-```
+```shell
 curl -X DELETE localhost:8080/ticker/pfg
 ```
 
-```
+```shell
 curl -X DELETE localhost:8080/ticker/bitcoin
 ```
 
-##### Stock and Crypto Price Tickerboards
+## Stock and Crypto Price Tickerboards
 
 Tickerboards are tickers that rotate though several stocks or cryptos. This bot is a newer release, and is not as stable as the rest of the bots.
 
 ![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)
 
-###### List current running bots
+### List current running Boards
 
-```
+```shell
 curl localhost:8080/tickerboard
 ```
 
-###### Add a new bot
+### Add a new Board
 
-Stock Payload: 
+Stock Payload:
 
-```
+```json
 {
   "name": "Stocks",                                 # string: name of your board
   "items": ["PFG", "GME", "AMC"],                   # list of strings: symbols from yahoo finance to rotate through
@@ -328,9 +380,9 @@ Stock Payload:
 }
 ```
 
-Crypto Payload: 
+Crypto Payload:
 
-```
+```json
 {
   "name": "Cryptos",                                # string: name of your board
   "crypto": true,                                   # bool: always true for crypto
@@ -346,7 +398,7 @@ Crypto Payload:
 
 Example:
 
-```
+```shell
 curl -X POST -H "Content-Type: application/json" --data '{
   "name": "Stocks",
   "frequency": 3,
@@ -359,29 +411,29 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/tickerboard
 ```
 
-###### Remove a bot
+### Remove a Board
 
-```
+```shell
 curl -X DELETE localhost:8080/tickerboard/stocks
 ```
 
-##### Ethereum, BSC, and Polygon Gas Prices
+## Ethereum, BSC, and Polygon Gas Prices
 
-These bots shows the current reccomended gas prices for three types of transactions. You can choose either the ethereum, binance smart chain, or polygon blockchain.
+These bots shows the current recommended gas prices for three types of transactions. You can choose either the ethereum, binance smart chain, or polygon blockchain.
 
 ![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)
 
-###### List current running bots
+### List current running Gas
 
-```
+```shell
 curl localhost:8080/gas
 ```
 
-###### Add a new bot
+### Add a new Gas
 
 Payload:
 
-```
+```json
 {
   "network": "ethereum",                            # string: one of: ethereum, binance-smart-chain, or polygon
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
@@ -392,7 +444,7 @@ Payload:
 
 Example:
 
-```
+```shell
 curl -X POST -H "Content-Type: application/json" --data '{
   "network": "polygon",
   "frequency": 3,
@@ -401,29 +453,29 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/gas
 ```
 
-###### Remove a bot
+### Remove a Gas
 
-```
+```shell
 curl -X DELETE localhost:8080/gas/polygon
 ```
 
-##### Ethereum, BSC, or Polygon Token Holders
+## Ethereum, BSC, or Polygon Token Holders
 
 This bot lists the number of addresses that hold a particular token. You can choose from the ethereum or binance smart chain blockchains.
 
 ![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
 
-###### List current running bots
+### List current running Holders
 
-```
+```shell
 curl localhost:8080/holders
 ```
 
-###### Add a new bot
+### Add a new Holder
 
 Payload:
 
-```
+```json
 {
   "network": "ethereum",                            # string: one of: ethereum, binance-smart-chain, or polygon
   "address": "0x00000000000000000000000000",        # string: address of contract for token
@@ -436,7 +488,7 @@ Payload:
 
 Example:
 
-```
+```shell
 curl -X POST -H "Content-Type: application/json" --data '{
   "network": "ethereum",
   "address": "0x00000000000000",
@@ -447,27 +499,27 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/holders
 ```
 
-###### Remove a bot
+### Remove a Holder
 
-```
+```shell
 curl -X DELETE localhost:8080/holders/ethereum-0x00000000000000
 ```
 
-##### ETH/BSC/MATIC Token Price
+## ETH/BSC/MATIC Token Price
 
-This bot get the current rate for a given token. You can choose another token to pair with on price, or by default USDC is used. You can choose either the ethereum, binance smart chain, or polygon blockchain.
+This bot gets the current rate for a given token. You can choose another token to pair with on price, or by default USDC is used. You can choose either the ethereum, binance smart chain, or polygon blockchain.
 
-###### List current running bots
+### List current running Tokens
 
-```
+```shell
 curl localhost:8080/token
 ```
 
-###### Add a new bot
+### Add a new Token
 
 Payload:
 
-```
+```json
 {
   "network": "ethereum",                            # string: network of token, options are ethereum, binance-smart-chain, or polygon
   "name": "my token",                               # string: display name of token
@@ -485,7 +537,7 @@ Payload:
 
 Example:
 
-```
+```shell
 curl -X POST -H "Content-Type: application/json" --data '{
   "network": "polygon",
   "contract": "0x0000000",
@@ -495,27 +547,27 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/token
 ```
 
-###### Remove a bot
+### Remove a Token
 
-```
+```shell
 curl -X DELETE localhost:8080/token/polygon-0x0000000
 ```
 
-#### Docker
+## Docker
 
 To run a simple version without any bots on startup (can add via the API as shown above) you can simply run with:
 
-```
+```shell
 docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:3.0.1
 ```
 
-#### Kubernetes
+## Kubernetes
 
 Thanks to @jr0dd there is a helm chart for deploying to k8s clusters. His chart can be found [here](https://github.com/jr0dd/charts/tree/master/discord-stock-ticker)
 
 You can also use a simple deployment file:
 
-```
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -557,12 +609,6 @@ spec:
       restartPolicy: Always
 status: {}
 ```
-
-## Support
-
-If you have a request for a new ticker or issues with a current one, please open a github issue or find me on discord at `jonesbooned#1111` or [join the support server](https://discord.gg/CQqnCYEtG7).
-
-Love these bots? Maybe [buy me a coffee](https://ko-fi.com/rileysnyder)!
 
 ## Louie
 
