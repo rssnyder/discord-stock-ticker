@@ -88,6 +88,11 @@ func (m *Token) watchTokenPrice() {
 		m.Nickname = false
 	}
 
+	// check for frequency override
+	if *frequency != 0 {
+		m.Frequency = *frequency
+	}
+
 	// Set arrows if no custom decorator
 	var arrows bool
 	if m.Decorator == "" {

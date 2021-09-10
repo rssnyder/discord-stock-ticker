@@ -80,6 +80,11 @@ func (h *Holders) watchHolders() {
 		h.Nickname = false
 	}
 
+	// check for frequency override
+	if *frequency != 0 {
+		h.Frequency = *frequency
+	}
+
 	ticker := time.NewTicker(time.Duration(h.Frequency) * time.Second)
 	var nickname string
 

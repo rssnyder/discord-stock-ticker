@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"sync"
 
@@ -12,26 +13,32 @@ import (
 
 var (
 	logger        = log.New()
+	buildVersion  = "development"
 	address       *string
 	db            *string
+	frequency     *int
 	redisAddress  *string
 	redisPassword *string
 	redisDB       *int
 	cache         *bool
+	version       *bool
 	rdb           *redis.Client
 	ctx           context.Context
 )
 
 func init() {
-	// initialize logging
-	logLevel := flag.Int("logLevel", 0, "defines the log level. 0=production builds. 1=dev builds.")
-	address = flag.String("address", "localhost:8080", "address:port to bind http server to.")
+	logLevel := flag.Int("logLevel", 0, "defines the log level: 0=INFO 1=DEBUG")
+	address = flag.String("address", "localhost:8080", "address:port to bind http server to")
 	db = flag.String("db", "", "file to store tickers in")
-	redisAddress = flag.String("redisAddress", "localhost:6379", "address:port for redis server.")
+	frequency = flag.Int("frequency", 0, "set frequency for all tickers")
+	redisAddress = flag.String("redisAddress", "localhost:6379", "address:port for redis server")
 	redisPassword = flag.String("redisPassword", "", "redis password")
 	redisDB = flag.Int("redisDB", 0, "redis db to use")
 	cache = flag.Bool("cache", false, "enable cache for coingecko")
+	version = flag.Bool("version", false, "print version")
 	flag.Parse()
+
+	// init logger
 	logger.Out = os.Stdout
 	switch *logLevel {
 	case 0:
@@ -43,6 +50,13 @@ func init() {
 
 func main() {
 	var wg sync.WaitGroup
+
+	if *version {
+		fmt.Printf("discord-stock-ticker@%s\n", buildVersion)
+		return
+	}
+
+	logger.Infof("Running discord-stock-ticker version %s...", buildVersion)
 
 	// Redis is used a an optional cache for coingecko data
 	if *cache {

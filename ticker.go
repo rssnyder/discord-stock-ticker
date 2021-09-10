@@ -128,6 +128,11 @@ func (s *Ticker) watchStockPrice() {
 		s.Nickname = false
 	}
 
+	// check for frequency override
+	if *frequency != 0 {
+		s.Frequency = *frequency
+	}
+
 	// If other currency, get rate
 	if s.Currency != "USD" {
 		exData, err := utils.GetStockPrice(s.Currency + "=X")
@@ -396,6 +401,11 @@ func (s *Ticker) watchCryptoPrice() {
 	if err != nil {
 		logger.Errorf("Getting guilds: %s", err)
 		s.Nickname = false
+	}
+
+	// check for frequency override
+	if *frequency != 0 {
+		s.Frequency = *frequency
 	}
 
 	// If other currency, get rate

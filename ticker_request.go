@@ -45,6 +45,7 @@ func (m *Manager) ImportTicker() {
 		var clientID, token, ticker, name, activity, decorator, currency, currencySymbol, pair, twelveDataKey string
 		var nickname, color, crypto, pairFlip bool
 		var decimals, frequency int
+
 		err = rows.Scan(&clientID, &token, &ticker, &name, &nickname, &color, &crypto, &activity, &decorator, &decimals, &currency, &currencySymbol, &pair, &pairFlip, &twelveDataKey, &frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)

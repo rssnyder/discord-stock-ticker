@@ -66,6 +66,11 @@ func (g *Gas) watchGasPrice() {
 		g.Nickname = false
 	}
 
+	// check for frequency override
+	if *frequency != 0 {
+		g.Frequency = *frequency
+	}
+
 	ticker := time.NewTicker(time.Duration(g.Frequency) * time.Second)
 	var nickname string
 

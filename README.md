@@ -227,6 +227,7 @@ When using the binary...
   -address="localhost:8080": address:port to bind http server to.
   -cache=false: enable cache for coingecko
   -db="": file to store tickers in
+  -frequency=0: set frequency for all tickers
   -logLevel=0: defines the log level. 0=production builds. 1=dev builds.
   -redisAddress="localhost:6379": address:port for redis server.
   -redisDB=0: redis db to use
@@ -239,6 +240,7 @@ When using env (docker)...
 export ADDRESS="localhost:8080" # address:port to bind http server to.
 export CACHE=false # enable cache for coingecko
 export DB="" # file to store tickers in
+export FREQUENCY=60 # set frequency for all tickers
 export LOGLEVEL=0 # defines the log level. 0=production builds. 1=dev builds.
 export REDISADDRESS="localhost:6379" # address:port for redis server.
 export REDISDB=0 # redis db to use
@@ -307,6 +309,7 @@ There are options you can set for the service using flags:
   -address="localhost:8080": address:port to bind http server to.
   -cache=false: enable cache for coingecko
   -db="": file to store tickers in
+  -frequency=0: set frequency for all tickers
   -logLevel=0: defines the log level. 0=production builds. 1=dev builds.
   -redisAddress="localhost:6379": address:port for redis server.
   -redisDB=0: redis db to use

@@ -94,11 +94,6 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		tokenReq.Network = "ethereum"
 	}
 
-	// ensure freq is set
-	if tokenReq.Frequency == 0 {
-		tokenReq.Frequency = 60
-	}
-
 	// ensure name is set
 	if tokenReq.Name == "" {
 		logger.Error("Name required for token")
