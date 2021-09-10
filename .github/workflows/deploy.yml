@@ -27,6 +27,7 @@ jobs:
     name: Release Go Binary x86
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         goos: [linux, windows, darwin, openbsd]
         goarch: [amd64]
@@ -52,6 +53,7 @@ jobs:
     name: Release Go Binary Arm
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         goos: [linux]
         goarch: [arm64, arm]
