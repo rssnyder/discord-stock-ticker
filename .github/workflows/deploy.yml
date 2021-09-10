@@ -45,7 +45,7 @@ jobs:
         goversion: "https://dl.google.com/go/go1.16.linux-amd64.tar.gz"
         project_path: "./"
         binary_name: "discord-stock-ticker"
-        ldflags: "-X 'main.buildVersion=${IMAGE_TAG}'"
+        ldflags: "-X main.buildVersion=${{ env.IMAGE_TAG }}"
         md5sum: FALSE
         
   build-binary-arm:
