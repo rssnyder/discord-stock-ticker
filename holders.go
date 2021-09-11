@@ -16,20 +16,22 @@ type Holders struct {
 	Address   string               `json:"address"`
 	Activity  string               `json:"activity"`
 	Nickname  bool                 `json:"set_nickname"`
-	Frequency time.Duration        `json:"frequency"`
+	Frequency int                  `json:"frequency"`
+	ClientID  string               `json:"client_id"`
 	updated   *prometheus.GaugeVec `json:"-"`
 	token     string               `json:"-"`
 	close     chan int             `json:"-"`
 }
 
 // NewHolders saves information about the stock and starts up a watcher on it
-func NewHolders(network string, address string, activity string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Holders {
+func NewHolders(clientID string, network string, address string, activity string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Holders {
 	h := &Holders{
 		Network:   network,
 		Address:   address,
 		Activity:  activity,
 		Nickname:  nickname,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
+		ClientID:  clientID,
 		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
@@ -67,7 +69,7 @@ func (h *Holders) watchHolders() {
 		if err != nil {
 			logger.Errorf("Unable to set activity: %s\n", err)
 		} else {
-			logger.Infof("Set activity")
+			logger.Debugf("Set activity")
 		}
 	}
 
@@ -78,7 +80,12 @@ func (h *Holders) watchHolders() {
 		h.Nickname = false
 	}
 
-	ticker := time.NewTicker(h.Frequency)
+	// check for frequency override
+	if *frequency != 0 {
+		h.Frequency = *frequency
+	}
+
+	ticker := time.NewTicker(time.Duration(h.Frequency) * time.Second)
 	var nickname string
 
 	for {
@@ -99,6 +106,8 @@ func (h *Holders) watchHolders() {
 					if err != nil {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
+					} else {
+						logger.Debugf("Set nickname in %s: %s\n", g.Name, nickname)
 					}
 					logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
 					h.updated.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
@@ -109,7 +118,7 @@ func (h *Holders) watchHolders() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Infof("Set activity: %s\n", nickname)
+					logger.Debugf("Set activity: %s\n", nickname)
 				}
 			}
 		}

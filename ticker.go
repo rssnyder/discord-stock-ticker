@@ -19,7 +19,7 @@ type Ticker struct {
 	Ticker         string               `json:"ticker"`
 	Name           string               `json:"name"`
 	Nickname       bool                 `json:"nickname"`
-	Frequency      time.Duration        `json:"frequency"`
+	Frequency      int                  `json:"frequency"`
 	Color          bool                 `json:"color"`
 	Decorator      string               `json:"decorator"`
 	Currency       string               `json:"currency"`
@@ -28,6 +28,8 @@ type Ticker struct {
 	Activity       string               `json:"activity"`
 	Pair           string               `json:"pair"`
 	PairFlip       bool                 `json:"pair_flip"`
+	ClientID       string               `json:"client_id"`
+	Crypto         bool                 `json:"crypto"`
 	TwelveDataKey  string               `json:"-"`
 	Cache          *redis.Client        `json:"-"`
 	Context        context.Context      `json:"-"`
@@ -37,7 +39,7 @@ type Ticker struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string, updated *prometheus.GaugeVec) *Ticker {
+func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string, updated *prometheus.GaugeVec) *Ticker {
 	s := &Ticker{
 		Ticker:        ticker,
 		Name:          name,
@@ -46,8 +48,10 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 		Decorator:     decorator,
 		Activity:      activity,
 		Decimals:      decimals,
-		Frequency:     time.Duration(frequency) * time.Second,
+		Frequency:     frequency,
 		Currency:      strings.ToUpper(currency),
+		ClientID:      clientID,
+		Crypto:        false,
 		TwelveDataKey: twelveDataKey,
 		updated:       updated,
 		token:         token,
@@ -60,7 +64,7 @@ func NewStock(ticker string, token string, name string, nickname bool, color boo
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
@@ -69,11 +73,13 @@ func NewCrypto(ticker string, token string, name string, nickname bool, color bo
 		Decorator:      decorator,
 		Activity:       activity,
 		Decimals:       decimals,
-		Frequency:      time.Duration(frequency) * time.Second,
+		Frequency:      frequency,
 		Currency:       strings.ToUpper(currency),
 		CurrencySymbol: currencySymbol,
 		Pair:           pair,
 		PairFlip:       pairFlip,
+		ClientID:       clientID,
+		Crypto:         true,
 		Cache:          cache,
 		Context:        context,
 		updated:        updated,
@@ -122,6 +128,11 @@ func (s *Ticker) watchStockPrice() {
 		s.Nickname = false
 	}
 
+	// check for frequency override
+	if *frequency != 0 {
+		s.Frequency = *frequency
+	}
+
 	// If other currency, get rate
 	if s.Currency != "USD" {
 		exData, err := utils.GetStockPrice(s.Currency + "=X")
@@ -146,8 +157,8 @@ func (s *Ticker) watchStockPrice() {
 		custom_activity = strings.Split(s.Activity, ";")
 	}
 
-	logger.Infof("Watching stock price for %s", s.Name)
-	ticker := time.NewTicker(s.Frequency)
+	logger.Debugf("Watching stock price for %s", s.Name)
+	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
 
 	// continuously watch
 	for {
@@ -392,6 +403,11 @@ func (s *Ticker) watchCryptoPrice() {
 		s.Nickname = false
 	}
 
+	// check for frequency override
+	if *frequency != 0 {
+		s.Frequency = *frequency
+	}
+
 	// If other currency, get rate
 	if s.Currency != "USD" {
 		exData, err := utils.GetStockPrice(s.Currency + "=X")
@@ -417,8 +433,8 @@ func (s *Ticker) watchCryptoPrice() {
 	}
 
 	// create timer
+	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
 	logger.Debugf("Watching crypto price for %s", s.Name)
-	ticker := time.NewTicker(s.Frequency)
 
 	// continuously watch
 	for {

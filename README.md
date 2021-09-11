@@ -45,12 +45,13 @@ Cache-like system to get around coingecko api limits: https://github.com/rssnyde
   - [Support this project](#support-this-project)
   - [Related Projects](#related-projects)
   - [Contents](#contents)
-  - [Add free tickers](#add-free-tickers-to-your-servers-click-the-stockcrypto-symbol-in-the-charts-below-to-add)
+  - [Add free tickers to your servers](#add-free-tickers-to-your-servers)
     - [Stocks](#stocks)
     - [Crypto](#crypto)
     - [Gas Prices](#gas-prices)
   - [Premium](#premium)
-  - [Self-Hosting](#self-hosting)
+  - [Self-Hosting - Docker](#self-hosting---docker)
+  - [Self-Hosting - binary](#self-hosting---binary)
     - [Roles for colors](#roles-for-colors)
     - [Using the binary](#using-the-binary)
       - [Setting options](#setting-options)
@@ -75,7 +76,6 @@ Cache-like system to get around coingecko api limits: https://github.com/rssnyde
     - [List current running Tokens](#list-current-running-tokens)
     - [Add a new Token](#add-a-new-token)
     - [Remove a Token](#remove-a-token)
-  - [Docker](#docker)
   - [Kubernetes](#kubernetes)
   - [Louie](#louie)
 
@@ -211,7 +211,65 @@ If you are interested please see the [contact info on my github page](https://gi
                     +---------------+                                           
 ```
 
-## Self-Hosting
+## Self-Hosting - Docker
+
+Grab the current release number from the [release page](https://github.com/rssnyder/discord-stock-ticker/releases) and expose your designated API port:
+
+```shell
+docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:3.4.1
+```
+
+You can set the config via ENV vars, since we use [namsral/flag](https://github.com/namsral/flag) the variables are the same as the flag inputs, but all uppercase:
+
+When using the binary...
+
+```shell
+  -address="localhost:8080": address:port to bind http server to.
+  -cache=false: enable cache for coingecko
+  -db="": file to store tickers in
+  -frequency=0: set frequency for all tickers
+  -logLevel=0: defines the log level. 0=production builds. 1=dev builds.
+  -redisAddress="localhost:6379": address:port for redis server.
+  -redisDB=0: redis db to use
+  -redisPassword="": redis password
+```
+
+When using env (docker)...
+
+```shell
+export ADDRESS="localhost:8080" # address:port to bind http server to.
+export CACHE=false # enable cache for coingecko
+export DB="" # file to store tickers in
+export FREQUENCY=60 # set frequency for all tickers
+export LOGLEVEL=0 # defines the log level. 0=production builds. 1=dev builds.
+export REDISADDRESS="localhost:6379" # address:port for redis server.
+export REDISDB=0 # redis db to use
+export REDISPASSWORD="" # redis password
+```
+
+```shell
+docker run -p "8080:8080" --env CACHE=true ghcr.io/rssnyder/discord-stock-ticker:3.4.1
+```
+
+Then you can pass a volume to store the state (and at the same time, upgrade to using [docker-compose](https://docs.docker.com/compose/)):
+
+```shell
+---
+version: "3"
+services:
+
+  discordstockticker:
+    image: ghcr.io/rssnyder/discord-stock-ticker:3.4.1
+    environment:
+      - DB=/dst.db
+      - CACHE=true
+    volumes:
+      - /home/infra/dst.db:/dst.db
+    ports:
+      - "8112:8080"
+```
+
+## Self-Hosting - binary
 
 This bot is distributed as a docker image and a binary.
 
@@ -248,14 +306,14 @@ tar zxf discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 There are options you can set for the service using flags:
 
 ```shell
-  -address string
-        address:port to bind http server to. (default "localhost:8080")
-  -cache
-        enable cache for coingecko
-  -logLevel int
-        defines the log level. 0=production builds. 1=dev builds.
-  -redisAddress string
-        address:port for redis server. (default "localhost:6379")
+  -address="localhost:8080": address:port to bind http server to.
+  -cache=false: enable cache for coingecko
+  -db="": file to store tickers in
+  -frequency=0: set frequency for all tickers
+  -logLevel=0: defines the log level. 0=production builds. 1=dev builds.
+  -redisAddress="localhost:6379": address:port for redis server.
+  -redisDB=0: redis db to use
+  -redisPassword="": redis password
 ```
 
 #### Systemd service
@@ -321,6 +379,7 @@ Crypto Payload:
   "set_color": true,                                # bool/OPTIONAL: requires set_nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
+  "currency_sumbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
   "pair": "binancecoin",                            # string/OPTIONAL: pair the coin with another coin, replaces activity section
   "pair_flip": true,                                # bool/OPTIONAL: show <pair>/<coin> rather than <coin>/<pair>
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
@@ -551,14 +610,6 @@ curl -X POST -H "Content-Type: application/json" --data '{
 
 ```shell
 curl -X DELETE localhost:8080/token/polygon-0x0000000
-```
-
-## Docker
-
-To run a simple version without any bots on startup (can add via the API as shown above) you can simply run with:
-
-```shell
-docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:3.0.1
 ```
 
 ## Kubernetes

@@ -18,29 +18,31 @@ type Token struct {
 	Contract  string               `json:"contract"`
 	Name      string               `json:"name"`
 	Nickname  bool                 `json:"nickname"`
-	Frequency time.Duration        `json:"frequency"`
+	Frequency int                  `json:"frequency"`
 	Color     bool                 `json:"color"`
 	Decorator string               `json:"decorator"`
 	Decimals  int                  `json:"decimals"`
 	Activity  string               `json:"activity"`
 	Source    string               `json:"source"`
+	ClientID  string               `json:"client_id"`
 	updated   *prometheus.GaugeVec `json:"-"`
 	token     string               `json:"-"`
 	close     chan int             `json:"-"`
 }
 
 // NewToken saves information about the stock and starts up a watcher on it
-func NewToken(network string, contract string, token string, name string, nickname bool, frequency int, decimals int, activity string, color bool, decorator string, source string, updated *prometheus.GaugeVec) *Token {
+func NewToken(clientID string, network string, contract string, token string, name string, nickname bool, frequency int, decimals int, activity string, color bool, decorator string, source string, updated *prometheus.GaugeVec) *Token {
 	m := &Token{
 		Network:   network,
 		Contract:  contract,
 		Name:      name,
 		Nickname:  nickname,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
 		Color:     color,
 		Decorator: decorator,
 		Activity:  activity,
 		Source:    source,
+		ClientID:  clientID,
 		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
@@ -86,6 +88,11 @@ func (m *Token) watchTokenPrice() {
 		m.Nickname = false
 	}
 
+	// check for frequency override
+	if *frequency != 0 {
+		m.Frequency = *frequency
+	}
+
 	// Set arrows if no custom decorator
 	var arrows bool
 	if m.Decorator == "" {
@@ -100,8 +107,8 @@ func (m *Token) watchTokenPrice() {
 		custom_activity = strings.Split(m.Activity, ";")
 	}
 
-	logger.Infof("Watching token price for %s", m.Name)
-	ticker := time.NewTicker(m.Frequency)
+	logger.Debugf("Watching token price for %s", m.Name)
+	ticker := time.NewTicker(time.Duration(m.Frequency) * time.Second)
 
 	// continuously watch
 	var oldPrice float64
@@ -111,14 +118,14 @@ func (m *Token) watchTokenPrice() {
 			logger.Infof("Shutting down price watching for %s", m.Name)
 			return
 		case <-ticker.C:
-			logger.Infof("Fetching stock price for %s", m.Name)
+			logger.Debugf("Fetching token price for %s", m.Name)
 			var priceData string
 			var fmtPriceRaw float64
 			var fmtPrice float64
 
 			switch m.Source {
 			case "pancakeswap":
-				logger.Infof("Using %s to get price: %s", m.Source, m.Name)
+				logger.Debugf("Using %s to get price: %s", m.Source, m.Name)
 
 				// Get price from Ps in BNB
 				priceData, err = utils.GetPancakeTokenPrice(m.Contract)
@@ -140,7 +147,7 @@ func (m *Token) watchTokenPrice() {
 				fmtPrice = bnbRate.MarketData.CurrentPrice.USD * fmtPriceRaw
 
 			case "dexlab":
-				logger.Infof("Using %s to get price: %s", m.Source, m.Name)
+				logger.Debugf("Using %s to get price: %s", m.Source, m.Name)
 
 				// Get price from dexlab in USDT
 				priceData, err = utils.GetDexLabPrice(m.Contract)
@@ -224,7 +231,7 @@ func (m *Token) watchTokenPrice() {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					}
-					logger.Infof("Set nickname in %s: %s", g.Name, nickname)
+					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 					m.updated.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": g.Name}).SetToCurrentTime()
 
 					if m.Color {
@@ -297,7 +304,7 @@ func (m *Token) watchTokenPrice() {
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 
 			} else {
@@ -307,7 +314,7 @@ func (m *Token) watchTokenPrice() {
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
-					logger.Infof("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", activity)
 				}
 			}
 			oldPrice = fmtPrice

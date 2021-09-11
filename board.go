@@ -21,7 +21,8 @@ type Board struct {
 	Color      bool                 `json:"color"`
 	Percentage bool                 `json:"percentage"`
 	Arrows     bool                 `json:"arrows"`
-	Frequency  time.Duration        `json:"frequency"`
+	Frequency  int                  `json:"frequency"`
+	ClientID   string               `json:"client_id"`
 	Price      int                  `json:"-"`
 	Cache      *redis.Client        `json:"-"`
 	Context    context.Context      `json:"-"`
@@ -31,19 +32,18 @@ type Board struct {
 }
 
 // NewBoard saves information about the board and starts up a watcher on it
-func NewStockBoard(items []string, token string, name string, header string, nickname bool, color bool, percentage bool, arrows bool, frequency int, updated *prometheus.GaugeVec) *Board {
+func NewStockBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int, updated *prometheus.GaugeVec) *Board {
 	b := &Board{
-		Items:      items,
-		Name:       name,
-		Header:     header,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Frequency:  time.Duration(frequency) * time.Second,
-		updated:    updated,
-		token:      token,
-		close:      make(chan int, 1),
+		Items:     items,
+		Name:      name,
+		Header:    header,
+		Nickname:  nickname,
+		Color:     color,
+		Frequency: frequency,
+		ClientID:  clientID,
+		updated:   updated,
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -52,21 +52,20 @@ func NewStockBoard(items []string, token string, name string, header string, nic
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCryptoBoard(items []string, token string, name string, header string, nickname bool, color bool, percentage bool, arrows bool, frequency int, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Board {
+func NewCryptoBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Board {
 	b := &Board{
-		Items:      items,
-		Name:       name,
-		Header:     header,
-		Nickname:   nickname,
-		Color:      color,
-		Percentage: percentage,
-		Arrows:     arrows,
-		Frequency:  time.Duration(frequency) * time.Second,
-		Cache:      cache,
-		Context:    context,
-		updated:    updated,
-		token:      token,
-		close:      make(chan int, 1),
+		Items:     items,
+		Name:      name,
+		Header:    header,
+		Nickname:  nickname,
+		Color:     color,
+		Frequency: frequency,
+		ClientID:  clientID,
+		Cache:     cache,
+		Context:   context,
+		updated:   updated,
+		token:     token,
+		close:     make(chan int, 1),
 	}
 
 	// spin off go routine to watch the price
@@ -109,7 +108,7 @@ func (b *Board) watchStockPrice() {
 		b.Nickname = false
 	}
 
-	ticker := time.NewTicker(b.Frequency)
+	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
 
 	// continuously watch
 	for {
@@ -317,7 +316,7 @@ func (b *Board) watchCryptoPrice() {
 		b.Nickname = false
 	}
 
-	ticker := time.NewTicker(b.Frequency)
+	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
 	logger.Debugf("Watching crypto price for %s", b.Name)
 
 	// continuously watch

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -23,6 +24,36 @@ type TokenRequest struct {
 	Activity  string `json:"activity"`
 	Decimals  int    `json:"decimals"`
 	Source    string `json:"source"`
+	ClientID  string `json:"client_id"`
+}
+
+// ImportToken pulls in bots from the provided db
+func (m *Manager) ImportToken() {
+
+	// query
+	rows, err := m.DB.Query("SELECT clientID, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency FROM tokens")
+	if err != nil {
+		logger.Warningf("Unable to query tokens in db: %s", err)
+		return
+	}
+
+	// load existing bots from db
+	for rows.Next() {
+		var clientID, token, name, activity, network, contract, decorator, source string
+		var nickname, color bool
+		var decimals, frequency int
+		err = rows.Scan(&clientID, &token, &name, &nickname, &color, &activity, &network, &contract, &decorator, &decimals, &source, &frequency)
+		if err != nil {
+			logger.Errorf("Unable to load token from db: %s", err)
+			continue
+		}
+
+		// activate bot
+		t := NewToken(clientID, network, contract, token, name, nickname, frequency, decimals, activity, color, decorator, source, lastUpdate)
+		m.addToken(t, false)
+		logger.Infof("Loaded token from db: %s-%s", network, contract)
+	}
+	rows.Close()
 }
 
 // AddToken adds a new Token or crypto to the list of what to watch
@@ -63,11 +94,6 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		tokenReq.Network = "ethereum"
 	}
 
-	// ensure freq is set
-	if tokenReq.Frequency == 0 {
-		tokenReq.Frequency = 60
-	}
-
 	// ensure name is set
 	if tokenReq.Name == "" {
 		logger.Error("Name required for token")
@@ -83,8 +109,8 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := NewToken(tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source, lastUpdate)
-	m.addToken(token)
+	token := NewToken(tokenReq.ClientID, tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source, lastUpdate)
+	m.addToken(token, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -92,11 +118,86 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
+	logger.Infof("Added token: %s-%s\n", token.Network, token.Contract)
 }
 
-func (m *Manager) addToken(token *Token) {
+func (m *Manager) addToken(token *Token, update bool) {
 	tokenCount.Inc()
-	m.WatchingToken[fmt.Sprintf("%s-%s", token.Network, token.Contract)] = token
+	id := fmt.Sprintf("%s-%s", token.Network, token.Contract)
+	m.WatchingToken[id] = token
+
+	var noDB *sql.DB
+	if (m.DB == noDB) || !update {
+		return
+	}
+
+	// query
+	stmt, err := m.DB.Prepare("SELECT id FROM tokens WHERE network = ? AND contract = ? LIMIT 1")
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
+
+	rows, err := stmt.Query(token.Network, token.Contract)
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
+
+	var existingId int
+
+	for rows.Next() {
+		err = rows.Scan(&existingId)
+		if err != nil {
+			logger.Warningf("Unable to query token in db %s: %s", id, err)
+			return
+		}
+	}
+	rows.Close()
+
+	if existingId != 0 {
+
+		// update entry in db
+		stmt, err := m.DB.Prepare("update tokens set clientId = ?, token = ?, name = ?, nickname = ?, color = ?, activity = ?, network = ?, contract = ?, decorator = ?, decimals = ?, source = ?, frequency = ? WHERE id = ?")
+		if err != nil {
+			logger.Warningf("Unable to update token in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec(token.ClientID, token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency, existingId)
+		if err != nil {
+			logger.Warningf("Unable to update token in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to update token in db %s: %s", id, err)
+			return
+		}
+
+		logger.Infof("Updated token in db %s", id)
+	} else {
+
+		// store new entry in db
+		stmt, err := m.DB.Prepare("INSERT INTO tokens(clientId, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
+		if err != nil {
+			logger.Warningf("Unable to store token in db %s: %s", id, err)
+			return
+		}
+
+		res, err := stmt.Exec(token.ClientID, token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
+		if err != nil {
+			logger.Warningf("Unable to store token in db %s: %s", id, err)
+			return
+		}
+
+		_, err = res.LastInsertId()
+		if err != nil {
+			logger.Warningf("Unable to store token in db %s: %s", id, err)
+			return
+		}
+	}
 }
 
 // DeleteToken addds a new token or crypto to the list of what to watch
@@ -118,6 +219,19 @@ func (m *Manager) DeleteToken(w http.ResponseWriter, r *http.Request) {
 	// send shutdown sign
 	m.WatchingToken[id].Shutdown()
 	tokenCount.Dec()
+
+	// remove from db
+	stmt, err := m.DB.Prepare("DELETE FROM tokens WHERE network = ? AND contract = ?")
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
+
+	_, err = stmt.Exec(m.WatchingToken[id].Network, m.WatchingToken[id].Contract)
+	if err != nil {
+		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		return
+	}
 
 	// remove from cache
 	delete(m.WatchingToken, id)

@@ -14,17 +14,19 @@ import (
 type Gas struct {
 	Network   string               `json:"network"`
 	Nickname  bool                 `json:"set_nickname"`
-	Frequency time.Duration        `json:"frequency"`
+	Frequency int                  `json:"frequency"`
+	ClientID  string               `json:"client_id"`
 	updated   *prometheus.GaugeVec `json:"-"`
 	token     string               `json:"-"`
 	close     chan int             `json:"-"`
 }
 
-func NewGas(network string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Gas {
+func NewGas(clientID string, network string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Gas {
 	g := &Gas{
 		Network:   network,
 		Nickname:  nickname,
-		Frequency: time.Duration(frequency) * time.Second,
+		Frequency: frequency,
+		ClientID:  clientID,
 		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
@@ -64,7 +66,12 @@ func (g *Gas) watchGasPrice() {
 		g.Nickname = false
 	}
 
-	ticker := time.NewTicker(g.Frequency)
+	// check for frequency override
+	if *frequency != 0 {
+		g.Frequency = *frequency
+	}
+
+	ticker := time.NewTicker(time.Duration(g.Frequency) * time.Second)
 	var nickname string
 
 	// watch gas price
@@ -79,7 +86,6 @@ func (g *Gas) watchGasPrice() {
 			gasPrices, err := utils.GetGasPrices(g.Network)
 			if err != nil {
 				logger.Errorf("Error getting rates: %s\n", err)
-				time.Sleep(g.Frequency)
 				continue
 			}
 
@@ -94,6 +100,8 @@ func (g *Gas) watchGasPrice() {
 					if err != nil {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
+					} else {
+						logger.Debugf("Set nickname in %s: %s\n", gu.Name, nickname)
 					}
 					fmt.Printf("Set nickname in %s: %s\n", gu.Name, nickname)
 					g.updated.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": gu.Name}).SetToCurrentTime()
@@ -103,7 +111,7 @@ func (g *Gas) watchGasPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Infof("Set activity")
+					logger.Debugf("Set activity")
 				}
 			} else {
 
@@ -111,7 +119,7 @@ func (g *Gas) watchGasPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Infof("Set activity: %s\n", nickname)
+					logger.Debugf("Set activity: %s\n", nickname)
 				}
 			}
 		}
