@@ -213,6 +213,8 @@ If you are interested please see the [contact info on my github page](https://gi
 
 ## Self-Hosting - Docker
 
+⚠️ As of version **3.5.0** we are using `mattn/go-sqlite3` to store state. Since this is a CGO package cross-compilation is more difficult. Because of this running on non linux-x86 machines may require you to build from source. I am currently working on publishing offical builds again for other OS/ARCH and will remove this warning when the work has been completed.
+
 Grab the current release number from the [release page](https://github.com/rssnyder/discord-stock-ticker/releases) and expose your designated API port:
 
 ```shell
@@ -270,6 +272,8 @@ services:
 ```
 
 ## Self-Hosting - binary
+
+⚠️ As of version **3.5.0** we are using `mattn/go-sqlite3` to store state. Since this is a CGO package cross-compilation is more difficult. Because of this running on non linux-x86 machines may require you to build from source. I am currently working on publishing offical builds again for other OS/ARCH and will remove this warning when the work has been completed.
 
 This bot is distributed as a docker image and a binary.
 
