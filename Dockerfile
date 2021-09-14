@@ -1,17 +1,19 @@
-FROM golang:1.16-alpine AS build
+FROM golang:latest AS base
 LABEL org.opencontainers.image.source https://github.com/rssnyder/discord-stock-ticker
 
-RUN apk --no-cache add ca-certificates build-base
+RUN apt-get update && \
+    apt-get -y --no-install-recommends install software-properties-common && \
+    add-apt-repository "deb http://httpredir.debian.org/debian bullseye main" && \
+    apt-get update && \
+    apt-get -qq install -y libvips-dev && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /go/src/app
 
 COPY . .
 
-RUN CGO_ENABLED=1 go build -o /bin/ticker
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
 
-FROM scratch
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=build /bin/ticker /bin/ticker
-EXPOSE 8080
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=1 go build -o /bin/ticker
 
 ENTRYPOINT ["/bin/ticker"]
