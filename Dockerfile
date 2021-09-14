@@ -1,7 +1,7 @@
 FROM golang:1.16-alpine AS build
 LABEL org.opencontainers.image.source https://github.com/rssnyder/discord-stock-ticker
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates build-base
 
 WORKDIR /go/src/app
 
