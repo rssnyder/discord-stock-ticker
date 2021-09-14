@@ -62,13 +62,13 @@ jobs:
       fail-fast: false
       matrix:
         goos: [linux]
-        goarch: [arm64, arm]
+        goarch: [arm]
     steps:
 
     - uses: actions/checkout@v2
 
     - name: Install packages
-      run: sudo apt-get install gcc
+      run: sudo apt-get install gcc-arm-linux-gnueabihf
 
     - name: Get version
       run: echo "IMAGE_TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
@@ -81,5 +81,43 @@ jobs:
         goversion: "https://dl.google.com/go/go1.16.linux-amd64.tar.gz"
         project_path: "./"
         binary_name: "discord-stock-ticker"
+        build_flags: -buildmode=c-shared
         ldflags: "-X main.buildVersion=${{ env.IMAGE_TAG }}"
         md5sum: FALSE
+      env:
+        CC: arm-linux-gnueabihf-gcc
+
+  build-binary-arm64:
+    name: Release Go Binary Arm64
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        goos: [linux]
+        goarch: [arm64]
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Install packages
+      run: |
+        wget https://releases.linaro.org/components/toolchain/binaries/5.3-2016.02/aarch64-linux-gnu/gcc-linaro-5.3-2016.02-x86_64_aarch64-linux-gnu.tar.xz 
+        sudo tar xvf gcc-linaro-5.3-2016.02-x86_64_aarch64-linux-gnu.tar.xz -C /usr/lib/
+        echo PATH="$PATH:/usr/lib/gcc-linaro-5.3-2016.02-x86_64_aarch64-linux-gnu/bin" >> $GITHUB_ENV
+
+    - name: Get version
+      run: echo "IMAGE_TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+    - uses: wangyoucao577/go-release-action@v1.14
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.goarch }}
+        goversion: "https://dl.google.com/go/go1.16.linux-amd64.tar.gz"
+        project_path: "./"
+        binary_name: "discord-stock-ticker"
+        build_flags: -buildmode=c-shared
+        ldflags: "-X main.buildVersion=${{ env.IMAGE_TAG }}"
+        md5sum: FALSE
+      env:
+        CC: aarch64-linux-gnu-gcc-5.3.1
