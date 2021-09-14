@@ -85,4 +85,4 @@ jobs:
         ldflags: "-X main.buildVersion=${{ env.IMAGE_TAG }}"
         md5sum: FALSE
       env:
-        CC: arm-linux-gnueabihf-gcc
+        CC: /usr/bin/arm-linux-gnueabihf-gcc
