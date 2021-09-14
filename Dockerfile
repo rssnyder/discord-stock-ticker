@@ -7,11 +7,11 @@ WORKDIR /go/src/app
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o /bin/ticker
+RUN CGO_ENABLED=1 go build -o /bin/ticker
 
 FROM scratch
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /bin/ticker /bin/ticker
 EXPOSE 8080
 
-ENTRYPOINT ["/bin/ticker", "-address", "0.0.0.0:8080"]
+ENTRYPOINT ["/bin/ticker"]

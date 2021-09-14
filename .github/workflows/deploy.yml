@@ -4,6 +4,9 @@ on:
   push:
     tags: [v*.*.*]
 
+env:
+  CGO_ENABLED: 1
+
 jobs:
   build-container-image:
     runs-on: ubuntu-latest

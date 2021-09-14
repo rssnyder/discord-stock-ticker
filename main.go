@@ -28,7 +28,7 @@ var (
 
 func init() {
 	logLevel := flag.Int("logLevel", 0, "defines the log level: 0=INFO 1=DEBUG")
-	address = flag.String("address", "localhost:8080", "address:port to bind http server to")
+	address = flag.String("address", "0.0.0.0:8080", "address:port to bind http server to")
 	db = flag.String("db", "", "file to store tickers in")
 	frequency = flag.Int("frequency", 0, "set frequency for all tickers")
 	redisAddress = flag.String("redisAddress", "localhost:6379", "address:port for redis server")
