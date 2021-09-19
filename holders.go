@@ -119,6 +119,7 @@ func (h *Holders) watchHolders() {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
 					logger.Debugf("Set activity: %s\n", nickname)
+					h.updated.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}

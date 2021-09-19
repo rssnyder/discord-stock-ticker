@@ -278,6 +278,7 @@ func (b *Board) watchStockPrice() {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
+						b.updated.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).SetToCurrentTime()
 					}
 				}
 			}
@@ -476,6 +477,7 @@ func (b *Board) watchCryptoPrice() {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
+						b.updated.With(prometheus.Labels{"type": "board", "ticker": b.Name}).SetToCurrentTime()
 					}
 				}
 			}

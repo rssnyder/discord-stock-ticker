@@ -120,6 +120,7 @@ func (g *Gas) watchGasPrice() {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
 					logger.Debugf("Set activity: %s\n", nickname)
+					g.updated.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}

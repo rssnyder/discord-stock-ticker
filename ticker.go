@@ -361,6 +361,7 @@ func (s *Ticker) watchStockPrice() {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
+					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).SetToCurrentTime()
 				}
 
 			}
@@ -678,6 +679,7 @@ func (s *Ticker) watchCryptoPrice() {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
+					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}
