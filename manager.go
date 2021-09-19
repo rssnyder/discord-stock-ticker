@@ -113,13 +113,15 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	r.HandleFunc("/holders", m.GetHolders).Methods("GET")
 
 	// Metrics
-	prometheus.MustRegister(tickerCount)
-	prometheus.MustRegister(boardCount)
-	prometheus.MustRegister(gasCount)
-	prometheus.MustRegister(tokenCount)
-	prometheus.MustRegister(holdersCount)
-	prometheus.MustRegister(lastUpdate)
-	r.Path("/metrics").Handler(promhttp.Handler())
+	p := prometheus.NewRegistry()
+	p.MustRegister(tickerCount)
+	p.MustRegister(boardCount)
+	p.MustRegister(gasCount)
+	p.MustRegister(tokenCount)
+	p.MustRegister(holdersCount)
+	p.MustRegister(lastUpdate)
+	handler := promhttp.HandlerFor(p, promhttp.HandlerOpts{})
+	r.Handle("/metrics", handler)
 
 	// Pull in existing bots
 	var noDB *sql.DB
