@@ -315,7 +315,7 @@ func (m *Token) watchTokenPrice() {
 					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
-					m.updated.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract)}).SetToCurrentTime()
+					m.updated.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).SetToCurrentTime()
 				}
 			}
 			oldPrice = fmtPrice
