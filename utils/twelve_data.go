@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	TwelveDataTS = "https://api.twelvedata.com/time_series?symbol=%s&interval=1%s&outputsize=1&apikey=%s"
+	TwelveDataTS = "https://api.twelvedata.com/time_series?symbol=%s&interval=1%s&outputsize=2&apikey=%s"
 )
 
 type TimeSeries struct {

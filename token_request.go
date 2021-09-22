@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -216,27 +217,61 @@ func (m *Manager) DeleteToken(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Error: ticker not found")
 		return
 	}
+
 	// send shutdown sign
 	m.WatchingToken[id].Shutdown()
 	tokenCount.Dec()
 
-	// remove from db
-	stmt, err := m.DB.Prepare("DELETE FROM tokens WHERE network = ? AND contract = ?")
-	if err != nil {
-		logger.Warningf("Unable to query token in db %s: %s", id, err)
-		return
-	}
+	var noDB *sql.DB
+	if m.DB != noDB {
+		// remove from db
+		stmt, err := m.DB.Prepare("DELETE FROM tokens WHERE network = ? AND contract = ?")
+		if err != nil {
+			logger.Warningf("Unable to query token in db %s: %s", id, err)
+			return
+		}
 
-	_, err = stmt.Exec(m.WatchingToken[id].Network, m.WatchingToken[id].Contract)
-	if err != nil {
-		logger.Warningf("Unable to query token in db %s: %s", id, err)
-		return
+		_, err = stmt.Exec(m.WatchingToken[id].Network, m.WatchingToken[id].Contract)
+		if err != nil {
+			logger.Warningf("Unable to query token in db %s: %s", id, err)
+			return
+		}
 	}
 
 	// remove from cache
 	delete(m.WatchingToken, id)
 
 	logger.Infof("Deleted ticker %s", id)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// RestartToken stops and starts a Token
+func (m *Manager) RestartToken(w http.ResponseWriter, r *http.Request) {
+	m.Lock()
+	defer m.Unlock()
+
+	logger.Debugf("Got an API request to restart a token")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if _, ok := m.WatchingToken[id]; !ok {
+		logger.Error("Error: no ticker found")
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Error: ticker not found")
+		return
+	}
+
+	// send shutdown sign
+	m.WatchingToken[id].Shutdown()
+
+	// wait twice the update time
+	time.Sleep(time.Duration(m.WatchingToken[id].Frequency) * 2 * time.Second)
+
+	// start the ticker again
+	m.WatchingToken[id].Start()
+
+	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

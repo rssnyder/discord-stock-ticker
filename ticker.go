@@ -88,8 +88,13 @@ func NewCrypto(clientID string, ticker string, token string, name string, nickna
 	}
 
 	// spin off go routine to watch the price
-	go s.watchCryptoPrice()
+	s.Start()
 	return s
+}
+
+// Start begins watching a ticker
+func (s *Ticker) Start() {
+	go s.watchCryptoPrice()
 }
 
 // Shutdown sends a signal to shut off the goroutine
@@ -203,15 +208,15 @@ func (s *Ticker) watchStockPrice() {
 					continue
 				}
 
-				openRaw, err := strconv.ParseFloat(priceDataDay.Values[0].Open, 64)
+				closeRaw, err := strconv.ParseFloat(priceDataDay.Values[1].Close, 64)
 				if err != nil {
 					logger.Errorf("Unable to deal with twelvedata day data %s", priceDataDay.Values[0].Open)
 					continue
 				}
 
-				fmtDiff := nowRaw - openRaw
+				fmtDiff := nowRaw - closeRaw
 				fmtDiffChange = fmt.Sprintf("%.2f", fmtDiff)
-				fmtDiffPercent = fmt.Sprintf("%.2f%%", (fmtDiff/openRaw)*100)
+				fmtDiffPercent = fmt.Sprintf("%.2f%%", (fmtDiff/closeRaw)*100)
 			} else {
 				// use yahoo as source
 				priceData, err := utils.GetStockPrice(s.Ticker)

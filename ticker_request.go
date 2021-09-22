@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -294,30 +295,33 @@ func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 	m.WatchingTicker[id].Shutdown()
 	tickerCount.Dec()
 
-	// remove from db
-	if m.WatchingTicker[id].Crypto {
-		stmt, err := m.DB.Prepare("DELETE FROM tickers WHERE name = ?")
-		if err != nil {
-			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
-			return
-		}
+	var noDB *sql.DB
+	if m.DB != noDB {
+		// remove from db
+		if m.WatchingTicker[id].Crypto {
+			stmt, err := m.DB.Prepare("DELETE FROM tickers WHERE name = ?")
+			if err != nil {
+				logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+				return
+			}
 
-		_, err = stmt.Exec(m.WatchingTicker[id].Name)
-		if err != nil {
-			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
-			return
-		}
-	} else {
-		stmt, err := m.DB.Prepare("DELETE FROM tickers WHERE ticker = ?")
-		if err != nil {
-			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
-			return
-		}
+			_, err = stmt.Exec(m.WatchingTicker[id].Name)
+			if err != nil {
+				logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+				return
+			}
+		} else {
+			stmt, err := m.DB.Prepare("DELETE FROM tickers WHERE ticker = ?")
+			if err != nil {
+				logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+				return
+			}
 
-		_, err = stmt.Exec(m.WatchingTicker[id].Ticker)
-		if err != nil {
-			logger.Warningf("Unable to query ticker in db %s: %s", id, err)
-			return
+			_, err = stmt.Exec(m.WatchingTicker[id].Ticker)
+			if err != nil {
+				logger.Warningf("Unable to query ticker in db %s: %s", id, err)
+				return
+			}
 		}
 	}
 
@@ -325,6 +329,34 @@ func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 	delete(m.WatchingTicker, id)
 
 	logger.Infof("Deleted ticker %s", id)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// RestartTicker stops and starts a ticker
+func (m *Manager) RestartTicker(w http.ResponseWriter, r *http.Request) {
+	m.Lock()
+	defer m.Unlock()
+
+	logger.Debugf("Got an API request to restart a ticker")
+
+	vars := mux.Vars(r)
+	id := strings.ToUpper(vars["id"])
+
+	if _, ok := m.WatchingTicker[id]; !ok {
+		logger.Errorf("No ticker found: %s", id)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	// send shutdown sign
+	m.WatchingTicker[id].Shutdown()
+
+	// wait twice the update time
+	time.Sleep(time.Duration(m.WatchingTicker[id].Frequency) * 2 * time.Second)
+
+	// start the ticker again
+	m.WatchingTicker[id].Start()
+
+	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 
