@@ -33,8 +33,13 @@ func NewGas(clientID string, network string, token string, nickname bool, freque
 	}
 
 	// spin off go routine to watch the prices
-	go g.watchGasPrice()
+	g.Start()
 	return g
+}
+
+// Start begins watching prices
+func (g *Gas) Start() {
+	go g.watchGasPrice()
 }
 
 // Shutdown sends a signal to shut off the goroutine

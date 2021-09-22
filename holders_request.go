@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -207,27 +208,60 @@ func (m *Manager) DeleteHolders(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
 	// send shutdown sign
 	m.WatchingHolders[id].Shutdown()
 	holdersCount.Dec()
 
-	// remove from db
-	stmt, err := m.DB.Prepare("DELETE FROM holders WHERE network = ? AND address = ?")
-	if err != nil {
-		logger.Warningf("Unable to query holder in db %s: %s", id, err)
-		return
-	}
+	var noDB *sql.DB
+	if m.DB != noDB {
+		// remove from db
+		stmt, err := m.DB.Prepare("DELETE FROM holders WHERE network = ? AND address = ?")
+		if err != nil {
+			logger.Warningf("Unable to query holder in db %s: %s", id, err)
+			return
+		}
 
-	_, err = stmt.Exec(m.WatchingHolders[id].Network, m.WatchingHolders[id].Address)
-	if err != nil {
-		logger.Warningf("Unable to query holder in db %s: %s", id, err)
-		return
+		_, err = stmt.Exec(m.WatchingHolders[id].Network, m.WatchingHolders[id].Address)
+		if err != nil {
+			logger.Warningf("Unable to query holder in db %s: %s", id, err)
+			return
+		}
 	}
 
 	// remove from cache
 	delete(m.WatchingHolders, id)
 
 	logger.Infof("Deleted holders %s", id)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// RestartHolders stops and starts a holder
+func (m *Manager) RestartHolders(w http.ResponseWriter, r *http.Request) {
+	m.Lock()
+	defer m.Unlock()
+
+	logger.Debugf("Got an API request to restart a holders")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if _, ok := m.WatchingHolders[id]; !ok {
+		logger.Errorf("No holders found: %s", id)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// send shutdown sign
+	m.WatchingHolders[id].Shutdown()
+
+	// wait twice the update time
+	time.Sleep(time.Duration(m.WatchingHolders[id].Frequency) * 2 * time.Second)
+
+	// start the ticker again
+	m.WatchingHolders[id].Start()
+
+	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

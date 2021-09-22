@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -198,27 +199,60 @@ func (m *Manager) DeleteGas(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
 	// send shutdown sign
 	m.WatchingGas[id].Shutdown()
 	gasCount.Dec()
 
-	// remove from db
-	stmt, err := m.DB.Prepare("DELETE FROM gases WHERE network = ?")
-	if err != nil {
-		logger.Warningf("Unable to query holder in db %s: %s", id, err)
-		return
-	}
+	var noDB *sql.DB
+	if m.DB != noDB {
+		// remove from db
+		stmt, err := m.DB.Prepare("DELETE FROM gases WHERE network = ?")
+		if err != nil {
+			logger.Warningf("Unable to query holder in db %s: %s", id, err)
+			return
+		}
 
-	_, err = stmt.Exec(m.WatchingGas[id].Network)
-	if err != nil {
-		logger.Warningf("Unable to query holder in db %s: %s", id, err)
-		return
+		_, err = stmt.Exec(m.WatchingGas[id].Network)
+		if err != nil {
+			logger.Warningf("Unable to query holder in db %s: %s", id, err)
+			return
+		}
 	}
 
 	// remove from cache
 	delete(m.WatchingGas, id)
 
 	logger.Infof("Deleted gas %s", id)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// RestartGas stops and starts a gas
+func (m *Manager) RestartGas(w http.ResponseWriter, r *http.Request) {
+	m.Lock()
+	defer m.Unlock()
+
+	logger.Debugf("Got an API request to restart a gas")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if _, ok := m.WatchingGas[id]; !ok {
+		logger.Errorf("No gas found: %s", id)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// send shutdown sign
+	m.WatchingGas[id].Shutdown()
+
+	// wait twice the update time
+	time.Sleep(time.Duration(m.WatchingGas[id].Frequency) * 2 * time.Second)
+
+	// start the ticker again
+	m.WatchingGas[id].Start()
+
+	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

@@ -15,6 +15,52 @@ Now with five different types of tickers!
 [![GitHub stars](https://img.shields.io/github/stars/rssnyder/discord-stock-ticker.svg?style=social&label=Star)]()
 [![GitHub watchers](https://img.shields.io/github/watchers/rssnyder/discord-stock-ticker.svg?style=social&label=Watch)]()
 
+## Contents
+
+- [discord-stock-ticker](#discord-stock-ticker)
+  - [Contents](#contents)
+  - [Preview](#preview)
+  - [Join the discord server](#join-the-discord-server)
+  - [Support this project](#support-this-project)
+  - [Add free tickers to your servers](#add-free-tickers-to-your-servers)
+    - [Stocks](#stocks)
+    - [Crypto](#crypto)
+    - [Gas Prices](#gas-prices)
+  - [Premium](#premium)
+  - [Self-Hosting - Docker](#self-hosting---docker)
+  - [Self-Hosting - binary](#self-hosting---binary)
+    - [Roles for colors](#roles-for-colors)
+    - [Using the binary](#using-the-binary)
+      - [Setting options](#setting-options)
+      - [Systemd service](#systemd-service)
+    - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
+    - [List current running bots](#list-current-running-bots)
+    - [Add a new bot](#add-a-new-bot)
+    - [Restart a bot](#restart-a-bot)
+    - [Remove a bot](#remove-a-bot)
+  - [Stock and Crypto Price Tickerboards](#stock-and-crypto-price-tickerboards)
+    - [List current running Boards](#list-current-running-boards)
+    - [Add a new Board](#add-a-new-board)
+    - [Restart a Board](#restart-a-board)
+    - [Remove a Board](#remove-a-board)
+  - [Ethereum, BSC, and Polygon Gas Prices](#ethereum-bsc-and-polygon-gas-prices)
+    - [List current running Gas](#list-current-running-gas)
+    - [Add a new Gas](#add-a-new-gas)
+    - [Restart a Gas](#restart-a-gas)
+    - [Remove a Gas](#remove-a-gas)
+  - [Ethereum, BSC, or Polygon Token Holders](#ethereum-bsc-or-polygon-token-holders)
+    - [List current running Holders](#list-current-running-holders)
+    - [Add a new Holder](#add-a-new-holder)
+    - [Restart a Holder](#restart-a-holder)
+    - [Remove a Holder](#remove-a-holder)
+  - [ETH/BSC/MATIC Token Price](#ethbscmatic-token-price)
+    - [List current running Tokens](#list-current-running-tokens)
+    - [Add a new Token](#add-a-new-token)
+    - [Restart a Token](#restart-a-token)
+    - [Remove a Token](#remove-a-token)
+  - [Kubernetes](#kubernetes)
+  - [Louie](#louie)
+
 ## Preview
 
 ![image](https://user-images.githubusercontent.com/7338312/127577682-70b67f31-59c9-427b-b9dc-2736a2b4e378.png)![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
@@ -31,61 +77,7 @@ Now with five different types of tickers!
 
 Love these bots? You can support this project by subscribing to the [premium version](https://github.com/rssnyder/discord-stock-ticker/blob/master/README.md#premium), [buying me a coffee](https://ko-fi.com/rileysnyder), [using my digital ocean referral link](https://m.do.co/c/1acd6d377e8b), or [hiring me](https://github.com/rssnyder) to write or host **your** discord bot!
 
-## Related Projects
-
-Discord bot to create new tickers (available on the support server): https://github.com/rssnyder/discord-stock-ticker-bot
-
-Cache-like system to get around coingecko api limits: https://github.com/rssnyder/coingecko-cache
-
-## Contents
-
-- [discord-stock-ticker](#discord-stock-ticker)
-  - [Preview](#preview)
-  - [Join the discord server](#join-the-discord-server)
-  - [Support this project](#support-this-project)
-  - [Related Projects](#related-projects)
-  - [Contents](#contents)
-  - [Add free tickers to your servers](#add-free-tickers-to-your-servers)
-    - [Stocks](#stocks)
-    - [Crypto](#crypto)
-    - [Gas Prices](#gas-prices)
-  - [Premium](#premium)
-  - [Self-Hosting - Docker](#self-hosting---docker)
-  - [Self-Hosting - binary](#self-hosting---binary)
-    - [Roles for colors](#roles-for-colors)
-    - [Using the binary](#using-the-binary)
-      - [Setting options](#setting-options)
-      - [Systemd service](#systemd-service)
-    - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
-    - [List current running bots](#list-current-running-bots)
-    - [Add a new bot](#add-a-new-bot)
-    - [Remove a bot](#remove-a-bot)
-  - [Stock and Crypto Price Tickerboards](#stock-and-crypto-price-tickerboards)
-    - [List current running Boards](#list-current-running-boards)
-    - [Add a new Board](#add-a-new-board)
-    - [Remove a Board](#remove-a-board)
-  - [Ethereum, BSC, and Polygon Gas Prices](#ethereum-bsc-and-polygon-gas-prices)
-    - [List current running Gas](#list-current-running-gas)
-    - [Add a new Gas](#add-a-new-gas)
-    - [Remove a Gas](#remove-a-gas)
-  - [Ethereum, BSC, or Polygon Token Holders](#ethereum-bsc-or-polygon-token-holders)
-    - [List current running Holders](#list-current-running-holders)
-    - [Add a new Holder](#add-a-new-holder)
-    - [Remove a Holder](#remove-a-holder)
-  - [ETH/BSC/MATIC Token Price](#ethbscmatic-token-price)
-    - [List current running Tokens](#list-current-running-tokens)
-    - [Add a new Token](#add-a-new-token)
-    - [Remove a Token](#remove-a-token)
-  - [Kubernetes](#kubernetes)
-  - [Louie](#louie)
-
 ## Add free tickers to your servers
-
-*Click the stock/crypto symbol in the charts below to add*
-
-Don't see a stock or crypto that you need? Join our discord server to use the broker bot!
-
-![Ticker creation bot](https://s3.cloud.rileysnyder.org/public/assets/ticker-bot.png)
 
 ### Stocks
 
@@ -552,34 +544,12 @@ Don't see a stock or crypto that you need? Join our discord server to use the br
 
 ![Discord Sidebar w/ Premium Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar-premium.png)
 
-For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering. I will host individual instances for your discord server at a cost of $1 per bot per month. You can choose a mix of cryptos and stocks and cancel at any time.
+For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering.
 
-If you wish to host your bots on your own hardware, but need help getting set up, I also offer setup services for $20. I will install the service on your hardware and set you up with my internal tools to help manage your instances. This requires a running linux server.
+Price per bot (paid monthly): $1
+Price per bot (paid yearly):  $10
 
 If you are interested please see the [contact info on my github page](https://github.com/rssnyder) and send me a messgae via your platform of choice (discord perferred). For a live demo, join the support discord linked at the top or bottom of this page.
-
-```shell
-                                                                     +-----+    
-                                                               ----> |yahoo|    
-                                                     ---------/      +-----+    
-               +--------------------+      ---------/                         
-               |discord-stock-ticker|-----/                          +-------+  
-+---------+    |                    |------------------------------> |discord|  
-|ticker db|--->|                    |-----\                          +-------+  
-+---------+    |                    |--\   ---------\                           
-               +--------------------+   -----\       ---------\      
-                                              --> +-----+      ----> +---------+
-                                                  |redis|            |coingecko|
-                                              --> +-----+      ----> +---------+
-                    +---------------+   -----/       ---------/                 
-                    |coingecko-cache|--/   ---------/                           
-                    |               |-----/                                     
-                    +---------------+                                           
-```
-
-## Self-Hosting - PaaS
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ## Self-Hosting - Docker
 
@@ -774,6 +744,16 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/ticker
 ```
 
+### Restart a bot
+
+```shell
+curl -X PATCH localhost:8080/ticker/pfg
+```
+
+```shell
+curl -X PATCH localhost:8080/ticker/bitcoin
+```
+
 ### Remove a bot
 
 ```shell
@@ -844,6 +824,12 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/tickerboard
 ```
 
+### Restart a Board
+
+```shell
+curl -X PATCH localhost:8080/tickerboard/stocks
+```
+
 ### Remove a Board
 
 ```shell
@@ -884,6 +870,12 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "set_nickname": true,
   "discord_bot_token": "xxxxxxx"
 }' localhost:8080/gas
+```
+
+### Restart a Gas
+
+```shell
+curl -X PATCH localhost:8080/gas/polygon
 ```
 
 ### Remove a Gas
@@ -932,6 +924,12 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/holders
 ```
 
+### Restart a Holder
+
+```shell
+curl -X PATCH localhost:8080/holders/ethereum-0x00000000000000
+```
+
 ### Remove a Holder
 
 ```shell
@@ -978,6 +976,12 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "set_nickname": true,
   "discord_bot_token": "xxxxxxx"
 }' localhost:8080/token
+```
+
+### Restart a Token
+
+```shell
+curl -X PATCH localhost:8080/token/polygon-0x0000000
 ```
 
 ### Remove a Token

@@ -49,8 +49,13 @@ func NewToken(clientID string, network string, contract string, token string, na
 	}
 
 	// spin off go routine to watch the price
-	go m.watchTokenPrice()
+	m.Start()
 	return m
+}
+
+// Start begins watching a token
+func (m *Token) Start() {
+	go m.watchTokenPrice()
 }
 
 // Shutdown sends a signal to shut off the goroutine

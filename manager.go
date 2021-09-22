@@ -90,26 +90,31 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	// Ticker
 	r.HandleFunc("/ticker", m.AddTicker).Methods("POST")
 	r.HandleFunc("/ticker/{id}", m.DeleteTicker).Methods("DELETE")
+	r.HandleFunc("/ticker/{id}", m.RestartTicker).Methods("PATCH")
 	r.HandleFunc("/ticker", m.GetTickers).Methods("GET")
 
 	// Board
 	r.HandleFunc("/tickerboard", m.AddBoard).Methods("POST")
 	r.HandleFunc("/tickerboard/{id}", m.DeleteBoard).Methods("DELETE")
+	r.HandleFunc("/tickerboard/{id}", m.RestartBoard).Methods("PATCH")
 	r.HandleFunc("/tickerboard", m.GetBoards).Methods("GET")
 
 	// Gas
 	r.HandleFunc("/gas", m.AddGas).Methods("POST")
 	r.HandleFunc("/gas/{id}", m.DeleteGas).Methods("DELETE")
+	r.HandleFunc("/gas/{id}", m.RestartGas).Methods("PATCH")
 	r.HandleFunc("/gas", m.GetGas).Methods("GET")
 
 	// Token
 	r.HandleFunc("/token", m.AddToken).Methods("POST")
 	r.HandleFunc("/token/{id}", m.DeleteToken).Methods("DELETE")
+	r.HandleFunc("/token/{id}", m.RestartToken).Methods("PATCH")
 	r.HandleFunc("/token", m.GetToken).Methods("GET")
 
 	// Holders
 	r.HandleFunc("/holders", m.AddHolders).Methods("POST")
 	r.HandleFunc("/holders/{id}", m.DeleteHolders).Methods("DELETE")
+	r.HandleFunc("/holders/{id}", m.RestartHolders).Methods("PATCH")
 	r.HandleFunc("/holders", m.GetHolders).Methods("GET")
 
 	// Metrics

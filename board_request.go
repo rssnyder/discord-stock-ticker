@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -240,27 +241,60 @@ func (m *Manager) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Error: ticker not found")
 		return
 	}
+
 	// send shutdown sign
 	m.WatchingBoard[id].Shutdown()
 	boardCount.Dec()
 
-	// remove from db
-	stmt, err := m.DB.Prepare("DELETE FROM boards WHERE name = ?")
-	if err != nil {
-		logger.Warningf("Unable to query board in db %s: %s", id, err)
-		return
-	}
+	var noDB *sql.DB
+	if m.DB != noDB {
+		// remove from db
+		stmt, err := m.DB.Prepare("DELETE FROM boards WHERE name = ?")
+		if err != nil {
+			logger.Warningf("Unable to query board in db %s: %s", id, err)
+			return
+		}
 
-	_, err = stmt.Exec(m.WatchingBoard[id].Name)
-	if err != nil {
-		logger.Warningf("Unable to query board in db %s: %s", id, err)
-		return
+		_, err = stmt.Exec(m.WatchingBoard[id].Name)
+		if err != nil {
+			logger.Warningf("Unable to query board in db %s: %s", id, err)
+			return
+		}
 	}
 
 	// remove from cache
 	delete(m.WatchingBoard, id)
 
 	logger.Infof("Deleted board %s", id)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// RestartBoard stops and starts a board
+func (m *Manager) RestartBoard(w http.ResponseWriter, r *http.Request) {
+	m.Lock()
+	defer m.Unlock()
+
+	logger.Debugf("Got an API request to restart a board")
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if _, ok := m.WatchingBoard[id]; !ok {
+		logger.Error("Error: no board found")
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Error: board not found")
+		return
+	}
+	// send shutdown sign
+	m.WatchingBoard[id].Shutdown()
+
+	// wait twice the update time
+	time.Sleep(time.Duration(m.WatchingBoard[id].Frequency) * 2 * time.Second)
+
+	// start the ticker again
+	m.WatchingBoard[id].Start()
+
+	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

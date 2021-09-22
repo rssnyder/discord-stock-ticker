@@ -38,8 +38,13 @@ func NewHolders(clientID string, network string, address string, activity string
 	}
 
 	// spin off go routine to watch the price
-	go h.watchHolders()
+	h.Start()
 	return h
+}
+
+// Start begins watching holders
+func (h *Holders) Start() {
+	go h.watchHolders()
 }
 
 // Shutdown sends a signal to shut off the goroutine

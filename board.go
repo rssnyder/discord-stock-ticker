@@ -69,8 +69,13 @@ func NewCryptoBoard(clientID string, items []string, token string, name string, 
 	}
 
 	// spin off go routine to watch the price
-	go b.watchCryptoPrice()
+	b.Start()
 	return b
+}
+
+// Start begins a board
+func (b *Board) Start() {
+	go b.watchCryptoPrice()
 }
 
 // Shutdown sends a signal to shut off the goroutine
