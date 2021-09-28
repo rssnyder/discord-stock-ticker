@@ -3,6 +3,7 @@ module github.com/rssnyder/discord-stock-ticker
 go 1.16
 
 require (
+	github.com/PuerkitoBio/goquery v1.7.1 // indirect
 	github.com/bwmarrin/discordgo v0.23.2
 	github.com/caitlinelfring/go-env-default v1.0.0
 	github.com/go-redis/redis/v8 v8.8.2
