@@ -2,37 +2,48 @@ package utils
 
 import (
 	"fmt"
-	"io/ioutil"
+	"log"
 	"net/http"
+	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 const (
-	holdersUrl = "https://eth-token-holders.cloud.rileysnyder.org/%s/%s"
+	ChainURL = "https://%s/token/%s"
 )
 
 func GetHolders(chain, contract string) string {
 	var holders string
 
-	reqURL := fmt.Sprintf(holdersUrl, chain, contract)
-	req, err := http.NewRequest("GET", reqURL, nil)
-	if err != nil {
-		return holders
+	switch chain {
+	case "ethereum":
+		chain = "etherscan.io"
+	case "binance-smart-chain":
+		chain = "bscscan.com"
+	default:
+		chain = "etherscan.io"
 	}
 
-	req.Header.Add("User-Agent", "Mozilla/5.0")
-	req.Header.Add("accept", "application/json")
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	reqURL := fmt.Sprintf(ChainURL, chain, contract)
+
+	response, err := http.Get(reqURL)
 	if err != nil {
-		return holders
+		log.Fatal(err)
+	}
+	defer response.Body.Close()
+
+	document, err := goquery.NewDocumentFromReader(response.Body)
+	if err != nil {
+		log.Fatal("Error loading HTTP response body. ", err)
 	}
 
-	results, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return holders
-	}
-
-	holders = string(results)
+	document.Find("div").Each(func(index int, element *goquery.Selection) {
+		exists := element.HasClass("mr-3")
+		if exists {
+			holders = strings.TrimSpace(element.Text())
+		}
+	})
 
 	return holders
 }
