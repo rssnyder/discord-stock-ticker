@@ -6,6 +6,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -388,11 +389,50 @@ func (s *Ticker) watchCryptoPrice() {
 		return
 	}
 
-	// show as online
-	err = dg.Open()
+	// get shards
+	st, err := dg.GatewayBot()
 	if err != nil {
-		logger.Errorf("Opening discord connection: %s", err)
+		logger.Errorf("Creating Discord gateway: %s", err)
 		return
+	}
+
+	// shard into sessions.
+	shards := make([]*discordgo.Session, st.Shards)
+	for i := 0; i < st.Shards; i++ {
+		shards[i], err = discordgo.New("Bot " + s.token)
+		if err != nil {
+			logger.Errorf("Creating Discord sharded session: %s", err)
+			return
+		}
+		shards[i].ShardID = i
+		shards[i].ShardCount = st.Shards
+	}
+
+	// open ws connections
+	var errOpen error
+	{
+		wg := sync.WaitGroup{}
+		for _, sess := range shards {
+			wg.Add(1)
+			go func(sess *discordgo.Session) {
+				if err := sess.Open(); err != nil {
+					errOpen = err
+				}
+				wg.Done()
+			}(sess)
+		}
+		wg.Wait()
+	}
+	if errOpen != nil {
+		wg := sync.WaitGroup{}
+		for _, sess := range shards {
+			wg.Add(1)
+			go func(sess *discordgo.Session) {
+				_ = sess.Close()
+				wg.Done()
+			}(sess)
+		}
+		wg.Wait()
 	}
 
 	// get bot id
@@ -668,24 +708,35 @@ func (s *Ticker) watchCryptoPrice() {
 				}
 
 				// set activity
-				err = dg.UpdateGameStatus(0, activity)
-				if err != nil {
-					logger.Errorf("Unable to set activity: %s", err)
-				} else {
-					logger.Debugf("Set activity: %s", activity)
+				wg := sync.WaitGroup{}
+				for _, sess := range shards {
+					err = sess.UpdateGameStatus(0, activity)
+					if err != nil {
+						logger.Errorf("Unable to set activity: %s", err)
+					} else {
+						logger.Debugf("Set activity: %s", activity)
+						s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
+					}
 				}
+				wg.Wait()
 
 			} else {
 
 				// format activity
 				activity := fmt.Sprintf("%s %s %s%%", fmtPrice, s.Decorator, fmtDiffPercent)
-				err = dg.UpdateGameStatus(0, activity)
-				if err != nil {
-					logger.Errorf("Unable to set activity: %s", err)
-				} else {
-					logger.Debugf("Set activity: %s", activity)
-					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
+
+				wg := sync.WaitGroup{}
+				for _, sess := range shards {
+					err = sess.UpdateGameStatus(0, activity)
+					if err != nil {
+						logger.Errorf("Unable to set activity: %s", err)
+					} else {
+						logger.Debugf("Set activity: %s", activity)
+						s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
+					}
 				}
+				wg.Wait()
+
 			}
 		}
 	}
