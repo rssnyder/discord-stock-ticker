@@ -540,6 +540,10 @@ Love these bots? You can support this project by subscribing to the [premium ver
 
 [![Ethereum Invite Link](https://user-images.githubusercontent.com/7338312/127579033-8785ed17-2bcc-474c-80d4-8ea356da70e6.png)](https://discord.com/api/oauth2/authorize?client_id=833797002684661821&permissions=0&scope=bot)[![Binance Smart Chain Invite Link](https://user-images.githubusercontent.com/7338312/127578976-d47069cb-c162-4ab5-ad73-be17b2c1796d.png)](https://discord.com/api/oauth2/authorize?client_id=856947934452645898&permissions=0&scope=bot)[![Polygon Invite Link](https://user-images.githubusercontent.com/7338312/127578967-a7097067-9b0a-44d2-baf6-e3541a511c70.png)](https://discord.com/api/oauth2/authorize?client_id=857023179210096674&permissions=0&scope=bot)
 
+### Other (not my) crypto discord bots
+
+[![image](https://user-images.githubusercontent.com/7338312/135726609-f3504a1e-7c2a-457e-9476-b50e0974e764.png)](https://discord.com/oauth2/authorize?client_id=893362064842706994&permissions=0&scope=bot)
+
 ## Premium
 
 ![Discord Sidebar w/ Premium Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar-premium.png)
