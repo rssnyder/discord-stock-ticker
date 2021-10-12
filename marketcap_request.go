@@ -35,7 +35,7 @@ type MarketCapRequest struct {
 func (m *Manager) ImportMarketCap() {
 
 	// query
-	rows, err := m.DB.Query("SELECT clientID, token, ticker, name, nickname, color, crypto, activity, decorator, decimals, currency, currencySymbol, frequency FROM marketcaps")
+	rows, err := m.DB.Query("SELECT clientID, token, ticker, name, nickname, color, activity, decorator, decimals, currency, currencySymbol, frequency FROM marketcaps")
 	if err != nil {
 		logger.Warningf("Unable to query marketcaps in db: %s", err)
 		return
@@ -44,10 +44,10 @@ func (m *Manager) ImportMarketCap() {
 	// load existing bots from db
 	for rows.Next() {
 		var clientID, token, ticker, name, activity, decorator, currency, currencySymbol string
-		var nickname, color, crypto bool
+		var nickname, color bool
 		var decimals, frequency int
 
-		err = rows.Scan(&clientID, &token, &ticker, &name, &nickname, &color, &crypto, &activity, &decorator, &decimals, &currency, &currencySymbol, &frequency)
+		err = rows.Scan(&clientID, &token, &ticker, &name, &nickname, &color, &activity, &decorator, &decimals, &currency, &currencySymbol, &frequency)
 		if err != nil {
 			logger.Errorf("Unable to load marketcaps from db: %s", err)
 			continue
@@ -126,13 +126,11 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 	logger.Infof("Added marketcap: %s\n", crypto.Name)
-	return
 }
 
 func (m *Manager) addMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 	tickerCount.Inc()
-	var id string
-	id = strings.ToUpper(marketcap.Name)
+	id := strings.ToUpper(marketcap.Name)
 	m.WatchingMarketCap[id] = marketcap
 
 	var noDB *sql.DB
@@ -166,13 +164,13 @@ func (m *Manager) addMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 	if existingId != 0 {
 
 		// update entry in db
-		stmt, err := m.DB.Prepare("update marketcaps set clientId = ?, token = ?, ticker = ?, name = ?, nickname = ?, color = ?, crypto = ?, activity = ?, decorator = ?, decimals = ?, currency = ?, currencySymbol = ?, frequency = ? WHERE id = ?")
+		stmt, err := m.DB.Prepare("update marketcaps set clientId = ?, token = ?, ticker = ?, name = ?, nickname = ?, color = ?, activity = ?, decorator = ?, decimals = ?, currency = ?, currencySymbol = ?, frequency = ? WHERE id = ?")
 		if err != nil {
 			logger.Warningf("Unable to update ticker in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(marketcap.ClientID, marketcap.token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, crypto, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency, existingId)
+		res, err := stmt.Exec(marketcap.ClientID, marketcap.token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update marketcap in db %s: %s", id, err)
 			return
@@ -188,13 +186,13 @@ func (m *Manager) addMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 	} else {
 
 		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tickers(clientId, token, ticker, name, nickname, color, crypto, activity, decorator, decimals, currency, currencySymbol, pair, pairFlip, twelveDataKey, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+		stmt, err := m.DB.Prepare("INSERT INTO marketcaps(clientId, token, ticker, name, nickname, color, activity, decorator, decimals, currency, currencySymbol, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
 		if err != nil {
 			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
 			return
 		}
 
-		res, err := stmt.Exec(marketcap.ClientID, marketcap.token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, crypto, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Pair, marketcap.PairFlip, marketcap.TwelveDataKey, marketcap.Frequency)
+		res, err := stmt.Exec(marketcap.ClientID, marketcap.token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
 			return
