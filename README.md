@@ -26,6 +26,7 @@ Now with five different types of tickers!
     - [Stocks](#stocks)
     - [Crypto](#crypto)
     - [Gas Prices](#gas-prices)
+    - [Other (not my) crypto discord bots](#other-not-my-crypto-discord-bots)
   - [Premium](#premium)
   - [Self-Hosting - Docker](#self-hosting---docker)
   - [Self-Hosting - binary](#self-hosting---binary)
@@ -33,11 +34,16 @@ Now with five different types of tickers!
     - [Using the binary](#using-the-binary)
       - [Setting options](#setting-options)
       - [Systemd service](#systemd-service)
-    - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
+  - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
     - [List current running bots](#list-current-running-bots)
     - [Add a new bot](#add-a-new-bot)
     - [Restart a bot](#restart-a-bot)
     - [Remove a bot](#remove-a-bot)
+  - [Crypto Market Cap](#crypto-market-cap)
+    - [List current running bots](#list-current-running-bots-1)
+    - [Add a new bot](#add-a-new-bot-1)
+    - [Restart a bot](#restart-a-bot-1)
+    - [Remove a bot](#remove-a-bot-1)
   - [Stock and Crypto Price Tickerboards](#stock-and-crypto-price-tickerboards)
     - [List current running Boards](#list-current-running-boards)
     - [Add a new Board](#add-a-new-board)
@@ -690,7 +696,7 @@ If you need to make modifications to the setting of the service, just edit the `
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
-### Stock and Crypto Price Tickers
+## Stock and Crypto Price Tickers
 
 ### List current running bots
 
@@ -766,6 +772,53 @@ curl -X DELETE localhost:8080/ticker/pfg
 
 ```shell
 curl -X DELETE localhost:8080/ticker/bitcoin
+```
+
+## Crypto Market Cap
+
+### List current running bots
+
+```shell
+curl localhost:8080/marketcap
+```
+
+### Add a new bot
+
+```json
+{
+  "name": "bitcoin",                                # string: name of the crypto from coingecko
+  "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
+  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "currency": "aud",                                # string/OPTIONAL: alternative curreny
+  "currency_sumbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
+  "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
+  "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
+}
+```
+
+Example:
+
+```shell
+curl -X POST -H "Content-Type: application/json" --data '{
+  "name": "bitcoin",
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+}' localhost:8080/marketcap
+```
+
+### Restart a bot
+
+```shell
+curl -X PATCH localhost:8080/marketcap/bitcoin
+```
+
+### Remove a bot
+
+```shell
+curl -X DELETE localhost:8080/marketcap/bitcoin
 ```
 
 ## Stock and Crypto Price Tickerboards

@@ -21,6 +21,12 @@ var (
 			Help: "Number of tickers.",
 		},
 	)
+	marketcapCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "marketcap_count",
+			Help: "Number of marketcaps.",
+		},
+	)
 	boardCount = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "board_count",
@@ -60,28 +66,30 @@ var (
 
 // Manager holds a list of the crypto and stocks we are watching
 type Manager struct {
-	WatchingTicker  map[string]*Ticker
-	WatchingBoard   map[string]*Board
-	WatchingGas     map[string]*Gas
-	WatchingToken   map[string]*Token
-	WatchingHolders map[string]*Holders
-	DB              *sql.DB
-	Cache           *redis.Client
-	Context         context.Context
+	WatchingTicker    map[string]*Ticker
+	WatchingMarketCap map[string]*MarketCap
+	WatchingBoard     map[string]*Board
+	WatchingGas       map[string]*Gas
+	WatchingToken     map[string]*Token
+	WatchingHolders   map[string]*Holders
+	DB                *sql.DB
+	Cache             *redis.Client
+	Context           context.Context
 	sync.RWMutex
 }
 
 // NewManager stores all the information about the current stocks being watched and
 func NewManager(address string, dbFile string, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
-		WatchingTicker:  make(map[string]*Ticker),
-		WatchingBoard:   make(map[string]*Board),
-		WatchingGas:     make(map[string]*Gas),
-		WatchingToken:   make(map[string]*Token),
-		WatchingHolders: make(map[string]*Holders),
-		DB:              dbInit(dbFile),
-		Cache:           cache,
-		Context:         context,
+		WatchingTicker:    make(map[string]*Ticker),
+		WatchingMarketCap: make(map[string]*MarketCap),
+		WatchingBoard:     make(map[string]*Board),
+		WatchingGas:       make(map[string]*Gas),
+		WatchingToken:     make(map[string]*Token),
+		WatchingHolders:   make(map[string]*Holders),
+		DB:                dbInit(dbFile),
+		Cache:             cache,
+		Context:           context,
 	}
 
 	// Create a router to accept requests
@@ -92,6 +100,12 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	r.HandleFunc("/ticker/{id}", m.DeleteTicker).Methods("DELETE")
 	r.HandleFunc("/ticker/{id}", m.RestartTicker).Methods("PATCH")
 	r.HandleFunc("/ticker", m.GetTickers).Methods("GET")
+
+	// MarketCap
+	r.HandleFunc("/marketcap", m.AddMarketCap).Methods("POST")
+	r.HandleFunc("/marketcap/{id}", m.DeleteMarketCap).Methods("DELETE")
+	r.HandleFunc("/marketcap/{id}", m.RestartMarketCap).Methods("PATCH")
+	r.HandleFunc("/marketcap", m.GetMarketCaps).Methods("GET")
 
 	// Board
 	r.HandleFunc("/tickerboard", m.AddBoard).Methods("POST")
@@ -120,6 +134,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	// Metrics
 	p := prometheus.NewRegistry()
 	p.MustRegister(tickerCount)
+	p.MustRegister(marketcapCount)
 	p.MustRegister(boardCount)
 	p.MustRegister(gasCount)
 	p.MustRegister(tokenCount)
@@ -132,6 +147,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	var noDB *sql.DB
 	if m.DB != noDB {
 		m.ImportToken()
+		m.ImportMarketCap()
 		m.ImportTicker()
 		m.ImportHolder()
 		m.ImportGas()
@@ -191,6 +207,21 @@ func dbInit(fileName string) *sql.DB {
 		pair string,
 		pairFlip bool,
 		twelveDataKey string
+	);
+	CREATE TABLE IF NOT EXISTS marketcaps (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		ticker string,
+		name string,
+		nickname bool,
+		color bool,
+		activity string,
+		decorator string,
+		decimals integer,
+		currency string,
+		currencySymbol string
 	);
 	CREATE TABLE IF NOT EXISTS tokens (
 		id integer primary key autoincrement,
