@@ -23,9 +23,12 @@ type CurrentPrice struct {
 }
 
 type MarketData struct {
-	CurrentPrice        CurrentPrice `json:"current_price"`
-	PriceChangePercent  float64      `json:"price_change_percentage_24h"`
-	PriceChangeCurrency CurrentPrice `json:"price_change_24h_in_currency"`
+	CurrentPrice            CurrentPrice `json:"current_price"`
+	MarketCap               CurrentPrice `json:"market_cap"`
+	PriceChangePercent      float64      `json:"price_change_percentage_24h"`
+	PriceChangeCurrency     CurrentPrice `json:"price_change_24h_in_currency"`
+	MarketCapChangePercent  float64      `json:"market_cap_change_percentage_24h"`
+	MarketCapChangeCurrency CurrentPrice `json:"market_cap_change_24h_in_currency"`
 }
 
 // The following is the API response gecko gives
@@ -84,6 +87,7 @@ func GetCryptoPrice(ticker string) (GeckoPriceResults, error) {
 // GetCryptoPriceCache attempt to use cache to get info
 func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker string) (GeckoPriceResults, error) {
 	var currentPrice CurrentPrice
+	var currentMarketCap CurrentPrice
 	var marketData MarketData
 	var geckoPriceResults GeckoPriceResults
 	var symbol string
@@ -101,6 +105,24 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 		return geckoPriceResults, err
 	} else {
 		priceFloat, err = strconv.ParseFloat(price, 32)
+		if err != nil {
+			geckoPriceResults, err = GetCryptoPrice(ticker)
+			return geckoPriceResults, err
+		}
+	}
+
+	// get MarketCap
+	var marketCapFloat float64
+	marketCap, err := client.Get(ctx, fmt.Sprintf("%s#MarketCap", ticker)).Result()
+	if err == redis.Nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		fmt.Println("cache miss")
+		return geckoPriceResults, err
+	} else if err != nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
+	} else {
+		marketCapFloat, err = strconv.ParseFloat(marketCap, 32)
 		if err != nil {
 			geckoPriceResults, err = GetCryptoPrice(ticker)
 			return geckoPriceResults, err
@@ -126,6 +148,7 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 	}
 
 	currentPrice = CurrentPrice{priceFloat, priceFloat / btcFloat}
+	currentMarketCap = CurrentPrice{marketCapFloat, marketCapFloat / btcFloat}
 
 	// price change
 	var priceChangeFloat float64
@@ -147,6 +170,26 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 
 	priceChangeCurrency := CurrentPrice{priceChangeFloat, priceChangeFloat / btcFloat}
 
+	// marketCap change
+	var marketCapChangeFloat float64
+	marketCapChange, err := client.Get(ctx, fmt.Sprintf("%s#MarketCapChange24H", ticker)).Result()
+	if err == redis.Nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		fmt.Println("cache miss")
+		return geckoPriceResults, err
+	} else if err != nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
+	} else {
+		marketCapChangeFloat, err = strconv.ParseFloat(marketCapChange, 32)
+		if err != nil {
+			geckoPriceResults, err = GetCryptoPrice(ticker)
+			return geckoPriceResults, err
+		}
+	}
+
+	marketCapChangeCurrency := CurrentPrice{marketCapChangeFloat, marketCapChangeFloat / btcFloat}
+
 	// price change percent
 	var priceChangePercentFloat float64
 	priceChangePercent, err := client.Get(ctx, fmt.Sprintf("%s#PriceChangePercentage24H", ticker)).Result()
@@ -164,10 +207,30 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 		}
 	}
 
+	// marketCap change percent
+	var marketCapChangePercentFloat float64
+	marketCapChangePercent, err := client.Get(ctx, fmt.Sprintf("%s#MarketCapChangePercentage24H", ticker)).Result()
+	if err == redis.Nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		fmt.Println("cache miss")
+		return geckoPriceResults, err
+	} else if err != nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
+	} else {
+		marketCapChangePercentFloat, err = strconv.ParseFloat(marketCapChangePercent, 32)
+		if err != nil {
+			priceChangePercentFloat = 0.00
+		}
+	}
+
 	marketData = MarketData{
 		currentPrice,
+		currentMarketCap,
 		priceChangePercentFloat,
 		priceChangeCurrency,
+		marketCapChangePercentFloat,
+		marketCapChangeCurrency,
 	}
 
 	// symbol
