@@ -10,6 +10,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
@@ -25,10 +27,7 @@ type MarketCap struct {
 	CurrencySymbol string               `json:"currency_symbol"`
 	Decimals       int                  `json:"decimals"`
 	Activity       string               `json:"activity"`
-	Pair           string               `json:"pair"`
-	PairFlip       bool                 `json:"pair_flip"`
 	ClientID       string               `json:"client_id"`
-	TwelveDataKey  string               `json:"-"`
 	Cache          *redis.Client        `json:"-"`
 	Context        context.Context      `json:"-"`
 	updated        *prometheus.GaugeVec `json:"-"`
@@ -174,31 +173,32 @@ func (s *MarketCap) watchMarketCap() {
 			fmtChange = fmt.Sprintf("%.2f", priceData.MarketData.PriceChangeCurrency.USD)
 
 			// Check for custom decimal places
+			p := message.NewPrinter(language.English)
 			switch s.Decimals {
 			case 1:
-				fmtPrice = fmt.Sprintf("%s%.1f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.1f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 2:
-				fmtPrice = fmt.Sprintf("%s%.2f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.2f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 3:
-				fmtPrice = fmt.Sprintf("%s%.3f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.3f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 4:
-				fmtPrice = fmt.Sprintf("%s%.4f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.4f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 5:
-				fmtPrice = fmt.Sprintf("%s%.5f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.5f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 6:
-				fmtPrice = fmt.Sprintf("%s%.6f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.6f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 7:
-				fmtPrice = fmt.Sprintf("%s%.7f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.7f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 8:
-				fmtPrice = fmt.Sprintf("%s%.8f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.8f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 9:
-				fmtPrice = fmt.Sprintf("%s%.9f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.9f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 10:
-				fmtPrice = fmt.Sprintf("%s%.10f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.10f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			case 11:
-				fmtPrice = fmt.Sprintf("%s%.11f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.11f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			default:
-				fmtPrice = fmt.Sprintf("%s%.2f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				fmtPrice = p.Sprintf("%s%.2f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			}
 
 			// calculate if price has moved up or down
