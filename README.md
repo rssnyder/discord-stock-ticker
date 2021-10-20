@@ -533,14 +533,14 @@ Love these bots? You can support this project by subscribing to the [premium ver
 [star-atlas](https://discord.com/oauth2/authorize?client_id=885172879556235295&permissions=0&scope=bot) | 
 [deathroad](https://discord.com/oauth2/authorize?client_id=885172906815029290&permissions=0&scope=bot) | 
 [polis](https://discord.com/oauth2/authorize?client_id=885172933994110996&permissions=0&scope=bot) | 
-[star-atlas-dao](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot) | 
-[alinx](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot) | 
-[pocoland](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot) | 
-[ceek](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot) | 
-[starmon-token](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot) | 
-[impermax](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot) | 
-[projectx](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot) | 
-[monsta-infinite](https://discord.com/oauth2/authorize?client_id=&permissions=0&scope=bot)
+[star-atlas-dao](https://discord.com/oauth2/authorize?client_id=885236712161296415&permissions=0&scope=bot) | 
+[alinx](https://discord.com/oauth2/authorize?client_id=885237604109410354&permissions=0&scope=bot) | 
+[pocoland](https://discord.com/oauth2/authorize?client_id=885577159379410954&permissions=0&scope=bot) | 
+[ceek](https://discord.com/oauth2/authorize?client_id=885577102630477864&permissions=0&scope=bot) | 
+[starmon-token](https://discord.com/oauth2/authorize?client_id=885577159379410954&permissions=0&scope=bot) | 
+[impermax](https://discord.com/oauth2/authorize?client_id=885577182494224414&permissions=0&scope=bot) | 
+[projectx](https://discord.com/oauth2/authorize?client_id=885577209669120071&permissions=0&scope=bot) | 
+[monsta-infinite](https://discord.com/oauth2/authorize?client_id=885577232939114556&permissions=0&scope=bot)
 
 ### Gas Prices
 
