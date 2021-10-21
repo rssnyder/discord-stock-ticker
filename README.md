@@ -733,7 +733,7 @@ Crypto Payload:
   "set_color": true,                                # bool/OPTIONAL: requires set_nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
-  "currency_sumbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
+  "currency_symbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
   "pair": "binancecoin",                            # string/OPTIONAL: pair the coin with another coin, replaces activity section
   "pair_flip": true,                                # bool/OPTIONAL: show <pair>/<coin> rather than <coin>/<pair>
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
@@ -791,7 +791,7 @@ curl localhost:8080/marketcap
   "set_color": true,                                # bool/OPTIONAL: requires set_nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
-  "currency_sumbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
+  "currency_symbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
   "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
