@@ -552,11 +552,10 @@ Love these bots? You can support this project by subscribing to the [premium ver
 
 ## Premium
 
-![Discord Sidebar w/ Premium Bots](https://s3.cloud.rileysnyder.org/public/assets/sidebar-premium.png)
-
 For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering.
 
 Price per bot (paid monthly): $1
+
 Price per bot (paid yearly):  $10
 
 If you are interested please see the [contact info on my github page](https://github.com/rssnyder) and send me a messgae via your platform of choice (discord perferred). For a live demo, join the support discord linked at the top or bottom of this page.
