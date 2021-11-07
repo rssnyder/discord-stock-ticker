@@ -296,6 +296,7 @@ func (s *MarketCap) watchMarketCap() {
 							}
 						}
 					}
+					time.Sleep(3 * time.Second)
 				}
 
 				// Custom activity messages
