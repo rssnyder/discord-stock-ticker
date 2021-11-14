@@ -40,7 +40,7 @@ type Ticker struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string, updated *prometheus.GaugeVec) *Ticker {
+func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string) *Ticker {
 	s := &Ticker{
 		Ticker:        ticker,
 		Name:          name,
@@ -54,7 +54,6 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 		ClientID:      clientID,
 		Crypto:        false,
 		TwelveDataKey: twelveDataKey,
-		updated:       updated,
 		token:         token,
 		close:         make(chan int, 1),
 	}
@@ -65,7 +64,7 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
@@ -83,7 +82,6 @@ func NewCrypto(clientID string, ticker string, token string, name string, nickna
 		Crypto:         true,
 		Cache:          cache,
 		Context:        context,
-		updated:        updated,
 		token:          token,
 		close:          make(chan int, 1),
 	}
@@ -285,7 +283,7 @@ func (s *Ticker) watchStockPrice() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
-					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": g.Name}).SetToCurrentTime()
 
 					if s.Color {
 						// get roles for colors
@@ -367,7 +365,7 @@ func (s *Ticker) watchStockPrice() {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
-					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).SetToCurrentTime()
 				}
 
 			}
@@ -502,6 +500,11 @@ func (s *Ticker) watchCryptoPrice() {
 				priceData, err = utils.GetCryptoPrice(s.Name)
 			} else {
 				priceData, err = utils.GetCryptoPriceCache(s.Cache, s.Context, s.Name)
+				if err != nil {
+					cacheMisses.Inc()
+				} else {
+					cacheHits.Inc()
+				}
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
@@ -638,7 +641,7 @@ func (s *Ticker) watchCryptoPrice() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
-					s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": g.Name}).SetToCurrentTime()
 
 					// change coin color
 					if s.Color {
@@ -715,7 +718,7 @@ func (s *Ticker) watchCryptoPrice() {
 						logger.Errorf("Unable to set activity: %s", err)
 					} else {
 						logger.Debugf("Set activity: %s", activity)
-						s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
+						lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
 					}
 				}
 				wg.Wait()
@@ -732,11 +735,10 @@ func (s *Ticker) watchCryptoPrice() {
 						logger.Errorf("Unable to set activity: %s", err)
 					} else {
 						logger.Debugf("Set activity: %s", activity)
-						s.updated.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
+						lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
 					}
 				}
 				wg.Wait()
-
 			}
 		}
 	}

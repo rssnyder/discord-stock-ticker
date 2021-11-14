@@ -24,7 +24,7 @@ type Holders struct {
 }
 
 // NewHolders saves information about the stock and starts up a watcher on it
-func NewHolders(clientID string, network string, address string, activity string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Holders {
+func NewHolders(clientID string, network string, address string, activity string, token string, nickname bool, frequency int) *Holders {
 	h := &Holders{
 		Network:   network,
 		Address:   address,
@@ -32,7 +32,6 @@ func NewHolders(clientID string, network string, address string, activity string
 		Nickname:  nickname,
 		Frequency: frequency,
 		ClientID:  clientID,
-		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -116,7 +115,7 @@ func (h *Holders) watchHolders() {
 						logger.Debugf("Set nickname in %s: %s\n", g.Name, nickname)
 					}
 					logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
-					h.updated.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
 				}
 			} else {
 
@@ -125,7 +124,7 @@ func (h *Holders) watchHolders() {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
 					logger.Debugf("Set activity: %s\n", nickname)
-					h.updated.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}

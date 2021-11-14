@@ -54,7 +54,7 @@ func (m *Manager) ImportMarketCap() {
 		}
 
 		// activate bot
-		t := NewMarketCap(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, activity, decimals, currencySymbol, lastUpdate, m.Cache, m.Context)
+		t := NewMarketCap(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, activity, decimals, currencySymbol, m.Cache, m.Context)
 		m.addMarketCap(true, t, false)
 		logger.Infof("Loaded marketcap from db: %s", name)
 	}
@@ -115,7 +115,7 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	crypto := NewMarketCap(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, lastUpdate, m.Cache, m.Context)
+	crypto := NewMarketCap(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
 	m.addMarketCap(true, crypto, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

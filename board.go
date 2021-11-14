@@ -32,7 +32,7 @@ type Board struct {
 }
 
 // NewBoard saves information about the board and starts up a watcher on it
-func NewStockBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int, updated *prometheus.GaugeVec) *Board {
+func NewStockBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int) *Board {
 	b := &Board{
 		Items:     items,
 		Name:      name,
@@ -41,7 +41,6 @@ func NewStockBoard(clientID string, items []string, token string, name string, h
 		Color:     color,
 		Frequency: frequency,
 		ClientID:  clientID,
-		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -52,7 +51,7 @@ func NewStockBoard(clientID string, items []string, token string, name string, h
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCryptoBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *Board {
+func NewCryptoBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int, cache *redis.Client, context context.Context) *Board {
 	b := &Board{
 		Items:     items,
 		Name:      name,
@@ -63,7 +62,6 @@ func NewCryptoBoard(clientID string, items []string, token string, name string, 
 		ClientID:  clientID,
 		Cache:     cache,
 		Context:   context,
-		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -211,7 +209,7 @@ func (b *Board) watchStockPrice() {
 							continue
 						}
 						logger.Infof("Set nickname in %s: %s", g.Name, nickname)
-						b.updated.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
+						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
 						if b.Color {
 							// get roles for colors
@@ -283,7 +281,7 @@ func (b *Board) watchStockPrice() {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
-						b.updated.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).SetToCurrentTime()
+						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).SetToCurrentTime()
 					}
 				}
 			}
@@ -416,7 +414,7 @@ func (b *Board) watchCryptoPrice() {
 							continue
 						}
 						logger.Infof("Set nickname in %s: %s", g.Name, nickname)
-						b.updated.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
+						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
 						if b.Color {
 							// get roles for colors
@@ -482,7 +480,7 @@ func (b *Board) watchCryptoPrice() {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
 						logger.Infof("Set activity: %s", activity)
-						b.updated.With(prometheus.Labels{"type": "board", "ticker": b.Name}).SetToCurrentTime()
+						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name}).SetToCurrentTime()
 					}
 				}
 			}
