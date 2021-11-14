@@ -285,7 +285,7 @@ func (m *Token) watchTokenPrice() {
 							}
 						}
 					}
-					time.Sleep(3 * time.Second)
+					time.Sleep(time.Duration(m.Frequency) * time.Second)
 				}
 
 				activity = ""

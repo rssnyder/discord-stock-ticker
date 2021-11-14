@@ -110,7 +110,7 @@ func (g *Gas) watchGasPrice() {
 					}
 					fmt.Printf("Set nickname in %s: %s\n", gu.Name, nickname)
 					g.updated.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": gu.Name}).SetToCurrentTime()
-					time.Sleep(3 * time.Second)
+					time.Sleep(time.Duration(g.Frequency) * time.Second)
 				}
 
 				err = dg.UpdateGameStatus(0, "Fast, Avg, Slow")

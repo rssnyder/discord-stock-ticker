@@ -333,7 +333,7 @@ func (s *Ticker) watchStockPrice() {
 							}
 						}
 					}
-					time.Sleep(3 * time.Second)
+					time.Sleep(time.Duration(s.Frequency) * time.Second)
 				}
 
 				// Custom activity messages
@@ -689,7 +689,7 @@ func (s *Ticker) watchCryptoPrice() {
 							}
 						}
 					}
-					time.Sleep(3 * time.Second)
+					time.Sleep(time.Duration(s.Frequency) * time.Second)
 				}
 
 				// Custom activity messages
