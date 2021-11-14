@@ -51,6 +51,18 @@ var (
 			Help: "Number of holders.",
 		},
 	)
+	cacheHits = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "cache_hit",
+			Help: "Number of times the cache had data",
+		},
+	)
+	cacheMisses = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "cache_miss",
+			Help: "Number of times the cache lacked data",
+		},
+	)
 	lastUpdate = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "time_of_last_update",
@@ -140,6 +152,8 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	p.MustRegister(tokenCount)
 	p.MustRegister(holdersCount)
 	p.MustRegister(lastUpdate)
+	p.MustRegister(cacheHits)
+	p.MustRegister(cacheMisses)
 	handler := promhttp.HandlerFor(p, promhttp.HandlerOpts{})
 	r.Handle("/metrics", handler)
 

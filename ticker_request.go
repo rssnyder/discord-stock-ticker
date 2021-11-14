@@ -55,11 +55,11 @@ func (m *Manager) ImportTicker() {
 
 		// activate bot
 		if crypto {
-			t := NewCrypto(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, pair, pairFlip, activity, decimals, currencySymbol, lastUpdate, m.Cache, m.Context)
+			t := NewCrypto(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, pair, pairFlip, activity, decimals, currencySymbol, m.Cache, m.Context)
 			m.addTicker(true, t, false)
 			logger.Infof("Loaded ticker from db: %s", name)
 		} else {
-			t := NewStock(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, activity, decimals, twelveDataKey, lastUpdate)
+			t := NewStock(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, activity, decimals, twelveDataKey)
 			m.addTicker(false, t, false)
 			logger.Infof("Loaded ticker from db: %s", ticker)
 		}
@@ -124,7 +124,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Pair, stockReq.PairFlip, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, lastUpdate, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Pair, stockReq.PairFlip, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
 		m.addTicker(true, crypto, true)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -157,7 +157,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStock(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.TwelveDataKey, lastUpdate)
+	stock := NewStock(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.TwelveDataKey)
 	m.addTicker(false, stock, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

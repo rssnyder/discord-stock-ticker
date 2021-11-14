@@ -12,22 +12,20 @@ import (
 
 // Gas represents the gas data
 type Gas struct {
-	Network   string               `json:"network"`
-	Nickname  bool                 `json:"set_nickname"`
-	Frequency int                  `json:"frequency"`
-	ClientID  string               `json:"client_id"`
-	updated   *prometheus.GaugeVec `json:"-"`
-	token     string               `json:"-"`
-	close     chan int             `json:"-"`
+	Network   string   `json:"network"`
+	Nickname  bool     `json:"set_nickname"`
+	Frequency int      `json:"frequency"`
+	ClientID  string   `json:"client_id"`
+	token     string   `json:"-"`
+	close     chan int `json:"-"`
 }
 
-func NewGas(clientID string, network string, token string, nickname bool, frequency int, updated *prometheus.GaugeVec) *Gas {
+func NewGas(clientID string, network string, token string, nickname bool, frequency int) *Gas {
 	g := &Gas{
 		Network:   network,
 		Nickname:  nickname,
 		Frequency: frequency,
 		ClientID:  clientID,
-		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -109,7 +107,8 @@ func (g *Gas) watchGasPrice() {
 						logger.Debugf("Set nickname in %s: %s\n", gu.Name, nickname)
 					}
 					fmt.Printf("Set nickname in %s: %s\n", gu.Name, nickname)
-					g.updated.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": gu.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": gu.Name}).SetToCurrentTime()
+					time.Sleep(time.Duration(g.Frequency) * time.Second)
 				}
 
 				err = dg.UpdateGameStatus(0, "Fast, Avg, Slow")
@@ -125,7 +124,7 @@ func (g *Gas) watchGasPrice() {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
 					logger.Debugf("Set activity: %s\n", nickname)
-					g.updated.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}

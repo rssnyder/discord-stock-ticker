@@ -17,26 +17,25 @@ import (
 )
 
 type MarketCap struct {
-	Ticker         string               `json:"ticker"`
-	Name           string               `json:"name"`
-	Nickname       bool                 `json:"nickname"`
-	Frequency      int                  `json:"frequency"`
-	Color          bool                 `json:"color"`
-	Decorator      string               `json:"decorator"`
-	Currency       string               `json:"currency"`
-	CurrencySymbol string               `json:"currency_symbol"`
-	Decimals       int                  `json:"decimals"`
-	Activity       string               `json:"activity"`
-	ClientID       string               `json:"client_id"`
-	Cache          *redis.Client        `json:"-"`
-	Context        context.Context      `json:"-"`
-	updated        *prometheus.GaugeVec `json:"-"`
-	token          string               `json:"-"`
-	close          chan int             `json:"-"`
+	Ticker         string          `json:"ticker"`
+	Name           string          `json:"name"`
+	Nickname       bool            `json:"nickname"`
+	Frequency      int             `json:"frequency"`
+	Color          bool            `json:"color"`
+	Decorator      string          `json:"decorator"`
+	Currency       string          `json:"currency"`
+	CurrencySymbol string          `json:"currency_symbol"`
+	Decimals       int             `json:"decimals"`
+	Activity       string          `json:"activity"`
+	ClientID       string          `json:"client_id"`
+	Cache          *redis.Client   `json:"-"`
+	Context        context.Context `json:"-"`
+	token          string          `json:"-"`
+	close          chan int        `json:"-"`
 }
 
 // NewMarketCap saves information about the crypto and starts up a watcher on it
-func NewMarketCap(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, currencySymbol string, updated *prometheus.GaugeVec, cache *redis.Client, context context.Context) *MarketCap {
+func NewMarketCap(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *MarketCap {
 	s := &MarketCap{
 		Ticker:         ticker,
 		Name:           name,
@@ -51,7 +50,6 @@ func NewMarketCap(clientID string, ticker string, token string, name string, nic
 		ClientID:       clientID,
 		Cache:          cache,
 		Context:        context,
-		updated:        updated,
 		token:          token,
 		close:          make(chan int, 1),
 	}
@@ -246,7 +244,7 @@ func (s *MarketCap) watchMarketCap() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
-					s.updated.With(prometheus.Labels{"type": "marketcap", "ticker": s.Name, "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": s.Name, "guild": g.Name}).SetToCurrentTime()
 
 					// change coin color
 					if s.Color {
@@ -296,6 +294,7 @@ func (s *MarketCap) watchMarketCap() {
 							}
 						}
 					}
+					time.Sleep(time.Duration(s.Frequency) * time.Second)
 				}
 
 				// Custom activity messages
@@ -332,7 +331,7 @@ func (s *MarketCap) watchMarketCap() {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
-					s.updated.With(prometheus.Labels{"type": "marketcap", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": s.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}

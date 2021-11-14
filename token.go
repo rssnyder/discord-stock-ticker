@@ -14,24 +14,23 @@ import (
 )
 
 type Token struct {
-	Network   string               `json:"network"`
-	Contract  string               `json:"contract"`
-	Name      string               `json:"name"`
-	Nickname  bool                 `json:"nickname"`
-	Frequency int                  `json:"frequency"`
-	Color     bool                 `json:"color"`
-	Decorator string               `json:"decorator"`
-	Decimals  int                  `json:"decimals"`
-	Activity  string               `json:"activity"`
-	Source    string               `json:"source"`
-	ClientID  string               `json:"client_id"`
-	updated   *prometheus.GaugeVec `json:"-"`
-	token     string               `json:"-"`
-	close     chan int             `json:"-"`
+	Network   string   `json:"network"`
+	Contract  string   `json:"contract"`
+	Name      string   `json:"name"`
+	Nickname  bool     `json:"nickname"`
+	Frequency int      `json:"frequency"`
+	Color     bool     `json:"color"`
+	Decorator string   `json:"decorator"`
+	Decimals  int      `json:"decimals"`
+	Activity  string   `json:"activity"`
+	Source    string   `json:"source"`
+	ClientID  string   `json:"client_id"`
+	token     string   `json:"-"`
+	close     chan int `json:"-"`
 }
 
 // NewToken saves information about the stock and starts up a watcher on it
-func NewToken(clientID string, network string, contract string, token string, name string, nickname bool, frequency int, decimals int, activity string, color bool, decorator string, source string, updated *prometheus.GaugeVec) *Token {
+func NewToken(clientID string, network string, contract string, token string, name string, nickname bool, frequency int, decimals int, activity string, color bool, decorator string, source string) *Token {
 	m := &Token{
 		Network:   network,
 		Contract:  contract,
@@ -43,7 +42,6 @@ func NewToken(clientID string, network string, contract string, token string, na
 		Activity:  activity,
 		Source:    source,
 		ClientID:  clientID,
-		updated:   updated,
 		token:     token,
 		close:     make(chan int, 1),
 	}
@@ -237,7 +235,7 @@ func (m *Token) watchTokenPrice() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
-					m.updated.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": g.Name}).SetToCurrentTime()
 
 					if m.Color {
 						// get roles for colors
@@ -285,6 +283,7 @@ func (m *Token) watchTokenPrice() {
 							}
 						}
 					}
+					time.Sleep(time.Duration(m.Frequency) * time.Second)
 				}
 
 				activity = ""
@@ -320,7 +319,7 @@ func (m *Token) watchTokenPrice() {
 					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
-					m.updated.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).SetToCurrentTime()
 				}
 			}
 			oldPrice = fmtPrice
