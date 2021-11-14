@@ -12,15 +12,14 @@ import (
 
 // Holders represents the json for holders
 type Holders struct {
-	Network   string               `json:"network"`
-	Address   string               `json:"address"`
-	Activity  string               `json:"activity"`
-	Nickname  bool                 `json:"set_nickname"`
-	Frequency int                  `json:"frequency"`
-	ClientID  string               `json:"client_id"`
-	updated   *prometheus.GaugeVec `json:"-"`
-	token     string               `json:"-"`
-	close     chan int             `json:"-"`
+	Network   string   `json:"network"`
+	Address   string   `json:"address"`
+	Activity  string   `json:"activity"`
+	Nickname  bool     `json:"set_nickname"`
+	Frequency int      `json:"frequency"`
+	ClientID  string   `json:"client_id"`
+	token     string   `json:"-"`
+	close     chan int `json:"-"`
 }
 
 // NewHolders saves information about the stock and starts up a watcher on it

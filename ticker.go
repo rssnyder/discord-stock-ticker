@@ -17,26 +17,25 @@ import (
 )
 
 type Ticker struct {
-	Ticker         string               `json:"ticker"`
-	Name           string               `json:"name"`
-	Nickname       bool                 `json:"nickname"`
-	Frequency      int                  `json:"frequency"`
-	Color          bool                 `json:"color"`
-	Decorator      string               `json:"decorator"`
-	Currency       string               `json:"currency"`
-	CurrencySymbol string               `json:"currency_symbol"`
-	Decimals       int                  `json:"decimals"`
-	Activity       string               `json:"activity"`
-	Pair           string               `json:"pair"`
-	PairFlip       bool                 `json:"pair_flip"`
-	ClientID       string               `json:"client_id"`
-	Crypto         bool                 `json:"crypto"`
-	TwelveDataKey  string               `json:"-"`
-	Cache          *redis.Client        `json:"-"`
-	Context        context.Context      `json:"-"`
-	updated        *prometheus.GaugeVec `json:"-"`
-	token          string               `json:"-"`
-	close          chan int             `json:"-"`
+	Ticker         string          `json:"ticker"`
+	Name           string          `json:"name"`
+	Nickname       bool            `json:"nickname"`
+	Frequency      int             `json:"frequency"`
+	Color          bool            `json:"color"`
+	Decorator      string          `json:"decorator"`
+	Currency       string          `json:"currency"`
+	CurrencySymbol string          `json:"currency_symbol"`
+	Decimals       int             `json:"decimals"`
+	Activity       string          `json:"activity"`
+	Pair           string          `json:"pair"`
+	PairFlip       bool            `json:"pair_flip"`
+	ClientID       string          `json:"client_id"`
+	Crypto         bool            `json:"crypto"`
+	TwelveDataKey  string          `json:"-"`
+	Cache          *redis.Client   `json:"-"`
+	Context        context.Context `json:"-"`
+	token          string          `json:"-"`
+	close          chan int        `json:"-"`
 }
 
 // NewStock saves information about the stock and starts up a watcher on it

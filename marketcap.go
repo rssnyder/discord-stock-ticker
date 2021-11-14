@@ -17,22 +17,21 @@ import (
 )
 
 type MarketCap struct {
-	Ticker         string               `json:"ticker"`
-	Name           string               `json:"name"`
-	Nickname       bool                 `json:"nickname"`
-	Frequency      int                  `json:"frequency"`
-	Color          bool                 `json:"color"`
-	Decorator      string               `json:"decorator"`
-	Currency       string               `json:"currency"`
-	CurrencySymbol string               `json:"currency_symbol"`
-	Decimals       int                  `json:"decimals"`
-	Activity       string               `json:"activity"`
-	ClientID       string               `json:"client_id"`
-	Cache          *redis.Client        `json:"-"`
-	Context        context.Context      `json:"-"`
-	updated        *prometheus.GaugeVec `json:"-"`
-	token          string               `json:"-"`
-	close          chan int             `json:"-"`
+	Ticker         string          `json:"ticker"`
+	Name           string          `json:"name"`
+	Nickname       bool            `json:"nickname"`
+	Frequency      int             `json:"frequency"`
+	Color          bool            `json:"color"`
+	Decorator      string          `json:"decorator"`
+	Currency       string          `json:"currency"`
+	CurrencySymbol string          `json:"currency_symbol"`
+	Decimals       int             `json:"decimals"`
+	Activity       string          `json:"activity"`
+	ClientID       string          `json:"client_id"`
+	Cache          *redis.Client   `json:"-"`
+	Context        context.Context `json:"-"`
+	token          string          `json:"-"`
+	close          chan int        `json:"-"`
 }
 
 // NewMarketCap saves information about the crypto and starts up a watcher on it

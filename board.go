@@ -14,21 +14,20 @@ import (
 )
 
 type Board struct {
-	Items      []string             `json:"items"`
-	Name       string               `json:"name"`
-	Header     string               `json:"header"`
-	Nickname   bool                 `json:"nickname"`
-	Color      bool                 `json:"color"`
-	Percentage bool                 `json:"percentage"`
-	Arrows     bool                 `json:"arrows"`
-	Frequency  int                  `json:"frequency"`
-	ClientID   string               `json:"client_id"`
-	Price      int                  `json:"-"`
-	Cache      *redis.Client        `json:"-"`
-	Context    context.Context      `json:"-"`
-	updated    *prometheus.GaugeVec `json:"-"`
-	token      string               `json:"-"`
-	close      chan int             `json:"-"`
+	Items      []string        `json:"items"`
+	Name       string          `json:"name"`
+	Header     string          `json:"header"`
+	Nickname   bool            `json:"nickname"`
+	Color      bool            `json:"color"`
+	Percentage bool            `json:"percentage"`
+	Arrows     bool            `json:"arrows"`
+	Frequency  int             `json:"frequency"`
+	ClientID   string          `json:"client_id"`
+	Price      int             `json:"-"`
+	Cache      *redis.Client   `json:"-"`
+	Context    context.Context `json:"-"`
+	token      string          `json:"-"`
+	close      chan int        `json:"-"`
 }
 
 // NewBoard saves information about the board and starts up a watcher on it

@@ -12,13 +12,12 @@ import (
 
 // Gas represents the gas data
 type Gas struct {
-	Network   string               `json:"network"`
-	Nickname  bool                 `json:"set_nickname"`
-	Frequency int                  `json:"frequency"`
-	ClientID  string               `json:"client_id"`
-	updated   *prometheus.GaugeVec `json:"-"`
-	token     string               `json:"-"`
-	close     chan int             `json:"-"`
+	Network   string   `json:"network"`
+	Nickname  bool     `json:"set_nickname"`
+	Frequency int      `json:"frequency"`
+	ClientID  string   `json:"client_id"`
+	token     string   `json:"-"`
+	close     chan int `json:"-"`
 }
 
 func NewGas(clientID string, network string, token string, nickname bool, frequency int) *Gas {
