@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	_ "modernc.org/sqlite"
 )
 
 var (
@@ -196,7 +196,7 @@ func dbInit(fileName string) *sql.DB {
 		return db
 	}
 
-	db, err := sql.Open("sqlite3", fileName)
+	db, err := sql.Open("sqlite", fileName)
 	if err != nil {
 		logger.Errorf("Unable to open db file: %s\n", err)
 		logger.Warning("Will not be storing state.")

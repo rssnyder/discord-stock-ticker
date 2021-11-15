@@ -1,5 +1,5 @@
 build:
-	env CGO_ENABLED=1 go build -o ./discord-stock-ticker -ldflags="-X 'main.buildVersion=vdev'"
+	go build -o ./discord-stock-ticker -ldflags="-X 'main.buildVersion=vdev'"
 
 package:
 	tar cvfz discord-stock-ticker.tar.gz discord-stock-ticker
