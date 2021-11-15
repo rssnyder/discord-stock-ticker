@@ -42,7 +42,7 @@ jobs:
     - name: Get version
       run: echo "IMAGE_TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-    - uses: wangyoucao577/go-release-action@v1.14
+    - uses: wangyoucao577/go-release-action@v1.20
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
@@ -68,7 +68,7 @@ jobs:
     - name: Get version
       run: echo "IMAGE_TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-    - uses: wangyoucao577/go-release-action@v1.14
+    - uses: wangyoucao577/go-release-action@v1.20
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
