@@ -67,6 +67,7 @@ func (m *Token) watchTokenPrice() {
 	dg, err := discordgo.New("Bot " + m.token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).Set(0)
 		return
 	}
 
@@ -74,6 +75,7 @@ func (m *Token) watchTokenPrice() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("error opening discord connection: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).Set(0)
 		return
 	}
 
@@ -81,6 +83,7 @@ func (m *Token) watchTokenPrice() {
 	botUser, err := dg.User("@me")
 	if err != nil {
 		logger.Errorf("Getting bot id: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).Set(0)
 		return
 	}
 

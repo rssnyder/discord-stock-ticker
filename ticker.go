@@ -107,6 +107,7 @@ func (s *Ticker) watchStockPrice() {
 	dg, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		logger.Errorf("Creating Discord session: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -114,6 +115,7 @@ func (s *Ticker) watchStockPrice() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("Opening discord connection: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -121,6 +123,7 @@ func (s *Ticker) watchStockPrice() {
 	botUser, err := dg.User("@me")
 	if err != nil {
 		logger.Errorf("Getting bot id: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -384,6 +387,7 @@ func (s *Ticker) watchCryptoPrice() {
 	dg, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		logger.Errorf("Creating Discord session: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -391,6 +395,7 @@ func (s *Ticker) watchCryptoPrice() {
 	st, err := dg.GatewayBot()
 	if err != nil {
 		logger.Errorf("Creating Discord gateway: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -400,6 +405,7 @@ func (s *Ticker) watchCryptoPrice() {
 		shards[i], err = discordgo.New("Bot " + s.token)
 		if err != nil {
 			logger.Errorf("Creating Discord sharded session: %s", err)
+			lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
 			return
 		}
 		shards[i].ShardID = i
@@ -437,6 +443,7 @@ func (s *Ticker) watchCryptoPrice() {
 	botUser, err := dg.User("@me")
 	if err != nil {
 		logger.Errorf("Getting bot id: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
 

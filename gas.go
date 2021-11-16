@@ -52,6 +52,7 @@ func (g *Gas) watchGasPrice() {
 	dg, err := discordgo.New("Bot " + g.token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -59,6 +60,7 @@ func (g *Gas) watchGasPrice() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("error opening discord connection: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": "None"}).Set(0)
 		return
 	}
 

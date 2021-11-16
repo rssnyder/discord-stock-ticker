@@ -86,6 +86,7 @@ func (b *Board) watchStockPrice() {
 	dg, err := discordgo.New("Bot " + b.token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -93,6 +94,7 @@ func (b *Board) watchStockPrice() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("error opening discord connection: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -100,6 +102,7 @@ func (b *Board) watchStockPrice() {
 	botUser, err := dg.User("@me")
 	if err != nil {
 		logger.Errorf("Error getting bot id: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -295,6 +298,7 @@ func (b *Board) watchCryptoPrice() {
 	dg, err := discordgo.New("Bot " + b.token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -302,6 +306,7 @@ func (b *Board) watchCryptoPrice() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("error opening discord connection: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -309,6 +314,7 @@ func (b *Board) watchCryptoPrice() {
 	botUser, err := dg.User("@me")
 	if err != nil {
 		logger.Errorf("Error getting bot id: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
 
