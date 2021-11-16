@@ -56,6 +56,7 @@ func (h *Holders) watchHolders() {
 	dg, err := discordgo.New("Bot " + h.token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).Set(0)
 		return
 	}
 
@@ -63,6 +64,7 @@ func (h *Holders) watchHolders() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("error opening discord connection: %s\n", err)
+		lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).Set(0)
 		return
 	}
 

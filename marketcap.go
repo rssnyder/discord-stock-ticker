@@ -77,6 +77,7 @@ func (s *MarketCap) watchMarketCap() {
 	dg, err := discordgo.New("Bot " + s.token)
 	if err != nil {
 		logger.Errorf("Creating Discord session: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -84,6 +85,7 @@ func (s *MarketCap) watchMarketCap() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("Opening discord connection: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -91,6 +93,7 @@ func (s *MarketCap) watchMarketCap() {
 	botUser, err := dg.User("@me")
 	if err != nil {
 		logger.Errorf("Getting bot id: %s", err)
+		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
 
