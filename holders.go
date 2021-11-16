@@ -88,7 +88,7 @@ func (h *Holders) watchHolders() {
 	// check for frequency override
 	// set to one hour to avoid lockout
 	if *frequency != 0 {
-		h.Frequency = 60
+		h.Frequency = 3600
 	}
 
 	ticker := time.NewTicker(time.Duration(h.Frequency) * time.Second)
