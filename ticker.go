@@ -601,7 +601,11 @@ func (s *Ticker) watchCryptoPrice() {
 				}
 
 				// format nickname
-				nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
+				if displayName == s.Decorator {
+					nickname = fmtPrice
+				} else {
+					nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
+				}
 
 				// format activity
 				if s.Pair != "" {
