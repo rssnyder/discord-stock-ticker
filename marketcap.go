@@ -164,7 +164,6 @@ func (s *MarketCap) watchMarketCap() {
 			}
 
 			// check for no mc data
-			logger.Error()
 			if priceData.MarketData.MarketCap.USD != 0 {
 				logger.Debug("Using marketcap")
 			} else if priceData.MarketData.CirculatingSupply != 0 {
