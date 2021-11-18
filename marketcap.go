@@ -163,6 +163,19 @@ func (s *MarketCap) watchMarketCap() {
 				continue
 			}
 
+			// check for no mc data
+			if priceData.MarketData.MarketCap.USD != 0 {
+				logger.Debug("Using marketcap")
+			} else if priceData.MarketData.CirculatingSupply != 0 {
+				logger.Debug("Using circulating supply")
+				priceData.MarketData.MarketCap.USD = priceData.MarketData.CirculatingSupply * priceData.MarketData.CurrentPrice.USD
+			} else if priceData.MarketData.TotalSupply != 0 {
+				logger.Debug("Using total supply")
+				priceData.MarketData.MarketCap.USD = priceData.MarketData.TotalSupply * priceData.MarketData.CurrentPrice.USD
+			} else {
+				logger.Warning("No sources found for marketcap")
+			}
+
 			// Check if conversion is needed
 			if exRate != 0 {
 				priceData.MarketData.MarketCap.USD = exRate * priceData.MarketData.MarketCap.USD
@@ -200,6 +213,16 @@ func (s *MarketCap) watchMarketCap() {
 				fmtPrice = p.Sprintf("%s%.11f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
 			default:
 				fmtPrice = p.Sprintf("%s%.2f", s.CurrencySymbol, priceData.MarketData.MarketCap.USD)
+				switch {
+				case priceData.MarketData.MarketCap.USD < 1000000:
+					fmtPrice = p.Sprintf("%s%.2fk", s.CurrencySymbol, priceData.MarketData.MarketCap.USD/1000)
+				case priceData.MarketData.MarketCap.USD < 1000000000:
+					fmtPrice = p.Sprintf("%s%.2fM", s.CurrencySymbol, priceData.MarketData.MarketCap.USD/1000000)
+				case priceData.MarketData.MarketCap.USD < 1000000000000:
+					fmtPrice = p.Sprintf("%s%.2fB", s.CurrencySymbol, priceData.MarketData.MarketCap.USD/1000000000)
+				case priceData.MarketData.MarketCap.USD < 1000000000000000:
+					fmtPrice = p.Sprintf("%s%.2fT", s.CurrencySymbol, priceData.MarketData.MarketCap.USD/1000000000000)
+				}
 			}
 
 			// calculate if price has moved up or down
@@ -234,7 +257,11 @@ func (s *MarketCap) watchMarketCap() {
 				}
 
 				// format nickname
-				nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
+				if displayName == s.Decorator {
+					nickname = fmtPrice
+				} else {
+					nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
+				}
 
 				// format activity
 				activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)

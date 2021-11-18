@@ -29,6 +29,8 @@ type MarketData struct {
 	PriceChangeCurrency     CurrentPrice `json:"price_change_24h_in_currency"`
 	MarketCapChangePercent  float64      `json:"market_cap_change_percentage_24h"`
 	MarketCapChangeCurrency CurrentPrice `json:"market_cap_change_24h_in_currency"`
+	TotalSupply             float64      `json:"total_supply"`
+	CirculatingSupply       float64      `json:"circulating_supply"`
 }
 
 // The following is the API response gecko gives
@@ -92,6 +94,8 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 	var geckoPriceResults GeckoPriceResults
 	var symbol string
 	var name string
+	var totalSupply string
+	var circulatingSupply string
 
 	// get CurrentPrice
 	var priceFloat float64
@@ -224,6 +228,40 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 		}
 	}
 
+	// totalSupply
+	var totalSupplyFloat float64
+	totalSupply, err = client.Get(ctx, fmt.Sprintf("%s#TotalSupply", ticker)).Result()
+	if err == redis.Nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		fmt.Println("cache miss")
+		return geckoPriceResults, err
+	} else if err != nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
+	} else {
+		totalSupplyFloat, err = strconv.ParseFloat(totalSupply, 32)
+		if err != nil {
+			totalSupplyFloat = 0.00
+		}
+	}
+
+	// name
+	var circulatingSupplyFloat float64
+	circulatingSupply, err = client.Get(ctx, fmt.Sprintf("%s#CirculatingSupply", ticker)).Result()
+	if err == redis.Nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		fmt.Println("cache miss")
+		return geckoPriceResults, err
+	} else if err != nil {
+		geckoPriceResults, err = GetCryptoPrice(ticker)
+		return geckoPriceResults, err
+	} else {
+		circulatingSupplyFloat, err = strconv.ParseFloat(circulatingSupply, 32)
+		if err != nil {
+			circulatingSupplyFloat = 0.00
+		}
+	}
+
 	marketData = MarketData{
 		currentPrice,
 		currentMarketCap,
@@ -231,6 +269,8 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 		priceChangeCurrency,
 		marketCapChangePercentFloat,
 		marketCapChangeCurrency,
+		totalSupplyFloat,
+		circulatingSupplyFloat,
 	}
 
 	// symbol
