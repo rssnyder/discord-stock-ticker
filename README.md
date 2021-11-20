@@ -211,8 +211,6 @@ If you are interested please see the [contact info on my github page](https://gi
 
 ## Self-Hosting - Docker
 
-⚠️ As of version **3.5.0** we are using `mattn/go-sqlite3` to store state. Since this is a CGO package cross-compilation is more difficult. Because of this running on non linux-x86 machines may require you to build from source. I am currently working on publishing offical builds again for other OS/ARCH and will remove this warning when the work has been completed.
-
 Grab the current release number from the [release page](https://github.com/rssnyder/discord-stock-ticker/releases) and expose your designated API port:
 
 ```shell
@@ -276,6 +274,25 @@ This bot is distributed as a docker image and a binary.
 The program acts as a manager of one to many bots. You can have one running instance of the program and have any number of bots running within it.
 
 [Click here](https://youtu.be/LhgCdtE8kmc) to watch a quick video tutorial on how to self-host these bots on linux.
+
+If you are using windows and do not have a unix shell to use, you should use powershell. Here is an example of an API call using powershell:
+
+```powershell
+$Body = @{
+  name = "bitcoin"
+  crypto = $true
+  discord_bot_token = "xxxxxxxxxxxxxxxxxxxxxxxxx"
+}
+ 
+$Parameters = @{
+    Method = "POST"
+    Uri =  "127.0.0.1:8080/ticker"
+    Body = ($Body | ConvertTo-Json) 
+    ContentType = "application/json"
+}
+
+Invoke-RestMethod @Parameters
+```
 
 ### Roles for colors
 
