@@ -41,7 +41,7 @@ type GeckoPriceResults struct {
 	Symbol        string     `json:"symbol"`
 	Name          string     `json:"name"`
 	MarketData    MarketData `json:"market_data"`
-	MarketCapRank int64    'json:"market_cap_rank"'
+	MarketCapRank int64       `json:"market_cap_rank"`
 }
 
 // GetCryptoPrice retrieves the price of a given ticker using the coin gecko API
