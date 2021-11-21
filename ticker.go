@@ -20,6 +20,7 @@ type Ticker struct {
 	Ticker         string          `json:"ticker"`
 	Name           string          `json:"name"`
 	Nickname       bool            `json:"nickname"`
+	RankedNickname bool            `json:"rankednickname"`
 	Frequency      int             `json:"frequency"`
 	Color          bool            `json:"color"`
 	Decorator      string          `json:"decorator"`
@@ -63,11 +64,12 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, rankednickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
 		Nickname:       nickname,
+		RankedNickname: rankednickname,
 		Color:          color,
 		Decorator:      decorator,
 		Activity:       activity,
@@ -452,6 +454,7 @@ func (s *Ticker) watchCryptoPrice() {
 	if err != nil {
 		logger.Errorf("Getting guilds: %s", err)
 		s.Nickname = false
+		s.RankedNickname = false
 	}
 
 	// check for frequency override
@@ -604,7 +607,12 @@ func (s *Ticker) watchCryptoPrice() {
 				if displayName == s.Decorator {
 					nickname = fmtPrice
 				} else {
+					if s.RankedNickname {
+						nickname = fmt.Sprintf("%5d %s %s %s", priceData.MarketCapRank, displayName, s.Decorator, fmtPrice)
+					} else {
 					nickname = fmt.Sprintf("%s %s %s", displayName, s.Decorator, fmtPrice)
+					}
+				}
 				}
 
 				// format activity
