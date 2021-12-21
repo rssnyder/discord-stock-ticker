@@ -72,8 +72,9 @@ func (g *Gas) watchGasPrice() {
 	}
 
 	// check for frequency override
+	// set to one hour to avoid lockout
 	if *frequency != 0 {
-		g.Frequency = *frequency
+		g.Frequency = 600
 	}
 
 	ticker := time.NewTicker(time.Duration(g.Frequency) * time.Second)

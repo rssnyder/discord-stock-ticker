@@ -552,6 +552,10 @@ func (s *Ticker) watchCryptoPrice() {
 				fmtPrice = fmt.Sprintf("%s%.10f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			case 11:
 				fmtPrice = fmt.Sprintf("%s%.11f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 12:
+				fmtPrice = fmt.Sprintf("%s%.12f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 13:
+				fmtPrice = fmt.Sprintf("%s%.13f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			default:
 
 				// Check for cryptos below 1c
