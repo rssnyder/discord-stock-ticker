@@ -654,7 +654,7 @@ func (s *Ticker) watchCryptoPrice() {
 						}
 					}
 				} else {
-					if priceData.MarketData.PriceChangeCurrency.USD < 0.01 {
+					if math.Abs(priceData.MarketData.PriceChangeCurrency.USD) < 0.01 {
 						activity = fmt.Sprintf("%s%%", fmtDiffPercent)
 					} else {
 						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
