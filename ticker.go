@@ -641,7 +641,11 @@ func (s *Ticker) watchCryptoPrice() {
 						}
 					}
 				} else {
-					activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+					if priceData.MarketData.PriceChangeCurrency.USD < 0.01 {
+						activity = fmt.Sprintf("%s%%", fmtDiffPercent)
+					} else {
+						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+					}
 				}
 
 				// Update nickname in guilds
