@@ -78,6 +78,11 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ensure frequency is set
+	if gasReq.Frequency <= 0 {
+		gasReq.Frequency = 60
+	}
+
 	// ensure network is set
 	if gasReq.Network == "" {
 		logger.Error("Network required")

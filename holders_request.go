@@ -80,6 +80,11 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ensure frequency is set
+	if holdersReq.Frequency <= 0 {
+		holdersReq.Frequency = 60
+	}
+
 	// ensure network is set
 	if holdersReq.Network == "" {
 		logger.Error("Network required")

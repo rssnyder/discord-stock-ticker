@@ -97,6 +97,11 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ensure frequency is set
+	if stockReq.Frequency <= 0 {
+		stockReq.Frequency = 60
+	}
+
 	// ensure currency is set
 	if stockReq.Currency == "" {
 		stockReq.Currency = "usd"

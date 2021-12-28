@@ -8,21 +8,15 @@ import (
 )
 
 const (
-	GasURL = "http://api.zapper.fi/v1/gas-price?network=%s&api_key=%s"
-	apiKey = "96e0cc51-a62e-42ca-acee-910ea7d2a241"
+	ZapperURL = "http://api.zapper.fi/v1/gas-price?network=%s&api_key=%s"
+	apiKey    = "96e0cc51-a62e-42ca-acee-910ea7d2a241"
 )
 
-type GasPrices struct {
-	Standard int `json:"standard"`
-	Fast     int `json:"fast"`
-	Instant  int `json:"instant"`
-}
+func GetZapperData(network string) (GasData, error) {
 
-func GetGasPrices(network string) (GasPrices, error) {
+	var prices GasData
 
-	var prices GasPrices
-
-	reqUrl := fmt.Sprintf(GasURL, network, apiKey)
+	reqUrl := fmt.Sprintf(ZapperURL, network, apiKey)
 
 	req, err := http.NewRequest("GET", reqUrl, nil)
 	if err != nil {
