@@ -90,6 +90,11 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ensure frequency is set
+	if tokenReq.Frequency <= 0 {
+		tokenReq.Frequency = 60
+	}
+
 	// ensure network is set, default to eth
 	if tokenReq.Network == "" {
 		tokenReq.Network = "ethereum"

@@ -96,6 +96,11 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ensure frequency is set
+	if boardReq.Frequency <= 0 {
+		boardReq.Frequency = 60
+	}
+
 	// ensure name is set
 	if boardReq.Name == "" {
 		logger.Error("Board Name required")

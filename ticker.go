@@ -555,6 +555,10 @@ func (s *Ticker) watchCryptoPrice() {
 				fmtPrice = fmt.Sprintf("%s%.10f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			case 11:
 				fmtPrice = fmt.Sprintf("%s%.11f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 12:
+				fmtPrice = fmt.Sprintf("%s%.12f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
+			case 13:
+				fmtPrice = fmt.Sprintf("%s%.13f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			default:
 
 				// Check for cryptos below 1c
@@ -649,7 +653,11 @@ func (s *Ticker) watchCryptoPrice() {
 						}
 					}
 				} else {
-					activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+					if priceData.MarketData.PriceChangeCurrency.USD < 0.01 {
+						activity = fmt.Sprintf("%s%%", fmtDiffPercent)
+					} else {
+						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
+					}
 				}
 
 				// Update nickname in guilds
