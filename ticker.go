@@ -29,6 +29,7 @@ type Ticker struct {
 	Activity       string          `json:"activity"`
 	Pair           string          `json:"pair"`
 	PairFlip       bool            `json:"pair_flip"`
+	Multiplier     int             `json:"multiplier"`
 	ClientID       string          `json:"client_id"`
 	Crypto         bool            `json:"crypto"`
 	TwelveDataKey  string          `json:"-"`
@@ -63,7 +64,7 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, multiplier int, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
 		Ticker:         ticker,
 		Name:           name,
@@ -77,6 +78,7 @@ func NewCrypto(clientID string, ticker string, token string, name string, nickna
 		CurrencySymbol: currencySymbol,
 		Pair:           pair,
 		PairFlip:       pairFlip,
+		Multiplier:     multiplier,
 		ClientID:       clientID,
 		Crypto:         true,
 		Cache:          cache,
@@ -465,8 +467,10 @@ func (s *Ticker) watchCryptoPrice() {
 		if err != nil {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
 		} else {
-			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
 		}
+	} else {
+		exRate = float64(s.Multiplier)
 	}
 
 	// Set arrows if no custom decorator
@@ -481,6 +485,11 @@ func (s *Ticker) watchCryptoPrice() {
 	itrSeed := 0.0
 	if s.Activity != "" {
 		custom_activity = strings.Split(s.Activity, ";")
+		if s.Multiplier != 1 {
+			custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, s.Name))
+		}
+	} else if s.Multiplier != 1 {
+		custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, strings.ToUpper(s.Name)))
 	}
 
 	// create timer
@@ -645,7 +654,7 @@ func (s *Ticker) watchCryptoPrice() {
 						}
 					}
 				} else {
-					if priceData.MarketData.PriceChangeCurrency.USD < 0.01 {
+					if math.Abs(priceData.MarketData.PriceChangeCurrency.USD) < 0.01 {
 						activity = fmt.Sprintf("%s%%", fmtDiffPercent)
 					} else {
 						activity = fmt.Sprintf("%s%s (%s%%)", changeHeader, fmtChange, fmtDiffPercent)
