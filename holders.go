@@ -15,45 +15,17 @@ type Holders struct {
 	Network   string   `json:"network"`
 	Address   string   `json:"address"`
 	Activity  string   `json:"activity"`
-	Nickname  bool     `json:"set_nickname"`
+	Nickname  bool     `json:"nickname"`
 	Frequency int      `json:"frequency"`
 	ClientID  string   `json:"client_id"`
-	token     string   `json:"-"`
-	close     chan int `json:"-"`
-}
-
-// NewHolders saves information about the stock and starts up a watcher on it
-func NewHolders(clientID string, network string, address string, activity string, token string, nickname bool, frequency int) *Holders {
-	h := &Holders{
-		Network:   network,
-		Address:   address,
-		Activity:  activity,
-		Nickname:  nickname,
-		Frequency: frequency,
-		ClientID:  clientID,
-		token:     token,
-		close:     make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	h.Start()
-	return h
-}
-
-// Start begins watching holders
-func (h *Holders) Start() {
-	go h.watchHolders()
-}
-
-// Shutdown sends a signal to shut off the goroutine
-func (h *Holders) Shutdown() {
-	h.close <- 1
+	Token     string   `json:"discord_bot_token"`
+	Close     chan int `json:"-"`
 }
 
 func (h *Holders) watchHolders() {
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + h.token)
+	dg, err := discordgo.New("Bot " + h.Token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
 		lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).Set(0)
@@ -91,18 +63,18 @@ func (h *Holders) watchHolders() {
 		h.Frequency = 3600
 	}
 
+	logger.Infof("Watching holders for %s", h.Address)
 	ticker := time.NewTicker(time.Duration(h.Frequency) * time.Second)
-	var nickname string
 
 	for {
 
 		select {
-		case <-h.close:
+		case <-h.Close:
 			logger.Infof("Shutting down price watching for %s", h.Activity)
 			return
 		case <-ticker.C:
 
-			nickname = utils.GetHolders(h.Network, h.Address)
+			nickname := utils.GetHolders(h.Network, h.Address)
 
 			if h.Nickname {
 

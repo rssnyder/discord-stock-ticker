@@ -23,7 +23,7 @@ func (m *Manager) ImportTicker() {
 
 	// load existing bots from db
 	for rows.Next() {
-		importedTicker := Ticker{}
+		var importedTicker Ticker
 
 		err = rows.Scan(&importedTicker.ClientID, &importedTicker.Token, &importedTicker.Ticker, &importedTicker.Name, &importedTicker.Nickname, &importedTicker.Color, &importedTicker.Crypto, &importedTicker.Activity, &importedTicker.Decorator, &importedTicker.Decimals, &importedTicker.Currency, &importedTicker.CurrencySymbol, &importedTicker.Pair, &importedTicker.PairFlip, &importedTicker.Multiplier, &importedTicker.TwelveDataKey, &importedTicker.Frequency)
 		if err != nil {
@@ -34,18 +34,18 @@ func (m *Manager) ImportTicker() {
 		// activate bot
 		if importedTicker.Crypto {
 			go importedTicker.watchCryptoPrice()
-			m.storeTicker(&importedTicker, false)
+			m.StoreTicker(&importedTicker, false)
 			logger.Infof("Loaded ticker from db: %s", importedTicker.Name)
 		} else {
 			go importedTicker.watchStockPrice()
-			m.storeTicker(&importedTicker, false)
+			m.StoreTicker(&importedTicker, false)
 			logger.Infof("Loaded ticker from db: %s", importedTicker.Name)
 		}
 	}
 	rows.Close()
 }
 
-// AddTicker adds a new Ticker or crypto to the list of what to watch
+// AddTicker takes in a new ticker from the API
 func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
@@ -108,40 +108,30 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		}
 
 		go stockReq.watchCryptoPrice()
-		m.storeTicker(&stockReq, true)
-
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(stockReq)
-		if err != nil {
-			logger.Errorf("Unable to encode ticker: %s", err)
+		m.StoreTicker(&stockReq, true)
+	} else {
+		// ensure ticker is set
+		if stockReq.Ticker == "" {
+			logger.Error("Ticker required")
 			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
-		logger.Infof("Added crypto: %s\n", stockReq.Name)
-		return
-	}
 
-	// ensure ticker is set
-	if stockReq.Ticker == "" {
-		logger.Error("Ticker required")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+		// ensure name is set
+		if stockReq.Name == "" {
+			stockReq.Name = stockReq.Ticker
+		}
 
-	// ensure name is set
-	if stockReq.Name == "" {
-		stockReq.Name = stockReq.Ticker
-	}
+		// check if already existing
+		if _, ok := m.WatchingTicker[strings.ToUpper(stockReq.Ticker)]; ok {
+			logger.Error("Ticker already exists")
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
 
-	// check if already existing
-	if _, ok := m.WatchingTicker[strings.ToUpper(stockReq.Ticker)]; ok {
-		logger.Error("Ticker already exists")
-		w.WriteHeader(http.StatusConflict)
-		return
+		go stockReq.watchStockPrice()
+		m.StoreTicker(&stockReq, true)
 	}
-
-	go stockReq.watchStockPrice()
-	m.storeTicker(&stockReq, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -150,10 +140,11 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		logger.Errorf("Unable to encode ticker: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	logger.Infof("Added stock: %s\n", stockReq.Ticker)
+	logger.Infof("Added ticker: %s\n", stockReq.Ticker)
 }
 
-func (m *Manager) storeTicker(ticker *Ticker, update bool) {
+// StoreTicker keeps track of running
+func (m *Manager) StoreTicker(ticker *Ticker, update bool) {
 	tickerCount.Inc()
 	var id string
 	if ticker.Crypto {
@@ -259,7 +250,7 @@ func (m *Manager) storeTicker(ticker *Ticker, update bool) {
 	}
 }
 
-// DeleteTicker addds a new Ticker or crypto to the list of what to watch
+// DeleteTicker stops and removes a ticker
 func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
@@ -274,8 +265,9 @@ func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
 	// send shutdown sign
-	m.WatchingTicker[id].Shutdown()
+	m.WatchingTicker[id].Close <- 1
 	tickerCount.Dec()
 
 	var noDB *sql.DB
@@ -331,13 +323,17 @@ func (m *Manager) RestartTicker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingTicker[id].Shutdown()
+	m.WatchingTicker[id].Close <- 1
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingTicker[id].Frequency) * 2 * time.Second)
 
 	// start the ticker again
-	m.WatchingTicker[id].Start()
+	if m.WatchingTicker[id].Crypto {
+		go m.WatchingTicker[id].watchCryptoPrice()
+	} else {
+		go m.WatchingTicker[id].watchStockPrice()
+	}
 
 	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)

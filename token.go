@@ -25,49 +25,17 @@ type Token struct {
 	Activity  string   `json:"activity"`
 	Source    string   `json:"source"`
 	ClientID  string   `json:"client_id"`
-	token     string   `json:"-"`
-	close     chan int `json:"-"`
+	Token     string   `json:"discord_bot_token"`
+	Close     chan int `json:"-"`
 }
 
-// NewToken saves information about the stock and starts up a watcher on it
-func NewToken(clientID string, network string, contract string, token string, name string, nickname bool, frequency int, decimals int, activity string, color bool, decorator string, source string) *Token {
-	m := &Token{
-		Network:   network,
-		Contract:  contract,
-		Name:      name,
-		Nickname:  nickname,
-		Frequency: frequency,
-		Color:     color,
-		Decorator: decorator,
-		Activity:  activity,
-		Source:    source,
-		ClientID:  clientID,
-		token:     token,
-		close:     make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	m.Start()
-	return m
-}
-
-// Start begins watching a token
-func (m *Token) Start() {
-	go m.watchTokenPrice()
-}
-
-// Shutdown sends a signal to shut off the goroutine
-func (m *Token) Shutdown() {
-	m.close <- 1
-}
-
-func (m *Token) watchTokenPrice() {
+func (t *Token) watchTokenPrice() {
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + m.token)
+	dg, err := discordgo.New("Bot " + t.Token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": "None"}).Set(0)
 		return
 	}
 
@@ -75,7 +43,7 @@ func (m *Token) watchTokenPrice() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("error opening discord connection: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": "None"}).Set(0)
 		return
 	}
 
@@ -83,7 +51,7 @@ func (m *Token) watchTokenPrice() {
 	botUser, err := dg.User("@me")
 	if err != nil {
 		logger.Errorf("Getting bot id: %s", err)
-		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": "None"}).Set(0)
 		return
 	}
 
@@ -91,17 +59,17 @@ func (m *Token) watchTokenPrice() {
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Error getting guilds: %s\n", err)
-		m.Nickname = false
+		t.Nickname = false
 	}
 
 	// check for frequency override
 	if *frequency != 0 {
-		m.Frequency = *frequency
+		t.Frequency = *frequency
 	}
 
 	// Set arrows if no custom decorator
 	var arrows bool
-	if m.Decorator == "" {
+	if t.Decorator == "" {
 		arrows = true
 	}
 
@@ -109,73 +77,73 @@ func (m *Token) watchTokenPrice() {
 	var custom_activity []string
 	itr := 0
 	itrSeed := 0.0
-	if m.Activity != "" {
-		custom_activity = strings.Split(m.Activity, ";")
+	if t.Activity != "" {
+		custom_activity = strings.Split(t.Activity, ";")
 	}
 
-	logger.Debugf("Watching token price for %s", m.Name)
-	ticker := time.NewTicker(time.Duration(m.Frequency) * time.Second)
+	logger.Infof("Watching token price for %s", t.Name)
+	ticker := time.NewTicker(time.Duration(t.Frequency) * time.Second)
 
 	// continuously watch
 	var oldPrice float64
 	for {
 		select {
-		case <-m.close:
-			logger.Infof("Shutting down price watching for %s", m.Name)
+		case <-t.Close:
+			logger.Infof("Shutting down price watching for %s", t.Name)
 			return
 		case <-ticker.C:
-			logger.Debugf("Fetching token price for %s", m.Name)
+			logger.Debugf("Fetching token price for %s", t.Name)
 			var priceData string
 			var fmtPriceRaw float64
 			var fmtPrice float64
 
-			switch m.Source {
+			switch t.Source {
 			case "pancakeswap":
-				logger.Debugf("Using %s to get price: %s", m.Source, m.Name)
+				logger.Debugf("Using %s to get price: %s", t.Source, t.Name)
 
 				// Get price from Ps in BNB
-				priceData, err = utils.GetPancakeTokenPrice(m.Contract)
+				priceData, err = utils.GetPancakeTokenPrice(t.Contract)
 				if err != nil {
-					logger.Errorf("Unable to fetch token price from %s: %s", m.Source, m.Name)
+					logger.Errorf("Unable to fetch token price from %s: %s", t.Source, t.Name)
 					continue
 				}
 
 				bnbRate, err := utils.GetCryptoPrice("binancecoin")
 				if err != nil {
-					logger.Errorf("Unable to fetch bnb price for %s", m.Name)
+					logger.Errorf("Unable to fetch bnb price for %s", t.Name)
 					continue
 				}
 
 				if fmtPriceRaw, err = strconv.ParseFloat(priceData, 64); err != nil {
-					logger.Errorf("Error with price format for %s", m.Name)
+					logger.Errorf("Error with price format for %s", t.Name)
 					continue
 				}
 				fmtPrice = bnbRate.MarketData.CurrentPrice.USD * fmtPriceRaw
 
 			case "dexlab":
-				logger.Debugf("Using %s to get price: %s", m.Source, m.Name)
+				logger.Debugf("Using %s to get price: %s", t.Source, t.Name)
 
 				// Get price from dexlab in USDT
-				priceData, err = utils.GetDexLabPrice(m.Contract)
+				priceData, err = utils.GetDexLabPrice(t.Contract)
 				if err != nil {
-					logger.Errorf("Unable to fetch token price from %s: %s", m.Source, m.Name)
+					logger.Errorf("Unable to fetch token price from %s: %s", t.Source, t.Name)
 					continue
 				}
 
 				if fmtPrice, err = strconv.ParseFloat(priceData, 64); err != nil {
-					logger.Errorf("Error with price format for %s", m.Name)
+					logger.Errorf("Error with price format for %s", t.Name)
 					continue
 				}
 
 			default:
-				priceData, err = utils.Get1inchTokenPrice(m.Network, m.Contract)
+				priceData, err = utils.Get1inchTokenPrice(t.Network, t.Contract)
 				if err != nil {
-					logger.Errorf("Unable to fetch token price for %s", m.Name)
+					logger.Errorf("Unable to fetch token price for %s", t.Name)
 					continue
 				}
 
 				if fmtPriceRaw, err = strconv.ParseFloat(priceData, 64); err != nil {
-					logger.Errorf("Error with price format for %s", m.Name)
+					logger.Errorf("Error with price format for %s", t.Name)
 					continue
 				}
 				fmtPrice = fmtPriceRaw / 10000000
@@ -190,44 +158,44 @@ func (m *Token) watchTokenPrice() {
 			}
 
 			if arrows {
-				m.Decorator = "⬊"
+				t.Decorator = "⬊"
 				if increase {
-					m.Decorator = "⬈"
+					t.Decorator = "⬈"
 				}
 			}
 
-			if m.Nickname {
+			if t.Nickname {
 				// update nickname instead of activity
 				var nickname string
 				var activity string
 
 				// format nickname & activity
 				// Check for custom decimal places
-				switch m.Decimals {
+				switch t.Decimals {
 				case 1:
-					nickname = fmt.Sprintf("%s %s $%.1f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.1f", t.Name, t.Decorator, fmtPrice)
 				case 2:
-					nickname = fmt.Sprintf("%s %s $%.2f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.2f", t.Name, t.Decorator, fmtPrice)
 				case 3:
-					nickname = fmt.Sprintf("%s %s $%.3f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.3f", t.Name, t.Decorator, fmtPrice)
 				case 4:
-					nickname = fmt.Sprintf("%s %s $%.4f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.4f", t.Name, t.Decorator, fmtPrice)
 				case 5:
-					nickname = fmt.Sprintf("%s %s $%.5f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.5f", t.Name, t.Decorator, fmtPrice)
 				case 6:
-					nickname = fmt.Sprintf("%s %s $%.6f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.6f", t.Name, t.Decorator, fmtPrice)
 				case 7:
-					nickname = fmt.Sprintf("%s %s $%.7f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.7f", t.Name, t.Decorator, fmtPrice)
 				case 8:
-					nickname = fmt.Sprintf("%s %s $%.8f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.8f", t.Name, t.Decorator, fmtPrice)
 				case 9:
-					nickname = fmt.Sprintf("%s %s $%.9f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.9f", t.Name, t.Decorator, fmtPrice)
 				case 10:
-					nickname = fmt.Sprintf("%s %s $%.10f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.10f", t.Name, t.Decorator, fmtPrice)
 				case 11:
-					nickname = fmt.Sprintf("%s %s $%.11f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.11f", t.Name, t.Decorator, fmtPrice)
 				default:
-					nickname = fmt.Sprintf("%s %s $%.4f", m.Name, m.Decorator, fmtPrice)
+					nickname = fmt.Sprintf("%s %s $%.4f", t.Name, t.Decorator, fmtPrice)
 				}
 
 				// Update nickname in guilds
@@ -238,9 +206,9 @@ func (m *Token) watchTokenPrice() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
-					lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": g.Name}).SetToCurrentTime()
 
-					if m.Color {
+					if t.Color {
 						// get roles for colors
 						var redRole string
 						var greeenRole string
@@ -286,7 +254,7 @@ func (m *Token) watchTokenPrice() {
 							}
 						}
 					}
-					time.Sleep(time.Duration(m.Frequency) * time.Second)
+					time.Sleep(time.Duration(t.Frequency) * time.Second)
 				}
 
 				activity = ""
@@ -315,14 +283,14 @@ func (m *Token) watchTokenPrice() {
 				}
 
 			} else {
-				activity := fmt.Sprintf("%s %s $%.2f", m.Name, m.Decorator, fmtPrice)
+				activity := fmt.Sprintf("%s %s $%.2f", t.Name, t.Decorator, fmtPrice)
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
 					logger.Debugf("Set activity: %s", activity)
-					lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", m.Network, m.Contract), "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": "None"}).SetToCurrentTime()
 				}
 			}
 			oldPrice = fmtPrice

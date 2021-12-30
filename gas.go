@@ -13,43 +13,18 @@ import (
 // Gas represents the gas data
 type Gas struct {
 	Network   string   `json:"network"`
-	Nickname  bool     `json:"set_nickname"`
+	Nickname  bool     `json:"nickname"`
 	Frequency int      `json:"frequency"`
 	ClientID  string   `json:"client_id"`
-	token     string   `json:"-"`
-	close     chan int `json:"-"`
-}
-
-func NewGas(clientID string, network string, token string, nickname bool, frequency int) *Gas {
-	g := &Gas{
-		Network:   network,
-		Nickname:  nickname,
-		Frequency: frequency,
-		ClientID:  clientID,
-		token:     token,
-		close:     make(chan int, 1),
-	}
-
-	// spin off go routine to watch the prices
-	g.Start()
-	return g
-}
-
-// Start begins watching prices
-func (g *Gas) Start() {
-	go g.watchGasPrice()
-}
-
-// Shutdown sends a signal to shut off the goroutine
-func (g *Gas) Shutdown() {
-	g.close <- 1
+	Token     string   `json:"discord_bot_token"`
+	Close     chan int `json:"-"`
 }
 
 // watchGasPrice gets gas prices and rotates through levels
 func (g *Gas) watchGasPrice() {
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + g.token)
+	dg, err := discordgo.New("Bot " + g.Token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
 		lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": "None"}).Set(0)
@@ -77,14 +52,14 @@ func (g *Gas) watchGasPrice() {
 		g.Frequency = 600
 	}
 
+	logger.Infof("Watching gas price for %s", g.Network)
 	ticker := time.NewTicker(time.Duration(g.Frequency) * time.Second)
-	var nickname string
 
 	// watch gas price
 	for {
 
 		select {
-		case <-g.close:
+		case <-g.Close:
 			logger.Infof("Shutting down price watching for %s\n", g.Network)
 			return
 		case <-ticker.C:
@@ -95,7 +70,7 @@ func (g *Gas) watchGasPrice() {
 				continue
 			}
 
-			nickname = fmt.Sprintf("⚡ %d 🤔 %d 🐌 %d", gasPrices.Instant, gasPrices.Fast, gasPrices.Standard)
+			nickname := fmt.Sprintf("⚡ %d 🤔 %d 🐌 %d", gasPrices.Instant, gasPrices.Fast, gasPrices.Standard)
 
 			// change nickname
 			if g.Nickname {

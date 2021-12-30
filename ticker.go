@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"math"
 	"strconv"
@@ -17,36 +16,24 @@ import (
 )
 
 type Ticker struct {
-	Ticker         string          `json:"ticker"`
-	Name           string          `json:"name"`
-	Nickname       bool            `json:"nickname"`
-	Frequency      int             `json:"frequency"`
-	Color          bool            `json:"color"`
-	Decorator      string          `json:"decorator"`
-	Currency       string          `json:"currency"`
-	CurrencySymbol string          `json:"currency_symbol"`
-	Decimals       int             `json:"decimals"`
-	Activity       string          `json:"activity"`
-	Pair           string          `json:"pair"`
-	PairFlip       bool            `json:"pair_flip"`
-	Multiplier     int             `json:"multiplier"`
-	ClientID       string          `json:"client_id"`
-	Crypto         bool            `json:"crypto"`
-	Token          string          `json:"discord_bot_token"`
-	TwelveDataKey  string          `json:"twelve_data_key"`
-	Cache          *redis.Client   `json:"-"`
-	Context        context.Context `json:"-"`
-	Close          chan int        `json:"-"`
-}
-
-// Start begins watching a ticker
-func (s *Ticker) Start() {
-	go s.watchCryptoPrice()
-}
-
-// Shutdown sends a signal to shut off the goroutine
-func (s *Ticker) Shutdown() {
-	s.Close <- 1
+	Ticker         string   `json:"ticker"`
+	Name           string   `json:"name"`
+	Nickname       bool     `json:"nickname"`
+	Frequency      int      `json:"frequency"`
+	Color          bool     `json:"color"`
+	Decorator      string   `json:"decorator"`
+	Currency       string   `json:"currency"`
+	CurrencySymbol string   `json:"currency_symbol"`
+	Decimals       int      `json:"decimals"`
+	Activity       string   `json:"activity"`
+	Pair           string   `json:"pair"`
+	PairFlip       bool     `json:"pair_flip"`
+	Multiplier     int      `json:"multiplier"`
+	ClientID       string   `json:"client_id"`
+	Crypto         bool     `json:"crypto"`
+	Token          string   `json:"discord_bot_token"`
+	TwelveDataKey  string   `json:"twelve_data_key"`
+	Close          chan int `json:"-"`
 }
 
 func (s *Ticker) watchStockPrice() {
@@ -112,7 +99,7 @@ func (s *Ticker) watchStockPrice() {
 		custom_activity = strings.Split(s.Activity, ";")
 	}
 
-	logger.Debugf("Watching stock price for %s", s.Name)
+	logger.Infof("Watching stock price for %s", s.Ticker)
 	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
 
 	// continuously watch
@@ -329,7 +316,7 @@ func (s *Ticker) watchStockPrice() {
 }
 
 func (s *Ticker) watchCryptoPrice() {
-	var rdb *redis.Client
+	var nilCache *redis.Client
 	var exRate float64
 
 	// create a new discord session using the provided bot token.
@@ -439,9 +426,8 @@ func (s *Ticker) watchCryptoPrice() {
 		custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, strings.ToUpper(s.Name)))
 	}
 
-	// create timer
+	logger.Infof("Watching crypto price for %s", s.Name)
 	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
-	logger.Debugf("Watching crypto price for %s", s.Name)
 
 	// continuously watch
 	for {
@@ -459,10 +445,10 @@ func (s *Ticker) watchCryptoPrice() {
 			var fmtDiffPercent string
 
 			// get the coin price data
-			if s.Cache == rdb {
+			if rdb == nilCache {
 				priceData, err = utils.GetCryptoPrice(s.Name)
 			} else {
-				priceData, err = utils.GetCryptoPriceCache(s.Cache, s.Context, s.Name)
+				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Name)
 				if err != nil {
 					cacheMisses.Inc()
 				} else {
@@ -572,10 +558,10 @@ func (s *Ticker) watchCryptoPrice() {
 
 					// get price of target pair
 					var pairPriceData utils.GeckoPriceResults
-					if s.Cache == rdb {
+					if rdb == nilCache {
 						pairPriceData, err = utils.GetCryptoPrice(s.Pair)
 					} else {
-						pairPriceData, err = utils.GetCryptoPriceCache(s.Cache, s.Context, s.Pair)
+						pairPriceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Pair)
 					}
 					if err != nil {
 						logger.Errorf("Unable to fetch pair price for %s: %s", s.Pair, err)

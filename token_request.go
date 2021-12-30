@@ -12,22 +12,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// TokenRequest represents the json coming in from the request
-type TokenRequest struct {
-	Network   string `json:"network"`
-	Contract  string `json:"contract"`
-	Token     string `json:"discord_bot_token"`
-	Name      string `json:"name"`
-	Nickname  bool   `json:"set_nickname"`
-	Frequency int    `json:"frequency" default:"60"`
-	Color     bool   `json:"set_color"`
-	Decorator string `json:"decorator" default:"-"`
-	Activity  string `json:"activity"`
-	Decimals  int    `json:"decimals"`
-	Source    string `json:"source"`
-	ClientID  string `json:"client_id"`
-}
-
 // ImportToken pulls in bots from the provided db
 func (m *Manager) ImportToken() {
 
@@ -40,19 +24,18 @@ func (m *Manager) ImportToken() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var clientID, token, name, activity, network, contract, decorator, source string
-		var nickname, color bool
-		var decimals, frequency int
-		err = rows.Scan(&clientID, &token, &name, &nickname, &color, &activity, &network, &contract, &decorator, &decimals, &source, &frequency)
+		var importedToken Token
+
+		err = rows.Scan(&importedToken.ClientID, &importedToken.Token, &importedToken.Name, &importedToken.Nickname, &importedToken.Color, &importedToken.Activity, &importedToken.Network, &importedToken.Contract, &importedToken.Decorator, &importedToken.Decimals, &importedToken.Source, &importedToken.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
 		// activate bot
-		t := NewToken(clientID, network, contract, token, name, nickname, frequency, decimals, activity, color, decorator, source)
-		m.addToken(t, false)
-		logger.Infof("Loaded token from db: %s-%s", network, contract)
+		importedToken.watchTokenPrice()
+		m.StoreToken(&importedToken, false)
+		logger.Infof("Loaded token from db: %s-%s", importedToken.Network, importedToken.Contract)
 	}
 	rows.Close()
 }
@@ -74,7 +57,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// unmarshal into struct
-	var tokenReq TokenRequest
+	var tokenReq Token
 	if err := json.Unmarshal(body, &tokenReq); err != nil {
 		logger.Errorf("Error unmarshalling: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -115,19 +98,19 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := NewToken(tokenReq.ClientID, tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source)
-	m.addToken(token, true)
+	tokenReq.watchTokenPrice()
+	m.StoreToken(&tokenReq, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(token)
+	err = json.NewEncoder(w).Encode(tokenReq)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	logger.Infof("Added token: %s-%s\n", token.Network, token.Contract)
+	logger.Infof("Added token: %s-%s\n", tokenReq.Network, tokenReq.Contract)
 }
 
-func (m *Manager) addToken(token *Token, update bool) {
+func (m *Manager) StoreToken(token *Token, update bool) {
 	tokenCount.Inc()
 	id := fmt.Sprintf("%s-%s", token.Network, token.Contract)
 	m.WatchingToken[id] = token
@@ -170,7 +153,7 @@ func (m *Manager) addToken(token *Token, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(token.ClientID, token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency, existingId)
+		res, err := stmt.Exec(token.ClientID, token.Token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update token in db %s: %s", id, err)
 			return
@@ -192,7 +175,7 @@ func (m *Manager) addToken(token *Token, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(token.ClientID, token.token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
+		res, err := stmt.Exec(token.ClientID, token.Token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store token in db %s: %s", id, err)
 			return
@@ -224,7 +207,7 @@ func (m *Manager) DeleteToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingToken[id].Shutdown()
+	m.WatchingToken[id].Close <- 1
 	tokenCount.Dec()
 
 	var noDB *sql.DB
@@ -268,13 +251,13 @@ func (m *Manager) RestartToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingToken[id].Shutdown()
+	m.WatchingToken[id].Close <- 1
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingToken[id].Frequency) * 2 * time.Second)
 
 	// start the ticker again
-	m.WatchingToken[id].Start()
+	go m.WatchingToken[id].watchTokenPrice()
 
 	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
