@@ -3,9 +3,9 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -90,13 +90,6 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if already existing
-	if _, ok := m.WatchingGas[strings.ToUpper(gasReq.Network)]; ok {
-		logger.Error("Network already exists")
-		w.WriteHeader(http.StatusConflict)
-		return
-	}
-
 	gas := NewGas(gasReq.ClientID, gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
 	m.addGas(gas, true)
 
@@ -113,7 +106,22 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 func (m *Manager) addGas(gas *Gas, update bool) {
 	gasCount.Inc()
 	id := gas.Network
-	m.WatchingGas[id] = gas
+
+	// check for existing
+	if _, ok := m.WatchingTicker[id]; !ok {
+		m.WatchingGas[id] = gas
+	} else {
+		// incriment counter for each duplicate
+		i := 1
+		for {
+			duplicateID := fmt.Sprintf("%s%d", id, i)
+			if _, existing := m.WatchingTicker[duplicateID]; !existing {
+				m.WatchingGas[duplicateID] = gas
+				break
+			}
+			i++
+		}
+	}
 
 	var noDB *sql.DB
 	if (m.DB == noDB) || !update {

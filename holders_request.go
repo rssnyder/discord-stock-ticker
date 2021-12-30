@@ -99,13 +99,6 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if already existing
-	if _, ok := m.WatchingHolders[fmt.Sprintf("%s-%s", holdersReq.Network, holdersReq.Address)]; ok {
-		logger.Error("Network already exists")
-		w.WriteHeader(http.StatusConflict)
-		return
-	}
-
 	holders := NewHolders(holdersReq.ClientID, holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency)
 	m.addHolders(holders, true)
 
@@ -122,7 +115,22 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 func (m *Manager) addHolders(holders *Holders, update bool) {
 	holdersCount.Inc()
 	id := fmt.Sprintf("%s-%s", holders.Network, holders.Address)
-	m.WatchingHolders[id] = holders
+
+	// check for existing
+	if _, ok := m.WatchingTicker[id]; !ok {
+		m.WatchingHolders[id] = holders
+	} else {
+		// incriment counter for each duplicate
+		i := 1
+		for {
+			duplicateID := fmt.Sprintf("%s%d", id, i)
+			if _, existing := m.WatchingTicker[duplicateID]; !existing {
+				m.WatchingHolders[duplicateID] = holders
+				break
+			}
+			i++
+		}
+	}
 
 	var noDB *sql.DB
 	if (m.DB == noDB) || !update {

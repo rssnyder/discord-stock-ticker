@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -108,13 +107,6 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check if already existing
-	if _, ok := m.WatchingToken[strings.ToUpper(tokenReq.Contract)]; ok {
-		logger.Error("Error: ticker already exists")
-		w.WriteHeader(http.StatusConflict)
-		return
-	}
-
 	token := NewToken(tokenReq.ClientID, tokenReq.Network, tokenReq.Contract, tokenReq.Token, tokenReq.Name, tokenReq.Nickname, tokenReq.Frequency, tokenReq.Decimals, tokenReq.Activity, tokenReq.Color, tokenReq.Decorator, tokenReq.Source)
 	m.addToken(token, true)
 
@@ -130,7 +122,22 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 func (m *Manager) addToken(token *Token, update bool) {
 	tokenCount.Inc()
 	id := fmt.Sprintf("%s-%s", token.Network, token.Contract)
-	m.WatchingToken[id] = token
+
+	// check for existing
+	if _, ok := m.WatchingTicker[id]; !ok {
+		m.WatchingToken[id] = token
+	} else {
+		// incriment counter for each duplicate
+		i := 1
+		for {
+			duplicateID := fmt.Sprintf("%s%d", id, i)
+			if _, existing := m.WatchingTicker[duplicateID]; !existing {
+				m.WatchingToken[duplicateID] = token
+				break
+			}
+			i++
+		}
+	}
 
 	var noDB *sql.DB
 	if (m.DB == noDB) || !update {

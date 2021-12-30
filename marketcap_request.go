@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -113,13 +114,6 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 		stockReq.CurrencySymbol = "$"
 	}
 
-	// check if already existing
-	if _, ok := m.WatchingMarketCap[strings.ToUpper(stockReq.Name)]; ok {
-		logger.Error("MarketCap already exists")
-		w.WriteHeader(http.StatusConflict)
-		return
-	}
-
 	crypto := NewMarketCap(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
 	m.addMarketCap(true, crypto, true)
 
@@ -136,7 +130,22 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 func (m *Manager) addMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 	tickerCount.Inc()
 	id := strings.ToUpper(marketcap.Name)
-	m.WatchingMarketCap[id] = marketcap
+
+	// check for existing
+	if _, ok := m.WatchingTicker[id]; !ok {
+		m.WatchingMarketCap[id] = marketcap
+	} else {
+		// incriment counter for each duplicate
+		i := 1
+		for {
+			duplicateID := fmt.Sprintf("%s%d", id, i)
+			if _, existing := m.WatchingTicker[duplicateID]; !existing {
+				m.WatchingMarketCap[duplicateID] = marketcap
+				break
+			}
+			i++
+		}
+	}
 
 	var noDB *sql.DB
 	if (m.DB == noDB) || !update {

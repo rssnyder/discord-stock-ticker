@@ -112,13 +112,6 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	// add stock or crypto ticker
 	if boardReq.Crypto {
 
-		// check if already existing
-		if _, ok := m.WatchingBoard[strings.ToUpper(boardReq.Name)]; ok {
-			logger.Error("Error: board already exists")
-			w.WriteHeader(http.StatusConflict)
-			return
-		}
-
 		crypto := NewCryptoBoard(boardReq.ClientID, boardReq.Items, boardReq.Token, boardReq.Name, boardReq.Header, boardReq.Nickname, boardReq.Color, boardReq.Frequency, m.Cache, m.Context)
 		m.addBoard(true, crypto, true)
 
@@ -129,13 +122,6 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 		}
 		logger.Infof("Added board: %s\n", crypto.Name)
-		return
-	}
-
-	// check if already existing
-	if _, ok := m.WatchingBoard[strings.ToUpper(boardReq.Name)]; ok {
-		logger.Error("Error: board already exists")
-		w.WriteHeader(http.StatusConflict)
 		return
 	}
 
@@ -154,7 +140,22 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 func (m *Manager) addBoard(crypto bool, board *Board, update bool) {
 	boardCount.Inc()
 	id := board.Name
-	m.WatchingBoard[id] = board
+
+	// check for existing
+	if _, ok := m.WatchingTicker[id]; !ok {
+		m.WatchingBoard[id] = board
+	} else {
+		// incriment counter for each duplicate
+		i := 1
+		for {
+			duplicateID := fmt.Sprintf("%s%d", id, i)
+			if _, existing := m.WatchingTicker[duplicateID]; !existing {
+				m.WatchingBoard[duplicateID] = board
+				break
+			}
+			i++
+		}
+	}
 
 	var noDB *sql.DB
 	if (m.DB == noDB) || !update {

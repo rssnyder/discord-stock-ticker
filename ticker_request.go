@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -123,13 +124,6 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 			stockReq.CurrencySymbol = "$"
 		}
 
-		// check if already existing
-		if _, ok := m.WatchingTicker[strings.ToUpper(stockReq.Name)]; ok {
-			logger.Error("Ticker already exists")
-			w.WriteHeader(http.StatusConflict)
-			return
-		}
-
 		crypto := NewCrypto(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Pair, stockReq.PairFlip, stockReq.Multiplier, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
 		m.addTicker(true, crypto, true)
 
@@ -156,13 +150,6 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		stockReq.Name = stockReq.Ticker
 	}
 
-	// check if already existing
-	if _, ok := m.WatchingTicker[strings.ToUpper(stockReq.Ticker)]; ok {
-		logger.Error("Ticker already exists")
-		w.WriteHeader(http.StatusConflict)
-		return
-	}
-
 	stock := NewStock(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.TwelveDataKey)
 	m.addTicker(false, stock, true)
 
@@ -184,7 +171,22 @@ func (m *Manager) addTicker(crypto bool, stock *Ticker, update bool) {
 	} else {
 		id = strings.ToUpper(stock.Ticker)
 	}
-	m.WatchingTicker[id] = stock
+
+	// check for existing
+	if _, ok := m.WatchingTicker[id]; !ok {
+		m.WatchingTicker[id] = stock
+	} else {
+		// incriment counter for each duplicate
+		i := 1
+		for {
+			duplicateID := fmt.Sprintf("%s%d", id, i)
+			if _, existing := m.WatchingTicker[duplicateID]; !existing {
+				m.WatchingTicker[duplicateID] = stock
+				break
+			}
+			i++
+		}
+	}
 
 	var noDB *sql.DB
 	if (m.DB == noDB) || !update {
