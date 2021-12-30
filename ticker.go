@@ -40,21 +40,21 @@ type Ticker struct {
 }
 
 // NewStock saves information about the stock and starts up a watcher on it
-func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string) *Ticker {
+func NewStock(request TickerRequest) *Ticker {
 	s := &Ticker{
-		Ticker:        ticker,
-		Name:          name,
-		Nickname:      nickname,
-		Color:         color,
-		Decorator:     decorator,
-		Activity:      activity,
-		Decimals:      decimals,
-		Frequency:     frequency,
-		Currency:      strings.ToUpper(currency),
-		ClientID:      clientID,
+		Ticker:        request.Ticker,
+		Name:          request.Name,
+		Nickname:      request.Nickname,
+		Color:         request.Color,
+		Decorator:     request.Decorator,
+		Activity:      request.Activity,
+		Decimals:      request.Decimals,
+		Frequency:     request.Frequency,
+		Currency:      strings.ToUpper(request.Currency),
+		ClientID:      request.ClientID,
 		Crypto:        false,
-		TwelveDataKey: twelveDataKey,
-		token:         token,
+		TwelveDataKey: request.TwelveDataKey,
+		token:         request.Token,
 		close:         make(chan int, 1),
 	}
 
@@ -64,26 +64,26 @@ func NewStock(clientID string, ticker string, token string, name string, nicknam
 }
 
 // NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, multiplier int, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
+func NewCrypto(request TickerRequest, cache *redis.Client, context context.Context) *Ticker {
 	s := &Ticker{
-		Ticker:         ticker,
-		Name:           name,
-		Nickname:       nickname,
-		Color:          color,
-		Decorator:      decorator,
-		Activity:       activity,
-		Decimals:       decimals,
-		Frequency:      frequency,
-		Currency:       strings.ToUpper(currency),
-		CurrencySymbol: currencySymbol,
-		Pair:           pair,
-		PairFlip:       pairFlip,
-		Multiplier:     multiplier,
-		ClientID:       clientID,
+		Ticker:         request.Ticker,
+		Name:           request.Name,
+		Nickname:       request.Nickname,
+		Color:          request.Color,
+		Decorator:      request.Decorator,
+		Activity:       request.Activity,
+		Decimals:       request.Decimals,
+		Frequency:      request.Frequency,
+		Currency:       strings.ToUpper(request.Currency),
+		CurrencySymbol: request.CurrencySymbol,
+		Pair:           request.Pair,
+		PairFlip:       request.PairFlip,
+		Multiplier:     request.Multiplier,
+		ClientID:       request.ClientID,
 		Crypto:         true,
 		Cache:          cache,
 		Context:        context,
-		token:          token,
+		token:          request.Token,
 		close:          make(chan int, 1),
 	}
 

@@ -44,25 +44,23 @@ func (m *Manager) ImportTicker() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var clientID, token, ticker, name, activity, decorator, currency, currencySymbol, pair, twelveDataKey string
-		var nickname, color, crypto, pairFlip bool
-		var decimals, multiplier, frequency int
+		importedTicker := TickerRequest{}
 
-		err = rows.Scan(&clientID, &token, &ticker, &name, &nickname, &color, &crypto, &activity, &decorator, &decimals, &currency, &currencySymbol, &pair, &pairFlip, &multiplier, &twelveDataKey, &frequency)
+		err = rows.Scan(&importedTicker.ClientID, &importedTicker.Token, &importedTicker.Ticker, &importedTicker.Name, &importedTicker.Nickname, &importedTicker.Color, &importedTicker.Crypto, &importedTicker.Activity, &importedTicker.Decorator, &importedTicker.Decimals, &importedTicker.Currency, &importedTicker.CurrencySymbol, &importedTicker.Pair, &importedTicker.PairFlip, &importedTicker.Multiplier, &importedTicker.TwelveDataKey, &importedTicker.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
 		// activate bot
-		if crypto {
-			t := NewCrypto(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, pair, pairFlip, multiplier, activity, decimals, currencySymbol, m.Cache, m.Context)
+		if importedTicker.Crypto {
+			t := NewCrypto(importedTicker, m.Cache, m.Context)
 			m.addTicker(true, t, false)
-			logger.Infof("Loaded ticker from db: %s", name)
+			logger.Infof("Loaded ticker from db: %s", importedTicker.Name)
 		} else {
-			t := NewStock(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, activity, decimals, twelveDataKey)
+			t := NewStock(importedTicker)
 			m.addTicker(false, t, false)
-			logger.Infof("Loaded ticker from db: %s", ticker)
+			logger.Infof("Loaded ticker from db: %s", importedTicker.Name)
 		}
 	}
 	rows.Close()
@@ -130,7 +128,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		crypto := NewCrypto(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Pair, stockReq.PairFlip, stockReq.Multiplier, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
+		crypto := NewCrypto(stockReq, m.Cache, m.Context)
 		m.addTicker(true, crypto, true)
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -163,7 +161,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stock := NewStock(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.TwelveDataKey)
+	stock := NewStock(stockReq)
 	m.addTicker(false, stock, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
