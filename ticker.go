@@ -32,64 +32,11 @@ type Ticker struct {
 	Multiplier     int             `json:"multiplier"`
 	ClientID       string          `json:"client_id"`
 	Crypto         bool            `json:"crypto"`
-	TwelveDataKey  string          `json:"-"`
+	Token          string          `json:"discord_bot_token"`
+	TwelveDataKey  string          `json:"twelve_data_key"`
 	Cache          *redis.Client   `json:"-"`
 	Context        context.Context `json:"-"`
-	token          string          `json:"-"`
-	close          chan int        `json:"-"`
-}
-
-// NewStock saves information about the stock and starts up a watcher on it
-func NewStock(request TickerRequest) *Ticker {
-	s := &Ticker{
-		Ticker:        request.Ticker,
-		Name:          request.Name,
-		Nickname:      request.Nickname,
-		Color:         request.Color,
-		Decorator:     request.Decorator,
-		Activity:      request.Activity,
-		Decimals:      request.Decimals,
-		Frequency:     request.Frequency,
-		Currency:      strings.ToUpper(request.Currency),
-		ClientID:      request.ClientID,
-		Crypto:        false,
-		TwelveDataKey: request.TwelveDataKey,
-		token:         request.Token,
-		close:         make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	go s.watchStockPrice()
-	return s
-}
-
-// NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(request TickerRequest, cache *redis.Client, context context.Context) *Ticker {
-	s := &Ticker{
-		Ticker:         request.Ticker,
-		Name:           request.Name,
-		Nickname:       request.Nickname,
-		Color:          request.Color,
-		Decorator:      request.Decorator,
-		Activity:       request.Activity,
-		Decimals:       request.Decimals,
-		Frequency:      request.Frequency,
-		Currency:       strings.ToUpper(request.Currency),
-		CurrencySymbol: request.CurrencySymbol,
-		Pair:           request.Pair,
-		PairFlip:       request.PairFlip,
-		Multiplier:     request.Multiplier,
-		ClientID:       request.ClientID,
-		Crypto:         true,
-		Cache:          cache,
-		Context:        context,
-		token:          request.Token,
-		close:          make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	s.Start()
-	return s
+	Close          chan int        `json:"-"`
 }
 
 // Start begins watching a ticker
@@ -99,14 +46,14 @@ func (s *Ticker) Start() {
 
 // Shutdown sends a signal to shut off the goroutine
 func (s *Ticker) Shutdown() {
-	s.close <- 1
+	s.Close <- 1
 }
 
 func (s *Ticker) watchStockPrice() {
 	var exRate float64
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + s.token)
+	dg, err := discordgo.New("Bot " + s.Token)
 	if err != nil {
 		logger.Errorf("Creating Discord session: %s", err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
@@ -171,7 +118,7 @@ func (s *Ticker) watchStockPrice() {
 	// continuously watch
 	for {
 		select {
-		case <-s.close:
+		case <-s.Close:
 			logger.Infof("Shutting down price watching for %s", s.Name)
 			return
 		case <-ticker.C:
@@ -386,7 +333,7 @@ func (s *Ticker) watchCryptoPrice() {
 	var exRate float64
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + s.token)
+	dg, err := discordgo.New("Bot " + s.Token)
 	if err != nil {
 		logger.Errorf("Creating Discord session: %s", err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
@@ -404,7 +351,7 @@ func (s *Ticker) watchCryptoPrice() {
 	// shard into sessions.
 	shards := make([]*discordgo.Session, st.Shards)
 	for i := 0; i < st.Shards; i++ {
-		shards[i], err = discordgo.New("Bot " + s.token)
+		shards[i], err = discordgo.New("Bot " + s.Token)
 		if err != nil {
 			logger.Errorf("Creating Discord sharded session: %s", err)
 			lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
@@ -499,7 +446,7 @@ func (s *Ticker) watchCryptoPrice() {
 	// continuously watch
 	for {
 		select {
-		case <-s.close:
+		case <-s.Close:
 			logger.Infof("Shutting down price watching for %s", s.Name)
 			return
 		case <-ticker.C:
