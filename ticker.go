@@ -422,7 +422,7 @@ func (s *Ticker) watchCryptoPrice() {
 		if s.Multiplier != 1 {
 			custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, s.Name))
 		}
-	} else if s.Multiplier != 1 {
+	} else if s.Multiplier > 1 {
 		custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, strings.ToUpper(s.Name)))
 	}
 
@@ -461,7 +461,7 @@ func (s *Ticker) watchCryptoPrice() {
 			}
 
 			// Check if conversion is needed
-			if exRate != 0 {
+			if exRate > 1.0 {
 				priceData.MarketData.CurrentPrice.USD = exRate * priceData.MarketData.CurrentPrice.USD
 				priceData.MarketData.PriceChangeCurrency.USD = exRate * priceData.MarketData.PriceChangeCurrency.USD
 			}
