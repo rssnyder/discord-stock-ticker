@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
@@ -30,6 +31,7 @@ type Token struct {
 }
 
 func (t *Token) watchTokenPrice() {
+	var nilCache *redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + t.Token)
@@ -96,6 +98,7 @@ func (t *Token) watchTokenPrice() {
 			var priceData string
 			var fmtPriceRaw float64
 			var fmtPrice float64
+			var bnbRate utils.GeckoPriceResults
 
 			switch t.Source {
 			case "pancakeswap":
@@ -108,7 +111,17 @@ func (t *Token) watchTokenPrice() {
 					continue
 				}
 
-				bnbRate, err := utils.GetCryptoPrice("binancecoin")
+				// get the bnb price
+				if rdb == nilCache {
+					bnbRate, err = utils.GetCryptoPrice("binancecoin")
+				} else {
+					bnbRate, err = utils.GetCryptoPriceCache(rdb, ctx, "binancecoin")
+					if err != nil {
+						cacheMisses.Inc()
+					} else {
+						cacheHits.Inc()
+					}
+				}
 				if err != nil {
 					logger.Errorf("Unable to fetch bnb price for %s", t.Name)
 					continue
