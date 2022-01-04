@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"math"
 	"strconv"
@@ -17,96 +16,31 @@ import (
 )
 
 type Ticker struct {
-	Ticker         string          `json:"ticker"`
-	Name           string          `json:"name"`
-	Nickname       bool            `json:"nickname"`
-	Frequency      int             `json:"frequency"`
-	Color          bool            `json:"color"`
-	Decorator      string          `json:"decorator"`
-	Currency       string          `json:"currency"`
-	CurrencySymbol string          `json:"currency_symbol"`
-	Decimals       int             `json:"decimals"`
-	Activity       string          `json:"activity"`
-	Pair           string          `json:"pair"`
-	PairFlip       bool            `json:"pair_flip"`
-	Multiplier     int             `json:"multiplier"`
-	ClientID       string          `json:"client_id"`
-	Crypto         bool            `json:"crypto"`
-	TwelveDataKey  string          `json:"-"`
-	Cache          *redis.Client   `json:"-"`
-	Context        context.Context `json:"-"`
-	token          string          `json:"-"`
-	close          chan int        `json:"-"`
-}
-
-// NewStock saves information about the stock and starts up a watcher on it
-func NewStock(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, activity string, decimals int, twelveDataKey string) *Ticker {
-	s := &Ticker{
-		Ticker:        ticker,
-		Name:          name,
-		Nickname:      nickname,
-		Color:         color,
-		Decorator:     decorator,
-		Activity:      activity,
-		Decimals:      decimals,
-		Frequency:     frequency,
-		Currency:      strings.ToUpper(currency),
-		ClientID:      clientID,
-		Crypto:        false,
-		TwelveDataKey: twelveDataKey,
-		token:         token,
-		close:         make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	go s.watchStockPrice()
-	return s
-}
-
-// NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCrypto(clientID string, ticker string, token string, name string, nickname bool, color bool, decorator string, frequency int, currency string, pair string, pairFlip bool, multiplier int, activity string, decimals int, currencySymbol string, cache *redis.Client, context context.Context) *Ticker {
-	s := &Ticker{
-		Ticker:         ticker,
-		Name:           name,
-		Nickname:       nickname,
-		Color:          color,
-		Decorator:      decorator,
-		Activity:       activity,
-		Decimals:       decimals,
-		Frequency:      frequency,
-		Currency:       strings.ToUpper(currency),
-		CurrencySymbol: currencySymbol,
-		Pair:           pair,
-		PairFlip:       pairFlip,
-		Multiplier:     multiplier,
-		ClientID:       clientID,
-		Crypto:         true,
-		Cache:          cache,
-		Context:        context,
-		token:          token,
-		close:          make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	s.Start()
-	return s
-}
-
-// Start begins watching a ticker
-func (s *Ticker) Start() {
-	go s.watchCryptoPrice()
-}
-
-// Shutdown sends a signal to shut off the goroutine
-func (s *Ticker) Shutdown() {
-	s.close <- 1
+	Ticker         string   `json:"ticker"`
+	Name           string   `json:"name"`
+	Nickname       bool     `json:"nickname"`
+	Frequency      int      `json:"frequency"`
+	Color          bool     `json:"color"`
+	Decorator      string   `json:"decorator"`
+	Currency       string   `json:"currency"`
+	CurrencySymbol string   `json:"currency_symbol"`
+	Decimals       int      `json:"decimals"`
+	Activity       string   `json:"activity"`
+	Pair           string   `json:"pair"`
+	PairFlip       bool     `json:"pair_flip"`
+	Multiplier     int      `json:"multiplier"`
+	ClientID       string   `json:"client_id"`
+	Crypto         bool     `json:"crypto"`
+	Token          string   `json:"discord_bot_token"`
+	TwelveDataKey  string   `json:"twelve_data_key"`
+	Close          chan int `json:"-"`
 }
 
 func (s *Ticker) watchStockPrice() {
 	var exRate float64
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + s.token)
+	dg, err := discordgo.New("Bot " + s.Token)
 	if err != nil {
 		logger.Errorf("Creating Discord session: %s", err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
@@ -165,13 +99,13 @@ func (s *Ticker) watchStockPrice() {
 		custom_activity = strings.Split(s.Activity, ";")
 	}
 
-	logger.Debugf("Watching stock price for %s", s.Name)
+	logger.Infof("Watching stock price for %s", s.Ticker)
 	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
 
 	// continuously watch
 	for {
 		select {
-		case <-s.close:
+		case <-s.Close:
 			logger.Infof("Shutting down price watching for %s", s.Name)
 			return
 		case <-ticker.C:
@@ -382,11 +316,11 @@ func (s *Ticker) watchStockPrice() {
 }
 
 func (s *Ticker) watchCryptoPrice() {
-	var rdb *redis.Client
+	var nilCache *redis.Client
 	var exRate float64
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + s.token)
+	dg, err := discordgo.New("Bot " + s.Token)
 	if err != nil {
 		logger.Errorf("Creating Discord session: %s", err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
@@ -404,7 +338,7 @@ func (s *Ticker) watchCryptoPrice() {
 	// shard into sessions.
 	shards := make([]*discordgo.Session, st.Shards)
 	for i := 0; i < st.Shards; i++ {
-		shards[i], err = discordgo.New("Bot " + s.token)
+		shards[i], err = discordgo.New("Bot " + s.Token)
 		if err != nil {
 			logger.Errorf("Creating Discord sharded session: %s", err)
 			lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
@@ -488,18 +422,17 @@ func (s *Ticker) watchCryptoPrice() {
 		if s.Multiplier != 1 {
 			custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, s.Name))
 		}
-	} else if s.Multiplier != 1 {
+	} else if s.Multiplier > 1 {
 		custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, strings.ToUpper(s.Name)))
 	}
 
-	// create timer
+	logger.Infof("Watching crypto price for %s", s.Name)
 	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
-	logger.Debugf("Watching crypto price for %s", s.Name)
 
 	// continuously watch
 	for {
 		select {
-		case <-s.close:
+		case <-s.Close:
 			logger.Infof("Shutting down price watching for %s", s.Name)
 			return
 		case <-ticker.C:
@@ -512,10 +445,10 @@ func (s *Ticker) watchCryptoPrice() {
 			var fmtDiffPercent string
 
 			// get the coin price data
-			if s.Cache == rdb {
+			if rdb == nilCache {
 				priceData, err = utils.GetCryptoPrice(s.Name)
 			} else {
-				priceData, err = utils.GetCryptoPriceCache(s.Cache, s.Context, s.Name)
+				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Name)
 				if err != nil {
 					cacheMisses.Inc()
 				} else {
@@ -528,7 +461,7 @@ func (s *Ticker) watchCryptoPrice() {
 			}
 
 			// Check if conversion is needed
-			if exRate != 0 {
+			if exRate > 1.0 {
 				priceData.MarketData.CurrentPrice.USD = exRate * priceData.MarketData.CurrentPrice.USD
 				priceData.MarketData.PriceChangeCurrency.USD = exRate * priceData.MarketData.PriceChangeCurrency.USD
 			}
@@ -625,10 +558,10 @@ func (s *Ticker) watchCryptoPrice() {
 
 					// get price of target pair
 					var pairPriceData utils.GeckoPriceResults
-					if s.Cache == rdb {
+					if rdb == nilCache {
 						pairPriceData, err = utils.GetCryptoPrice(s.Pair)
 					} else {
-						pairPriceData, err = utils.GetCryptoPriceCache(s.Cache, s.Context, s.Pair)
+						pairPriceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Pair)
 					}
 					if err != nil {
 						logger.Errorf("Unable to fetch pair price for %s: %s", s.Pair, err)

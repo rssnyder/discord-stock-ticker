@@ -11,26 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// MarketCapRequest represents the json coming in from the request
-type MarketCapRequest struct {
-	Ticker         string `json:"ticker"`
-	Token          string `json:"discord_bot_token"`
-	Name           string `json:"name"`
-	Nickname       bool   `json:"set_nickname"`
-	Crypto         bool   `json:"crypto"`
-	Color          bool   `json:"set_color"`
-	Decorator      string `json:"decorator"`
-	Frequency      int    `json:"frequency"`
-	Currency       string `json:"currency"`
-	CurrencySymbol string `json:"currency_symbol"`
-	Pair           string `json:"pair"`
-	PairFlip       bool   `json:"pair_flip"`
-	Activity       string `json:"activity"`
-	Decimals       int    `json:"decimals"`
-	TwelveDataKey  string `json:"twelve_data_key"`
-	ClientID       string `json:"client_id"`
-}
-
 // ImportMarketCap pulls in bots from the provided db
 func (m *Manager) ImportMarketCap() {
 
@@ -43,20 +23,18 @@ func (m *Manager) ImportMarketCap() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var clientID, token, ticker, name, activity, decorator, currency, currencySymbol string
-		var nickname, color bool
-		var decimals, frequency int
+		var importedMarketCap MarketCap
 
-		err = rows.Scan(&clientID, &token, &ticker, &name, &nickname, &color, &activity, &decorator, &decimals, &currency, &currencySymbol, &frequency)
+		err = rows.Scan(&importedMarketCap.ClientID, &importedMarketCap.Token, &importedMarketCap.Ticker, &importedMarketCap.Name, &importedMarketCap.Nickname, &importedMarketCap.Color, &importedMarketCap.Activity, &importedMarketCap.Decorator, &importedMarketCap.Decimals, &importedMarketCap.Currency, &importedMarketCap.CurrencySymbol, &importedMarketCap.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load marketcaps from db: %s", err)
 			continue
 		}
 
 		// activate bot
-		t := NewMarketCap(clientID, ticker, token, name, nickname, color, decorator, frequency, currency, activity, decimals, currencySymbol, m.Cache, m.Context)
-		m.addMarketCap(true, t, false)
-		logger.Infof("Loaded marketcap from db: %s", name)
+		go importedMarketCap.watchMarketCap()
+		m.StoreMarketCap(true, &importedMarketCap, false)
+		logger.Infof("Loaded marketcap from db: %s", importedMarketCap.Name)
 	}
 	rows.Close()
 }
@@ -77,63 +55,63 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// unmarshal into struct
-	var stockReq MarketCapRequest
-	if err := json.Unmarshal(body, &stockReq); err != nil {
+	var marketCapReq MarketCap
+	if err := json.Unmarshal(body, &marketCapReq); err != nil {
 		logger.Errorf("Unmarshalling: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// ensure token is set
-	if stockReq.Token == "" {
+	if marketCapReq.Token == "" {
 		logger.Error("Discord token required")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// ensure frequency is set
-	if stockReq.Frequency <= 0 {
-		stockReq.Frequency = 60
+	if marketCapReq.Frequency <= 0 {
+		marketCapReq.Frequency = 60
 	}
 
 	// ensure currency is set
-	if stockReq.Currency == "" {
-		stockReq.Currency = "usd"
+	if marketCapReq.Currency == "" {
+		marketCapReq.Currency = "usd"
 	}
 
 	// ensure name is set
-	if stockReq.Name == "" {
+	if marketCapReq.Name == "" {
 		logger.Error("Name required for crypto")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// ensure currency is set
-	if stockReq.CurrencySymbol == "" {
-		stockReq.CurrencySymbol = "$"
+	if marketCapReq.CurrencySymbol == "" {
+		marketCapReq.CurrencySymbol = "$"
 	}
 
 	// check if already existing
-	if _, ok := m.WatchingMarketCap[strings.ToUpper(stockReq.Name)]; ok {
+	if _, ok := m.WatchingMarketCap[strings.ToUpper(marketCapReq.Name)]; ok {
 		logger.Error("MarketCap already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
 
-	crypto := NewMarketCap(stockReq.ClientID, stockReq.Ticker, stockReq.Token, stockReq.Name, stockReq.Nickname, stockReq.Color, stockReq.Decorator, stockReq.Frequency, stockReq.Currency, stockReq.Activity, stockReq.Decimals, stockReq.CurrencySymbol, m.Cache, m.Context)
-	m.addMarketCap(true, crypto, true)
+	go marketCapReq.watchMarketCap()
+	m.StoreMarketCap(true, &marketCapReq, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(crypto)
+	err = json.NewEncoder(w).Encode(marketCapReq)
 	if err != nil {
 		logger.Errorf("Unable to encode marketcaps: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	logger.Infof("Added marketcap: %s\n", crypto.Name)
+	logger.Infof("Added marketcap: %s\n", marketCapReq.Name)
 }
 
-func (m *Manager) addMarketCap(crypto bool, marketcap *MarketCap, update bool) {
+func (m *Manager) StoreMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 	tickerCount.Inc()
 	id := strings.ToUpper(marketcap.Name)
 	m.WatchingMarketCap[id] = marketcap
@@ -175,7 +153,7 @@ func (m *Manager) addMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(marketcap.ClientID, marketcap.token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency, existingId)
+		res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update marketcap in db %s: %s", id, err)
 			return
@@ -197,7 +175,7 @@ func (m *Manager) addMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(marketcap.ClientID, marketcap.token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency)
+		res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
 			return
@@ -227,7 +205,7 @@ func (m *Manager) DeleteMarketCap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingMarketCap[id].Shutdown()
+	m.WatchingMarketCap[id].Close <- 1
 	tickerCount.Dec()
 
 	var noDB *sql.DB
@@ -269,13 +247,13 @@ func (m *Manager) RestartMarketCap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingMarketCap[id].Shutdown()
+	m.WatchingMarketCap[id].Close <- 1
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingMarketCap[id].Frequency) * 2 * time.Second)
 
 	// start the ticker again
-	m.WatchingMarketCap[id].Start()
+	go m.WatchingMarketCap[id].watchMarketCap()
 
 	logger.Infof("Restarted marketcap %s", id)
 	w.WriteHeader(http.StatusNoContent)

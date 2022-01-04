@@ -11,15 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GasRequest represents the json coming in from the request
-type GasRequest struct {
-	Network   string `json:"network"`
-	Token     string `json:"discord_bot_token"`
-	Nickname  bool   `json:"set_nickname"`
-	Frequency int    `json:"frequency" default:"60"`
-	ClientID  string `json:"client_id"`
-}
-
 // ImportGas pulls in bots from the provided db
 func (m *Manager) ImportGas() {
 
@@ -32,18 +23,17 @@ func (m *Manager) ImportGas() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var clientID, token, network string
-		var nickname bool
-		var frequency int
-		err = rows.Scan(&clientID, &token, &nickname, &network, &frequency)
+		var importedGas Gas
+
+		err = rows.Scan(&importedGas.ClientID, &importedGas.Token, &importedGas.Nickname, &importedGas.Network, &importedGas.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
-		g := NewGas(clientID, network, token, nickname, frequency)
-		m.addGas(g, false)
-		logger.Infof("Loaded gas from db: %s", network)
+		go importedGas.watchGasPrice()
+		m.StoreGas(&importedGas, false)
+		logger.Infof("Loaded gas from db: %s", importedGas.Network)
 	}
 	rows.Close()
 }
@@ -64,7 +54,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// unmarshal into struct
-	var gasReq GasRequest
+	var gasReq Gas
 	if err := json.Unmarshal(body, &gasReq); err != nil {
 		logger.Errorf("Unmarshalling: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -97,20 +87,20 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gas := NewGas(gasReq.ClientID, gasReq.Network, gasReq.Token, gasReq.Nickname, gasReq.Frequency)
-	m.addGas(gas, true)
+	go gasReq.watchGasPrice()
+	m.StoreGas(&gasReq, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(gas)
+	err = json.NewEncoder(w).Encode(gasReq)
 	if err != nil {
 		logger.Errorf("Unable to encode gas: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	logger.Infof("Added gas: %s\n", gas.Network)
+	logger.Infof("Added gas: %s\n", gasReq.Network)
 }
 
-func (m *Manager) addGas(gas *Gas, update bool) {
+func (m *Manager) StoreGas(gas *Gas, update bool) {
 	gasCount.Inc()
 	id := gas.Network
 	m.WatchingGas[id] = gas
@@ -153,7 +143,7 @@ func (m *Manager) addGas(gas *Gas, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(gas.ClientID, gas.token, gas.Nickname, gas.Network, gas.Frequency, existingId)
+		res, err := stmt.Exec(gas.ClientID, gas.Token, gas.Nickname, gas.Network, gas.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update gas in db %s: %s", id, err)
 			return
@@ -175,7 +165,7 @@ func (m *Manager) addGas(gas *Gas, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(gas.ClientID, gas.token, gas.Nickname, gas.Network, gas.Frequency)
+		res, err := stmt.Exec(gas.ClientID, gas.Token, gas.Nickname, gas.Network, gas.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store gas in db %s: %s", id, err)
 			return
@@ -206,7 +196,7 @@ func (m *Manager) DeleteGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingGas[id].Shutdown()
+	m.WatchingGas[id].Close <- 1
 	gasCount.Dec()
 
 	var noDB *sql.DB
@@ -249,13 +239,13 @@ func (m *Manager) RestartGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingGas[id].Shutdown()
+	m.WatchingGas[id].Close <- 1
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingGas[id].Frequency) * 2 * time.Second)
 
 	// start the ticker again
-	m.WatchingGas[id].Start()
+	go m.WatchingGas[id].watchGasPrice()
 
 	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)

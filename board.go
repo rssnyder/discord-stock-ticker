@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -14,76 +13,24 @@ import (
 )
 
 type Board struct {
-	Items      []string        `json:"items"`
-	Name       string          `json:"name"`
-	Header     string          `json:"header"`
-	Nickname   bool            `json:"nickname"`
-	Color      bool            `json:"color"`
-	Percentage bool            `json:"percentage"`
-	Arrows     bool            `json:"arrows"`
-	Frequency  int             `json:"frequency"`
-	ClientID   string          `json:"client_id"`
-	Price      int             `json:"-"`
-	Cache      *redis.Client   `json:"-"`
-	Context    context.Context `json:"-"`
-	token      string          `json:"-"`
-	close      chan int        `json:"-"`
-}
-
-// NewBoard saves information about the board and starts up a watcher on it
-func NewStockBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int) *Board {
-	b := &Board{
-		Items:     items,
-		Name:      name,
-		Header:    header,
-		Nickname:  nickname,
-		Color:     color,
-		Frequency: frequency,
-		ClientID:  clientID,
-		token:     token,
-		close:     make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	go b.watchStockPrice()
-	return b
-}
-
-// NewCrypto saves information about the crypto and starts up a watcher on it
-func NewCryptoBoard(clientID string, items []string, token string, name string, header string, nickname bool, color bool, frequency int, cache *redis.Client, context context.Context) *Board {
-	b := &Board{
-		Items:     items,
-		Name:      name,
-		Header:    header,
-		Nickname:  nickname,
-		Color:     color,
-		Frequency: frequency,
-		ClientID:  clientID,
-		Cache:     cache,
-		Context:   context,
-		token:     token,
-		close:     make(chan int, 1),
-	}
-
-	// spin off go routine to watch the price
-	b.Start()
-	return b
-}
-
-// Start begins a board
-func (b *Board) Start() {
-	go b.watchCryptoPrice()
-}
-
-// Shutdown sends a signal to shut off the goroutine
-func (b *Board) Shutdown() {
-	b.close <- 1
+	Items      []string `json:"items"`
+	Name       string   `json:"name"`
+	Crypto     bool     `json:"crypto"`
+	Header     string   `json:"header"`
+	Nickname   bool     `json:"nickname"`
+	Color      bool     `json:"color"`
+	Percentage bool     `json:"percentage"`
+	Arrows     bool     `json:"arrows"`
+	Frequency  int      `json:"frequency"`
+	ClientID   string   `json:"client_id"`
+	Token      string   `json:"discord_bot_token"`
+	Close      chan int `json:"-"`
 }
 
 func (b *Board) watchStockPrice() {
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + b.token)
+	dg, err := discordgo.New("Bot " + b.Token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
 		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
@@ -113,13 +60,14 @@ func (b *Board) watchStockPrice() {
 		b.Nickname = false
 	}
 
+	logger.Infof("Watching board for %s", b.Name)
 	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
 
 	// continuously watch
 	for {
 		for _, symbol := range b.Items {
 			select {
-			case <-b.close:
+			case <-b.Close:
 				logger.Infof("Shutting down price watching for %s", b.Name)
 				return
 			case <-ticker.C:
@@ -292,10 +240,10 @@ func (b *Board) watchStockPrice() {
 }
 
 func (b *Board) watchCryptoPrice() {
-	var rdb *redis.Client
+	var nilCache *redis.Client
 
 	// create a new discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + b.token)
+	dg, err := discordgo.New("Bot " + b.Token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
 		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
@@ -325,14 +273,14 @@ func (b *Board) watchCryptoPrice() {
 		b.Nickname = false
 	}
 
+	logger.Infof("Watching board for %s", b.Name)
 	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
-	logger.Debugf("Watching crypto price for %s", b.Name)
 
 	// continuously watch
 	for {
 		for _, symbol := range b.Items {
 			select {
-			case <-b.close:
+			case <-b.Close:
 				logger.Infof("Shutting down price watching for %s", b.Name)
 				return
 			case <-ticker.C:
@@ -344,10 +292,10 @@ func (b *Board) watchCryptoPrice() {
 				var fmtDiff string
 
 				// save the price struct & do something with it
-				if b.Cache == rdb {
+				if rdb == nilCache {
 					priceData, err = utils.GetCryptoPrice(symbol)
 				} else {
-					priceData, err = utils.GetCryptoPriceCache(b.Cache, b.Context, symbol)
+					priceData, err = utils.GetCryptoPriceCache(rdb, ctx, symbol)
 				}
 				if err != nil {
 					logger.Errorf("Unable to fetch stock price for %s: %s", symbol, err)

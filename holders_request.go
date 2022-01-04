@@ -11,17 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// HoldersRequest represents the json coming in from the request
-type HoldersRequest struct {
-	Network   string `json:"network"`
-	Address   string `json:"address"`
-	Activity  string `json:"activity"`
-	Token     string `json:"discord_bot_token"`
-	Nickname  bool   `json:"set_nickname"`
-	Frequency int    `json:"frequency" default:"60"`
-	ClientID  string `json:"client_id"`
-}
-
 // ImportHolder pulls in bots from the provided db
 func (m *Manager) ImportHolder() {
 
@@ -34,18 +23,17 @@ func (m *Manager) ImportHolder() {
 
 	// load existing bots from db
 	for rows.Next() {
-		var clientID, token, activity, network, address string
-		var nickname bool
-		var frequency int
-		err = rows.Scan(&clientID, &token, &nickname, &activity, &network, &address, &frequency)
+		var importedHolders Holders
+
+		err = rows.Scan(&importedHolders.ClientID, &importedHolders.Token, &importedHolders.Nickname, &importedHolders.Activity, &importedHolders.Network, &importedHolders.Address, &importedHolders.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
-		h := NewHolders(clientID, network, address, activity, token, nickname, frequency)
-		m.addHolders(h, false)
-		logger.Infof("Loaded holder from db: %s-%s", network, address)
+		go importedHolders.watchHolders()
+		m.StoreHolders(&importedHolders, false)
+		logger.Infof("Loaded holder from db: %s-%s", importedHolders.Network, importedHolders.Address)
 	}
 	rows.Close()
 }
@@ -66,7 +54,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// unmarshal into struct
-	var holdersReq HoldersRequest
+	var holdersReq Holders
 	if err := json.Unmarshal(body, &holdersReq); err != nil {
 		logger.Errorf("Unmarshalling: %s", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -106,20 +94,20 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	holders := NewHolders(holdersReq.ClientID, holdersReq.Network, holdersReq.Address, holdersReq.Activity, holdersReq.Token, holdersReq.Nickname, holdersReq.Frequency)
-	m.addHolders(holders, true)
+	go holdersReq.watchHolders()
+	m.StoreHolders(&holdersReq, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(holders)
+	err = json.NewEncoder(w).Encode(holdersReq)
 	if err != nil {
 		logger.Errorf("Unable to encode holders: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	logger.Infof("Added holder: %s-%s\n", holders.Network, holders.Address)
+	logger.Infof("Added holder: %s-%s\n", holdersReq.Network, holdersReq.Address)
 }
 
-func (m *Manager) addHolders(holders *Holders, update bool) {
+func (m *Manager) StoreHolders(holders *Holders, update bool) {
 	holdersCount.Inc()
 	id := fmt.Sprintf("%s-%s", holders.Network, holders.Address)
 	m.WatchingHolders[id] = holders
@@ -162,7 +150,7 @@ func (m *Manager) addHolders(holders *Holders, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(holders.ClientID, holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency, existingId)
+		res, err := stmt.Exec(holders.ClientID, holders.Token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency, existingId)
 		if err != nil {
 			logger.Warningf("Unable to update holders in db %s: %s", id, err)
 			return
@@ -184,7 +172,7 @@ func (m *Manager) addHolders(holders *Holders, update bool) {
 			return
 		}
 
-		res, err := stmt.Exec(holders.ClientID, holders.token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
+		res, err := stmt.Exec(holders.ClientID, holders.Token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
 		if err != nil {
 			logger.Warningf("Unable to store holders in db %s: %s", id, err)
 			return
@@ -215,7 +203,7 @@ func (m *Manager) DeleteHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingHolders[id].Shutdown()
+	m.WatchingHolders[id].Close <- 1
 	holdersCount.Dec()
 
 	var noDB *sql.DB
@@ -258,13 +246,13 @@ func (m *Manager) RestartHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingHolders[id].Shutdown()
+	m.WatchingHolders[id].Close <- 1
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingHolders[id].Frequency) * 2 * time.Second)
 
 	// start the ticker again
-	m.WatchingHolders[id].Start()
+	go m.WatchingHolders[id].watchHolders()
 
 	logger.Infof("Restarted ticker %s", id)
 	w.WriteHeader(http.StatusNoContent)
