@@ -9,7 +9,7 @@ import (
 	"github.com/rssnyder/discord-stock-ticker/utils"
 )
 
-// Floor represents the gas data
+// Floor represents the floor data
 type Floor struct {
 	Marketplace string   `json:"marketplace"`
 	Name        string   `json:"name"`
@@ -20,14 +20,14 @@ type Floor struct {
 	Close       chan int `json:"-"`
 }
 
-// watchFloorPrice gets gas prices and rotates through levels
+// watchFloorPrice gets floor prices and rotates through levels
 func (f *Floor) watchFloorPrice() {
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + f.Token)
 	if err != nil {
 		logger.Errorf("Error creating Discord session: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": f.Name, "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -35,7 +35,7 @@ func (f *Floor) watchFloorPrice() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("error opening discord connection: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": f.Name, "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -52,10 +52,10 @@ func (f *Floor) watchFloorPrice() {
 		f.Frequency = 600
 	}
 
-	logger.Infof("Watching gas price for %s/%s", f.Marketplace, f.Name)
+	logger.Infof("Watching floor price for %s/%s", f.Marketplace, f.Name)
 	ticker := time.NewTicker(time.Duration(f.Frequency) * time.Second)
 
-	// watch gas price
+	// watch floor price
 	for {
 
 		select {

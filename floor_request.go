@@ -119,13 +119,13 @@ func (m *Manager) StoreFloor(floor *Floor, update bool) {
 	}
 
 	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM floors WHERE marketplace = ? LIMIT 1")
+	stmt, err := m.DB.Prepare("SELECT id FROM floors WHERE marketplace = ? AND name = ? LIMIT 1")
 	if err != nil {
 		logger.Warningf("Unable to query floor in db %s: %s", id, err)
 		return
 	}
 
-	rows, err := stmt.Query(floor.Marketplace)
+	rows, err := stmt.Query(floor.Marketplace, floor.Name)
 	if err != nil {
 		logger.Warningf("Unable to query floor in db %s: %s", id, err)
 		return
