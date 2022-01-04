@@ -36,6 +36,15 @@ type Ticker struct {
 	Close          chan int `json:"-"`
 }
 
+// label returns a human readble id for this bot
+func (s *Ticker) label() string {
+	if s.Crypto {
+		return strings.ToLower(fmt.Sprintf("%s-%s", s.Name, s.Currency))
+	} else {
+		return strings.ToLower(fmt.Sprintf("%s-%s", s.Ticker, s.Currency))
+	}
+}
+
 func (s *Ticker) watchStockPrice() {
 	var exRate float64
 

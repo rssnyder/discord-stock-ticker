@@ -92,7 +92,7 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if already existing
-	if _, ok := m.WatchingMarketCap[strings.ToUpper(marketCapReq.Name)]; ok {
+	if _, ok := m.WatchingMarketCap[marketCapReq.label()]; ok {
 		logger.Error("MarketCap already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -113,7 +113,7 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) StoreMarketCap(crypto bool, marketcap *MarketCap, update bool) {
 	tickerCount.Inc()
-	id := strings.ToUpper(marketcap.Name)
+	id := marketcap.label()
 	m.WatchingMarketCap[id] = marketcap
 
 	var noDB *sql.DB

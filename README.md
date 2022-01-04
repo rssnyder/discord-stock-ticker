@@ -11,9 +11,9 @@ Now with five different types of tickers!
 [![Publish](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
 
-[![GitHub last commit](https://img.shields.io/github/last-commit/rssnyder/discord-stock-ticker.svg?style=flat)]()
-[![GitHub stars](https://img.shields.io/github/stars/rssnyder/discord-stock-ticker.svg?style=social&label=Star)]()
-[![GitHub watchers](https://img.shields.io/github/watchers/rssnyder/discord-stock-ticker.svg?style=social&label=Watch)]()
+[![GitHub last commit](https://img.shields.io/github/last-commit/rssnyder/discord-stock-ticker.svg?style=flat)](https://github.com/rssnyder/discord-stock-ticker/pulse)
+[![GitHub stars](https://img.shields.io/github/stars/rssnyder/discord-stock-ticker.svg?style=social&label=Star)](https://github.com/rssnyder/discord-stock-ticker/pulse)
+[![GitHub watchers](https://img.shields.io/github/watchers/rssnyder/discord-stock-ticker.svg?style=social&label=Watch)](https://github.com/rssnyder/discord-stock-ticker/pulse)
 
 ## Contents
 
@@ -35,15 +35,15 @@ Now with five different types of tickers!
       - [Setting options](#setting-options)
       - [Systemd service](#systemd-service)
   - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
-    - [List current running bots](#list-current-running-bots)
-    - [Add a new bot](#add-a-new-bot)
-    - [Restart a bot](#restart-a-bot)
-    - [Remove a bot](#remove-a-bot)
+    - [List current running Tickers](#list-current-running-tickers)
+    - [Add a new Ticker](#add-a-new-ticker)
+    - [Restart a Ticker](#restart-a-ticker)
+    - [Remove a Ticker](#remove-a-ticker)
   - [Crypto Market Cap](#crypto-market-cap)
-    - [List current running bots](#list-current-running-bots-1)
-    - [Add a new bot](#add-a-new-bot-1)
-    - [Restart a bot](#restart-a-bot-1)
-    - [Remove a bot](#remove-a-bot-1)
+    - [List current running marketcaps](#list-current-running-marketcaps)
+    - [Add a new marketcap](#add-a-new-marketcap)
+    - [Restart a marketcap](#restart-a-marketcap)
+    - [Remove a marketcap](#remove-a-marketcap)
   - [Stock and Crypto Price Tickerboards](#stock-and-crypto-price-tickerboards)
     - [List current running Boards](#list-current-running-boards)
     - [Add a new Board](#add-a-new-board)
@@ -366,13 +366,13 @@ Now that you have the service running, you can add bots using the API exposed on
 
 ## Stock and Crypto Price Tickers
 
-### List current running bots
+### List current running Tickers
 
 ```shell
 curl localhost:8080/ticker
 ```
 
-### Add a new bot
+### Add a new Ticker
 
 Stock Payload:
 
@@ -422,7 +422,7 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/ticker
 ```
 
-### Restart a bot
+### Restart a Ticker
 
 ```shell
 curl -X PATCH localhost:8080/ticker/pfg
@@ -432,7 +432,7 @@ curl -X PATCH localhost:8080/ticker/pfg
 curl -X PATCH localhost:8080/ticker/bitcoin
 ```
 
-### Remove a bot
+### Remove a Ticker
 
 ```shell
 curl -X DELETE localhost:8080/ticker/pfg
@@ -444,13 +444,13 @@ curl -X DELETE localhost:8080/ticker/bitcoin
 
 ## Crypto Market Cap
 
-### List current running bots
+### List current running marketcaps
 
 ```shell
 curl localhost:8080/marketcap
 ```
 
-### Add a new bot
+### Add a new marketcap
 
 ```json
 {
@@ -477,13 +477,13 @@ curl -X POST -H "Content-Type: application/json" --data '{
 }' localhost:8080/marketcap
 ```
 
-### Restart a bot
+### Restart a marketcap
 
 ```shell
 curl -X PATCH localhost:8080/marketcap/bitcoin
 ```
 
-### Remove a bot
+### Remove a marketcap
 
 ```shell
 curl -X DELETE localhost:8080/marketcap/bitcoin
@@ -750,7 +750,6 @@ curl -X POST -H "Content-Type: application/json" --data '{
   "discord_bot_token": "xxxxxxx"
 }' localhost:8080/floor
 ```
-
 
 ### Restart a Floor
 

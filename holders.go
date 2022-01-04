@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,6 +21,11 @@ type Holders struct {
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
 	Close     chan int `json:"-"`
+}
+
+// label returns a human readble id for this bot
+func (h *Holders) label() string {
+	return strings.ToLower(fmt.Sprintf("%s-%s", h.Network, h.Address))
 }
 
 func (h *Holders) watchHolders() {

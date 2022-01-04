@@ -101,7 +101,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// check if already existing
-		if _, ok := m.WatchingTicker[strings.ToUpper(stockReq.Name)]; ok {
+		if _, ok := m.WatchingTicker[stockReq.label()]; ok {
 			logger.Error("Ticker already exists")
 			w.WriteHeader(http.StatusConflict)
 			return
@@ -123,7 +123,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// check if already existing
-		if _, ok := m.WatchingTicker[strings.ToUpper(stockReq.Ticker)]; ok {
+		if _, ok := m.WatchingTicker[stockReq.label()]; ok {
 			logger.Error("Ticker already exists")
 			w.WriteHeader(http.StatusConflict)
 			return
@@ -146,12 +146,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 // StoreTicker keeps track of running
 func (m *Manager) StoreTicker(ticker *Ticker, update bool) {
 	tickerCount.Inc()
-	var id string
-	if ticker.Crypto {
-		id = strings.ToUpper(ticker.Name)
-	} else {
-		id = strings.ToUpper(ticker.Ticker)
-	}
+	id := ticker.label()
 	m.WatchingTicker[id] = ticker
 
 	var noDB *sql.DB

@@ -3,10 +3,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -89,7 +87,7 @@ func (m *Manager) AddFloor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if already existing
-	if _, ok := m.WatchingFloor[strings.ToUpper(fmt.Sprintf("%s-%s", floorReq.Marketplace, floorReq.Name))]; ok {
+	if _, ok := m.WatchingFloor[floorReq.label()]; ok {
 		logger.Error("Marketplace already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -110,7 +108,7 @@ func (m *Manager) AddFloor(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) StoreFloor(floor *Floor, update bool) {
 	floorCount.Inc()
-	id := strings.ToUpper(fmt.Sprintf("%s-%s", floor.Marketplace, floor.Name))
+	id := floor.label()
 	m.WatchingFloor[id] = floor
 
 	var noDB *sql.DB

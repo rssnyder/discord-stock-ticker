@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -92,7 +91,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if already existing
-	if _, ok := m.WatchingToken[strings.ToUpper(tokenReq.Contract)]; ok {
+	if _, ok := m.WatchingToken[tokenReq.label()]; ok {
 		logger.Error("Error: ticker already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -112,7 +111,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) StoreToken(token *Token, update bool) {
 	tokenCount.Inc()
-	id := fmt.Sprintf("%s-%s", token.Network, token.Contract)
+	id := token.label()
 	m.WatchingToken[id] = token
 
 	var noDB *sql.DB

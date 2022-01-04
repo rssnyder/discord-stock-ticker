@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -18,6 +20,11 @@ type Floor struct {
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
 	Close       chan int `json:"-"`
+}
+
+// label returns a human readble id for this bot
+func (f *Floor) label() string {
+	return strings.ToLower(fmt.Sprintf("%s-%s", f.Marketplace, f.Name))
 }
 
 // watchFloorPrice gets floor prices and rotates through levels
@@ -39,6 +46,9 @@ func (f *Floor) watchFloorPrice() {
 		return
 	}
 
+	// make sure id in db is accurate
+	dg.User("@me")
+
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
@@ -47,7 +57,7 @@ func (f *Floor) watchFloorPrice() {
 	}
 
 	// check for frequency override
-	// set to one hour to avoid lockout
+	// set to avoid lockout
 	if *frequency != 0 {
 		f.Frequency = 600
 	}
@@ -65,7 +75,7 @@ func (f *Floor) watchFloorPrice() {
 		case <-ticker.C:
 			price, err := utils.GetFloorPrice(f.Marketplace, f.Name)
 			if err != nil {
-				logger.Errorf("Error getting rates: %s\n", err)
+				logger.Errorf("Error getting floor rates: %s\n", err)
 				continue
 			}
 

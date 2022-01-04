@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -18,6 +19,11 @@ type Gas struct {
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
 	Close     chan int `json:"-"`
+}
+
+// label returns a human readble id for this bot
+func (g *Gas) label() string {
+	return strings.ToLower(g.Network)
 }
 
 // watchGasPrice gets gas prices and rotates through levels

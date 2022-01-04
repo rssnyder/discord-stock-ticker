@@ -31,6 +31,11 @@ type MarketCap struct {
 	Close          chan int `json:"-"`
 }
 
+// label returns a human readble id for this bot
+func (m *MarketCap) label() string {
+	return strings.ToLower(fmt.Sprintf("%s-%s", m.Name, m.Currency))
+}
+
 func (m *MarketCap) watchMarketCap() {
 	var nilCache *redis.Client
 	var exRate float64
