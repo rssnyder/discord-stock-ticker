@@ -87,7 +87,6 @@ func (h *Holders) watchHolders() {
 					} else {
 						logger.Debugf("Set nickname in %s: %s\n", g.Name, nickname)
 					}
-					logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(h.Frequency) * time.Second)
 				}

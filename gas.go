@@ -84,7 +84,6 @@ func (g *Gas) watchGasPrice() {
 					} else {
 						logger.Debugf("Set nickname in %s: %s\n", gu.Name, nickname)
 					}
-					fmt.Printf("Set nickname in %s: %s\n", gu.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": gu.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(g.Frequency) * time.Second)
 				}

@@ -26,7 +26,7 @@ Now with five different types of tickers!
     - [Stocks](#stocks)
     - [Crypto](#crypto)
     - [Gas Prices](#gas-prices)
-    - [Other (not my) crypto discord bots](#other-not-my-crypto-discord-bots)
+    - [Other crypto bots I make (click for details)](#other-crypto-bots-i-make-click-for-details)
   - [Premium](#premium)
   - [Self-Hosting - Docker](#self-hosting---docker)
   - [Self-Hosting - binary](#self-hosting---binary)
@@ -64,6 +64,11 @@ Now with five different types of tickers!
     - [Add a new Token](#add-a-new-token)
     - [Restart a Token](#restart-a-token)
     - [Remove a Token](#remove-a-token)
+  - [OpenSea/Solanart NFT Collection Floor Price](#openseasolanart-nft-collection-floor-price)
+    - [List current running Floors](#list-current-running-floors)
+    - [Add a new Floor](#add-a-new-floor)
+    - [Restart a Floor](#restart-a-floor)
+    - [Remove a Floor](#remove-a-floor)
   - [Kubernetes](#kubernetes)
   - [Louie](#louie)
 
@@ -708,6 +713,55 @@ curl -X PATCH localhost:8080/token/polygon-0x0000000
 
 ```shell
 curl -X DELETE localhost:8080/token/polygon-0x0000000
+```
+
+## OpenSea/Solanart NFT Collection Floor Price
+
+This bot gets the current floor price for a NFT collection.
+
+### List current running Floors
+
+```shell
+curl localhost:8080/floor
+```
+
+### Add a new Floor
+
+Payload:
+
+```json
+{
+  "marketplace": "opensea",                         # string: one of: opensea or solanart
+  "name": "ethereum",                               # string: one of: ethereum, binance-smart-chain, or polygon
+  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
+}
+```
+
+Example:
+
+```shell
+curl -X POST -H "Content-Type: application/json" --data '{
+  "marketplace": "solanart",
+  "name": "solpunks",
+  "frequency": 3,
+  "set_nickname": true,
+  "discord_bot_token": "xxxxxxx"
+}' localhost:8080/floor
+```
+
+
+### Restart a Floor
+
+```shell
+curl -X PATCH localhost:8080/floor/solanart-solpunks
+```
+
+### Remove a Floor
+
+```shell
+curl -X DELETE localhost:8080/floor/solanart-solpunks
 ```
 
 ## Kubernetes
