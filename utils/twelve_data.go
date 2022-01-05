@@ -55,7 +55,6 @@ func GetTimeSeries(ticker string, interval string, apiKey string) (TimeSeries, e
 	}
 	err = json.Unmarshal(results, &price)
 	if err != nil {
-		fmt.Printf(resp.Status)
 		return price, err
 	}
 

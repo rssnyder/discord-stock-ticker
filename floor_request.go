@@ -12,9 +12,11 @@ import (
 
 // ImportFloor pulls in bots from the provided db
 func (m *Manager) ImportFloor() {
+	m.Lock()
+	defer m.Unlock()
 
 	// query
-	rows, err := m.DB.Query("SELECT clientID, token, nickname, marketplace, name, frequency FROM floors")
+	rows, err := m.DB.Query("SELECT id, clientID, token, nickname, marketplace, name, frequency FROM floors")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -23,16 +25,45 @@ func (m *Manager) ImportFloor() {
 	// load existing bots from db
 	for rows.Next() {
 		var importedFloor Floor
+		var importedID int
 
-		err = rows.Scan(&importedFloor.ClientID, &importedFloor.Token, &importedFloor.Nickname, &importedFloor.Marketplace, &importedFloor.Name, &importedFloor.Frequency)
+		err = rows.Scan(&importedID, &importedFloor.ClientID, &importedFloor.Token, &importedFloor.Nickname, &importedFloor.Marketplace, &importedFloor.Name, &importedFloor.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
 		}
 
 		go importedFloor.watchFloorPrice()
-		m.StoreFloor(&importedFloor, false)
+		m.WatchFloor(&importedFloor)
 		logger.Infof("Loaded floor from db: %s", importedFloor.Marketplace)
+
+		// make sure token is valid
+		if importedFloor.ClientID == "" {
+			id, err := getID(importedFloor.Token)
+			if err != nil {
+				logger.Errorf("Unable to authenticate with discord token: %s", err)
+				continue
+			}
+			importedFloor.ClientID = id
+
+			stmt, err := m.DB.Prepare("UPDATE  floors set clientId = ? where id = ?")
+			if err != nil {
+				logger.Warningf("Unable to update floor in db %s: %s", importedFloor.label(), err)
+				return
+			}
+
+			res, err := stmt.Exec(importedFloor.ClientID, importedID)
+			if err != nil {
+				logger.Warningf("Unable to update floor in db %s: %s", importedFloor.label(), err)
+				return
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Warningf("Unable to update floor in db %s: %s", importedFloor.label(), err)
+				return
+			}
+		}
 	}
 	rows.Close()
 }
@@ -67,6 +98,17 @@ func (m *Manager) AddFloor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// make sure token is valid
+	if floorReq.ClientID == "" {
+		id, err := getID(floorReq.Token)
+		if err != nil {
+			logger.Errorf("Unable to authenticate with discord token: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		floorReq.ClientID = id
+	}
+
 	// ensure frequency is set
 	if floorReq.Frequency <= 0 {
 		floorReq.Frequency = 60
@@ -94,7 +136,11 @@ func (m *Manager) AddFloor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go floorReq.watchFloorPrice()
-	m.StoreFloor(&floorReq, true)
+	m.WatchFloor(&floorReq)
+
+	if *db != "" {
+		m.StoreFloor(&floorReq)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -106,82 +152,43 @@ func (m *Manager) AddFloor(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("Added floor: %s\n", floorReq.Marketplace)
 }
 
-func (m *Manager) StoreFloor(floor *Floor, update bool) {
+func (m *Manager) WatchFloor(floor *Floor) {
 	floorCount.Inc()
 	id := floor.label()
 	m.WatchingFloor[id] = floor
+}
 
-	var noDB *sql.DB
-	if (m.DB == noDB) || !update {
-		return
+// StoreTicker puts a floor into the db
+func (m *Manager) StoreFloor(floor *Floor) {
+	m.Lock()
+	defer m.Unlock()
+
+	if floor.ClientID != "" {
+		id, err := getID(floor.Token)
+		if err != nil {
+			logger.Errorf("Unable to get token for %s: %s", floor.label(), err)
+			return
+		}
+		floor.ClientID = id
 	}
 
-	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM floors WHERE marketplace = ? AND name = ? LIMIT 1")
+	// store new entry in db
+	stmt, err := m.DB.Prepare("INSERT INTO floors(clientId, token, nickname, marketplace, name, frequency) values(?,?,?,?,?,?)")
 	if err != nil {
-		logger.Warningf("Unable to query floor in db %s: %s", id, err)
+		logger.Warningf("Unable to store floor in db %s: %s", floor.label(), err)
 		return
 	}
 
-	rows, err := stmt.Query(floor.Marketplace, floor.Name)
+	res, err := stmt.Exec(floor.ClientID, floor.Token, floor.Nickname, floor.Marketplace, floor.Name, floor.Frequency)
 	if err != nil {
-		logger.Warningf("Unable to query floor in db %s: %s", id, err)
+		logger.Warningf("Unable to store floor in db %s: %s", floor.label(), err)
 		return
 	}
 
-	var existingId int
-
-	for rows.Next() {
-		err = rows.Scan(&existingId)
-		if err != nil {
-			logger.Warningf("Unable to query floor in db %s: %s", id, err)
-			return
-		}
-	}
-	rows.Close()
-
-	if existingId != 0 {
-
-		// update entry in db
-		stmt, err := m.DB.Prepare("update floors set clientId = ?, token = ?, nickname = ?, marketplace = ?, name = ?, frequency = ? WHERE id = ?")
-		if err != nil {
-			logger.Warningf("Unable to update floor in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(floor.ClientID, floor.Token, floor.Nickname, floor.Marketplace, floor.Name, floor.Frequency, existingId)
-		if err != nil {
-			logger.Warningf("Unable to update floor in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to update floor in db %s: %s", id, err)
-			return
-		}
-
-		logger.Infof("Updated floor in db %s", id)
-	} else {
-
-		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO floors(clientId, token, nickname, marketplace, name, frequency) values(?,?,?,?,?,?)")
-		if err != nil {
-			logger.Warningf("Unable to store floor in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(floor.ClientID, floor.Token, floor.Nickname, floor.Marketplace, floor.Name, floor.Frequency)
-		if err != nil {
-			logger.Warningf("Unable to store floor in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to store floor in db %s: %s", id, err)
-			return
-		}
+	_, err = res.LastInsertId()
+	if err != nil {
+		logger.Warningf("Unable to store floor in db %s: %s", floor.label(), err)
+		return
 	}
 }
 
@@ -250,10 +257,10 @@ func (m *Manager) RestartFloor(w http.ResponseWriter, r *http.Request) {
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingFloor[id].Frequency) * 2 * time.Second)
 
-	// start the ticker again
+	// start the floor again
 	go m.WatchingFloor[id].watchFloorPrice()
 
-	logger.Infof("Restarted ticker %s", id)
+	logger.Infof("Restarted floor %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

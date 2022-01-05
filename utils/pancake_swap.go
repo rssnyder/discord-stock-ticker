@@ -47,7 +47,6 @@ func GetPancakeTokenPrice(contract string) (string, error) {
 
 	err = json.Unmarshal(results, &price)
 	if err != nil {
-		fmt.Printf(resp.Status)
 		return result, err
 	}
 

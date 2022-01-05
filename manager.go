@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
@@ -333,4 +334,22 @@ func dbInit(fileName string) *sql.DB {
 	logger.Infof("Will be storing state in %s\n", fileName)
 
 	return db
+}
+
+func getID(token string) (string, error) {
+	var id string
+
+	dg, err := discordgo.New("Bot " + token)
+	if err != nil {
+		logger.Errorf("Creating Discord session: %s", err)
+		return id, err
+	}
+
+	botUser, err := dg.User("@me")
+	if err != nil {
+		logger.Errorf("Getting bot user: %s", err)
+		return id, err
+	}
+
+	return botUser.ID, nil
 }

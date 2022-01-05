@@ -33,7 +33,7 @@ func (m *Manager) ImportToken() {
 
 		// activate bot
 		go importedToken.watchTokenPrice()
-		m.StoreToken(&importedToken, false)
+		m.WatchToken(&importedToken)
 		logger.Infof("Loaded token from db: %s-%s", importedToken.Network, importedToken.Contract)
 	}
 	rows.Close()
@@ -72,6 +72,17 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// make sure token is valid
+	if tokenReq.ClientID == "" {
+		id, err := getID(tokenReq.Token)
+		if err != nil {
+			logger.Errorf("Unable to authenticate with discord token: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		tokenReq.ClientID = id
+	}
+
 	// ensure frequency is set
 	if tokenReq.Frequency <= 0 {
 		tokenReq.Frequency = 60
@@ -92,13 +103,17 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 
 	// check if already existing
 	if _, ok := m.WatchingToken[tokenReq.label()]; ok {
-		logger.Error("Error: ticker already exists")
+		logger.Error("Error: token already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
 
 	go tokenReq.watchTokenPrice()
-	m.StoreToken(&tokenReq, true)
+	m.WatchToken(&tokenReq)
+
+	if *db != "" {
+		m.StoreToken(&tokenReq)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -109,82 +124,32 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("Added token: %s-%s\n", tokenReq.Network, tokenReq.Contract)
 }
 
-func (m *Manager) StoreToken(token *Token, update bool) {
+func (m *Manager) WatchToken(token *Token) {
 	tokenCount.Inc()
 	id := token.label()
 	m.WatchingToken[id] = token
+}
 
-	var noDB *sql.DB
-	if (m.DB == noDB) || !update {
-		return
-	}
+// StoreTicker puts a token into the db
+func (m *Manager) StoreToken(token *Token) {
 
-	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM tokens WHERE network = ? AND contract = ? LIMIT 1")
+	// store new entry in db
+	stmt, err := m.DB.Prepare("INSERT INTO tokens(clientId, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
-		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		logger.Warningf("Unable to store token in db %s: %s", token.label(), err)
 		return
 	}
 
-	rows, err := stmt.Query(token.Network, token.Contract)
+	res, err := stmt.Exec(token.ClientID, token.Token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
 	if err != nil {
-		logger.Warningf("Unable to query token in db %s: %s", id, err)
+		logger.Warningf("Unable to store token in db %s: %s", token.label(), err)
 		return
 	}
 
-	var existingId int
-
-	for rows.Next() {
-		err = rows.Scan(&existingId)
-		if err != nil {
-			logger.Warningf("Unable to query token in db %s: %s", id, err)
-			return
-		}
-	}
-	rows.Close()
-
-	if existingId != 0 {
-
-		// update entry in db
-		stmt, err := m.DB.Prepare("update tokens set clientId = ?, token = ?, name = ?, nickname = ?, color = ?, activity = ?, network = ?, contract = ?, decorator = ?, decimals = ?, source = ?, frequency = ? WHERE id = ?")
-		if err != nil {
-			logger.Warningf("Unable to update token in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(token.ClientID, token.Token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency, existingId)
-		if err != nil {
-			logger.Warningf("Unable to update token in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to update token in db %s: %s", id, err)
-			return
-		}
-
-		logger.Infof("Updated token in db %s", id)
-	} else {
-
-		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO tokens(clientId, token, name, nickname, color, activity, network, contract, decorator, decimals, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
-		if err != nil {
-			logger.Warningf("Unable to store token in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(token.ClientID, token.Token, token.Name, token.Nickname, token.Color, token.Activity, token.Network, token.Contract, token.Decorator, token.Decimals, token.Source, token.Frequency)
-		if err != nil {
-			logger.Warningf("Unable to store token in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to store token in db %s: %s", id, err)
-			return
-		}
+	_, err = res.LastInsertId()
+	if err != nil {
+		logger.Warningf("Unable to store token in db %s: %s", token.label(), err)
+		return
 	}
 }
 
@@ -193,15 +158,15 @@ func (m *Manager) DeleteToken(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
 
-	logger.Debugf("Got an API request to delete a ticker")
+	logger.Debugf("Got an API request to delete a token")
 
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	if _, ok := m.WatchingToken[id]; !ok {
-		logger.Error("Error: no ticker found")
+		logger.Error("Error: no token found")
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Error: ticker not found")
+		fmt.Fprint(w, "Error: token not found")
 		return
 	}
 
@@ -228,7 +193,7 @@ func (m *Manager) DeleteToken(w http.ResponseWriter, r *http.Request) {
 	// remove from cache
 	delete(m.WatchingToken, id)
 
-	logger.Infof("Deleted ticker %s", id)
+	logger.Infof("Deleted token %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -243,9 +208,9 @@ func (m *Manager) RestartToken(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 
 	if _, ok := m.WatchingToken[id]; !ok {
-		logger.Error("Error: no ticker found")
+		logger.Error("Error: no token found")
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Error: ticker not found")
+		fmt.Fprint(w, "Error: token not found")
 		return
 	}
 
@@ -255,10 +220,10 @@ func (m *Manager) RestartToken(w http.ResponseWriter, r *http.Request) {
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingToken[id].Frequency) * 2 * time.Second)
 
-	// start the ticker again
+	// start the token again
 	go m.WatchingToken[id].watchTokenPrice()
 
-	logger.Infof("Restarted ticker %s", id)
+	logger.Infof("Restarted token %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

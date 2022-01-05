@@ -31,7 +31,7 @@ func (m *Manager) ImportGas() {
 		}
 
 		go importedGas.watchGasPrice()
-		m.StoreGas(&importedGas, false)
+		m.WatchGas(&importedGas)
 		logger.Infof("Loaded gas from db: %s", importedGas.Network)
 	}
 	rows.Close()
@@ -67,6 +67,17 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// make sure token is valid
+	if gasReq.ClientID == "" {
+		id, err := getID(gasReq.Token)
+		if err != nil {
+			logger.Errorf("Unable to authenticate with discord token: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		gasReq.ClientID = id
+	}
+
 	// ensure frequency is set
 	if gasReq.Frequency <= 0 {
 		gasReq.Frequency = 60
@@ -87,7 +98,11 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go gasReq.watchGasPrice()
-	m.StoreGas(&gasReq, true)
+	m.WatchGas(&gasReq)
+
+	if *db != "" {
+		m.StoreGas(&gasReq)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -99,82 +114,41 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("Added gas: %s\n", gasReq.Network)
 }
 
-func (m *Manager) StoreGas(gas *Gas, update bool) {
+func (m *Manager) WatchGas(gas *Gas) {
 	gasCount.Inc()
 	id := gas.label()
 	m.WatchingGas[id] = gas
+}
 
-	var noDB *sql.DB
-	if (m.DB == noDB) || !update {
-		return
+// StoreGas puts a gas into the db
+func (m *Manager) StoreGas(gas *Gas) {
+
+	if gas.ClientID != "" {
+		id, err := getID(gas.Token)
+		if err != nil {
+			logger.Errorf("Unable to get token for %s: %s", gas.label(), err)
+			return
+		}
+		gas.ClientID = id
 	}
 
-	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM gases WHERE network = ? LIMIT 1")
+	// store new entry in db
+	stmt, err := m.DB.Prepare("INSERT INTO gases(clientId, token, nickname, network, frequency) values(?,?,?,?,?)")
 	if err != nil {
-		logger.Warningf("Unable to query gas in db %s: %s", id, err)
+		logger.Warningf("Unable to store gas in db %s: %s", gas.label(), err)
 		return
 	}
 
-	rows, err := stmt.Query(gas.Network)
+	res, err := stmt.Exec(gas.ClientID, gas.Token, gas.Nickname, gas.Network, gas.Frequency)
 	if err != nil {
-		logger.Warningf("Unable to query gas in db %s: %s", id, err)
+		logger.Warningf("Unable to store gas in db %s: %s", gas.label(), err)
 		return
 	}
 
-	var existingId int
-
-	for rows.Next() {
-		err = rows.Scan(&existingId)
-		if err != nil {
-			logger.Warningf("Unable to query gas in db %s: %s", id, err)
-			return
-		}
-	}
-	rows.Close()
-
-	if existingId != 0 {
-
-		// update entry in db
-		stmt, err := m.DB.Prepare("update gases set clientId = ?, token = ?, nickname = ?, network = ?, frequency = ? WHERE id = ?")
-		if err != nil {
-			logger.Warningf("Unable to update gas in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(gas.ClientID, gas.Token, gas.Nickname, gas.Network, gas.Frequency, existingId)
-		if err != nil {
-			logger.Warningf("Unable to update gas in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to update gas in db %s: %s", id, err)
-			return
-		}
-
-		logger.Infof("Updated gas in db %s", id)
-	} else {
-
-		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO gases(clientId, token, nickname, network, frequency) values(?,?,?,?,?)")
-		if err != nil {
-			logger.Warningf("Unable to store gas in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(gas.ClientID, gas.Token, gas.Nickname, gas.Network, gas.Frequency)
-		if err != nil {
-			logger.Warningf("Unable to store gas in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to store gas in db %s: %s", id, err)
-			return
-		}
+	_, err = res.LastInsertId()
+	if err != nil {
+		logger.Warningf("Unable to store gas in db %s: %s", gas.label(), err)
+		return
 	}
 }
 
@@ -243,10 +217,10 @@ func (m *Manager) RestartGas(w http.ResponseWriter, r *http.Request) {
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingGas[id].Frequency) * 2 * time.Second)
 
-	// start the ticker again
+	// start the gas again
 	go m.WatchingGas[id].watchGasPrice()
 
-	logger.Infof("Restarted ticker %s", id)
+	logger.Infof("Restarted gas %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

@@ -1,7 +1,0 @@
-{
-  "name": "Discord Stock Ticker",
-  "description": "Live stock and crypto tickers for your discord server.",
-  "repository": "https://github.com/rssnyder/discord-stock-ticker",
-  "logo": "https://discord.com/assets/f9bb9c4af2b9c32a2c5ee0014661546d.png",
-  "keywords": ["go", "discord", "stock", "crypto", "ticker"]
-}

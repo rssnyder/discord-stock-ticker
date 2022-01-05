@@ -38,7 +38,6 @@ func GetZapperData(network string) (GasData, error) {
 
 	err = json.Unmarshal(results, &prices)
 	if err != nil {
-		fmt.Printf(resp.Status)
 		return prices, err
 	}
 

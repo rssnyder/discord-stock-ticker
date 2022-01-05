@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"sync"
 
@@ -52,7 +51,7 @@ func main() {
 	var wg sync.WaitGroup
 
 	if *version {
-		fmt.Printf("discord-stock-ticker@%s\n", buildVersion)
+		logger.Infof("discord-stock-ticker@%s\n", buildVersion)
 		return
 	}
 

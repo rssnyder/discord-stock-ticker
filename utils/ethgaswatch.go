@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -66,7 +65,6 @@ func GetEthGasWatchData() (EthGasWatchData, error) {
 
 	err = json.Unmarshal(results, &prices)
 	if err != nil {
-		fmt.Printf(resp.Status)
 		return prices, err
 	}
 
