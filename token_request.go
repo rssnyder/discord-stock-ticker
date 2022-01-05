@@ -44,7 +44,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
 
-	logger.Debugf("Got an API request to add a ticker")
+	logger.Debugf("Got an API request to add a token")
 
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
@@ -97,7 +97,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenReq.watchTokenPrice()
+	go tokenReq.watchTokenPrice()
 	m.StoreToken(&tokenReq, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
