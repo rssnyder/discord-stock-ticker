@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -88,7 +87,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if already existing
-	if _, ok := m.WatchingHolders[fmt.Sprintf("%s-%s", holdersReq.Network, holdersReq.Address)]; ok {
+	if _, ok := m.WatchingHolders[holdersReq.label()]; ok {
 		logger.Error("Network already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -109,7 +108,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) StoreHolders(holders *Holders, update bool) {
 	holdersCount.Inc()
-	id := fmt.Sprintf("%s-%s", holders.Network, holders.Address)
+	id := holders.label()
 	m.WatchingHolders[id] = holders
 
 	var noDB *sql.DB

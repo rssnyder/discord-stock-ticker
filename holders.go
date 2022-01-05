@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -20,6 +21,11 @@ type Holders struct {
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
 	Close     chan int `json:"-"`
+}
+
+// label returns a human readble id for this bot
+func (h *Holders) label() string {
+	return strings.ToLower(fmt.Sprintf("%s-%s", h.Network, h.Address))
 }
 
 func (h *Holders) watchHolders() {
@@ -87,7 +93,6 @@ func (h *Holders) watchHolders() {
 					} else {
 						logger.Debugf("Set nickname in %s: %s\n", g.Name, nickname)
 					}
-					logger.Infof("Set nickname in %s: %s\n", g.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(h.Frequency) * time.Second)
 				}

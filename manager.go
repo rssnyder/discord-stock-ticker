@@ -51,6 +51,12 @@ var (
 			Help: "Number of holders.",
 		},
 	)
+	floorCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "floor_count",
+			Help: "Number of floor.",
+		},
+	)
 	cacheHits = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "cache_hit",
@@ -84,6 +90,7 @@ type Manager struct {
 	WatchingGas       map[string]*Gas
 	WatchingToken     map[string]*Token
 	WatchingHolders   map[string]*Holders
+	WatchingFloor     map[string]*Floor
 	DB                *sql.DB
 	Cache             *redis.Client
 	Context           context.Context
@@ -99,6 +106,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 		WatchingGas:       make(map[string]*Gas),
 		WatchingToken:     make(map[string]*Token),
 		WatchingHolders:   make(map[string]*Holders),
+		WatchingFloor:     make(map[string]*Floor),
 		DB:                dbInit(dbFile),
 		Cache:             cache,
 		Context:           context,
@@ -143,6 +151,12 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	r.HandleFunc("/holders/{id}", m.RestartHolders).Methods("PATCH")
 	r.HandleFunc("/holders", m.GetHolders).Methods("GET")
 
+	// Floor
+	r.HandleFunc("/floor", m.AddFloor).Methods("POST")
+	r.HandleFunc("/floor/{id}", m.DeleteFloor).Methods("DELETE")
+	r.HandleFunc("/floor/{id}", m.RestartFloor).Methods("PATCH")
+	r.HandleFunc("/floor", m.GetFloor).Methods("GET")
+
 	// Metrics
 	p := prometheus.NewRegistry()
 	p.MustRegister(tickerCount)
@@ -151,6 +165,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	p.MustRegister(gasCount)
 	p.MustRegister(tokenCount)
 	p.MustRegister(holdersCount)
+	p.MustRegister(floorCount)
 	p.MustRegister(lastUpdate)
 	p.MustRegister(cacheHits)
 	p.MustRegister(cacheMisses)
@@ -166,6 +181,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 		m.ImportHolder()
 		m.ImportGas()
 		m.ImportBoard()
+		m.ImportFloor()
 	}
 
 	srv := &http.Server{
@@ -282,6 +298,15 @@ func dbInit(fileName string) *sql.DB {
 		crypto bool,
 		header string,
 		items string
+	);
+	CREATE TABLE IF NOT EXISTS floors (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		nickname bool,
+		marketplace string,
+		name string
 	);`
 
 	_, err = db.Exec(bootstrap)

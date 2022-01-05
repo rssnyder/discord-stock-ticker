@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -33,7 +32,7 @@ func (m *Manager) ImportToken() {
 		}
 
 		// activate bot
-		importedToken.watchTokenPrice()
+		go importedToken.watchTokenPrice()
 		m.StoreToken(&importedToken, false)
 		logger.Infof("Loaded token from db: %s-%s", importedToken.Network, importedToken.Contract)
 	}
@@ -45,7 +44,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
 
-	logger.Debugf("Got an API request to add a ticker")
+	logger.Debugf("Got an API request to add a token")
 
 	// read body
 	body, err := ioutil.ReadAll(r.Body)
@@ -92,13 +91,13 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if already existing
-	if _, ok := m.WatchingToken[strings.ToUpper(tokenReq.Contract)]; ok {
+	if _, ok := m.WatchingToken[tokenReq.label()]; ok {
 		logger.Error("Error: ticker already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
 
-	tokenReq.watchTokenPrice()
+	go tokenReq.watchTokenPrice()
 	m.StoreToken(&tokenReq, true)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -112,7 +111,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) StoreToken(token *Token, update bool) {
 	tokenCount.Inc()
-	id := fmt.Sprintf("%s-%s", token.Network, token.Contract)
+	id := token.label()
 	m.WatchingToken[id] = token
 
 	var noDB *sql.DB

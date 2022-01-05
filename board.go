@@ -27,6 +27,11 @@ type Board struct {
 	Close      chan int `json:"-"`
 }
 
+// label returns a human readble id for this bot
+func (b *Board) label() string {
+	return strings.ToLower(b.Name)
+}
+
 func (b *Board) watchStockPrice() {
 
 	// create a new discord session using the provided bot token.

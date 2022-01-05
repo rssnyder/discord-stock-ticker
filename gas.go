@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -18,6 +19,11 @@ type Gas struct {
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
 	Close     chan int `json:"-"`
+}
+
+// label returns a human readble id for this bot
+func (g *Gas) label() string {
+	return strings.ToLower(g.Network)
 }
 
 // watchGasPrice gets gas prices and rotates through levels
@@ -84,7 +90,6 @@ func (g *Gas) watchGasPrice() {
 					} else {
 						logger.Debugf("Set nickname in %s: %s\n", gu.Name, nickname)
 					}
-					fmt.Printf("Set nickname in %s: %s\n", gu.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "gas", "ticker": g.Network, "guild": gu.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(g.Frequency) * time.Second)
 				}

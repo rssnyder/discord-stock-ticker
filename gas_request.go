@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -81,7 +80,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if already existing
-	if _, ok := m.WatchingGas[strings.ToUpper(gasReq.Network)]; ok {
+	if _, ok := m.WatchingGas[gasReq.label()]; ok {
 		logger.Error("Network already exists")
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -102,7 +101,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) StoreGas(gas *Gas, update bool) {
 	gasCount.Inc()
-	id := gas.Network
+	id := gas.label()
 	m.WatchingGas[id] = gas
 
 	var noDB *sql.DB

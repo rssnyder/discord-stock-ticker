@@ -100,7 +100,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	if boardReq.Crypto {
 
 		// check if already existing
-		if _, ok := m.WatchingBoard[strings.ToUpper(boardReq.Name)]; ok {
+		if _, ok := m.WatchingBoard[boardReq.label()]; ok {
 			logger.Error("Error: board already exists")
 			w.WriteHeader(http.StatusConflict)
 			return
@@ -111,7 +111,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		// check if already existing
-		if _, ok := m.WatchingBoard[strings.ToUpper(boardReq.Name)]; ok {
+		if _, ok := m.WatchingBoard[boardReq.label()]; ok {
 			logger.Error("Error: board already exists")
 			w.WriteHeader(http.StatusConflict)
 			return
@@ -132,7 +132,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 
 func (m *Manager) StoreBoard(crypto bool, board *Board, update bool) {
 	boardCount.Inc()
-	id := board.Name
+	id := board.label()
 	m.WatchingBoard[id] = board
 
 	var noDB *sql.DB

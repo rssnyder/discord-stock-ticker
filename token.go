@@ -30,6 +30,11 @@ type Token struct {
 	Close     chan int `json:"-"`
 }
 
+// label returns a human readble id for this bot
+func (t *Token) label() string {
+	return strings.ToLower(fmt.Sprintf("%s-%s", t.Network, t.Contract))
+}
+
 func (t *Token) watchTokenPrice() {
 	var nilCache *redis.Client
 
