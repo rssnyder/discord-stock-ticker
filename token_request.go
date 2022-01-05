@@ -32,7 +32,7 @@ func (m *Manager) ImportToken() {
 		}
 
 		// activate bot
-		importedToken.watchTokenPrice()
+		go importedToken.watchTokenPrice()
 		m.StoreToken(&importedToken, false)
 		logger.Infof("Loaded token from db: %s-%s", importedToken.Network, importedToken.Contract)
 	}
