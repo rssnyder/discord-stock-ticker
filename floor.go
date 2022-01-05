@@ -46,9 +46,6 @@ func (f *Floor) watchFloorPrice() {
 		return
 	}
 
-	// make sure id in db is accurate
-	dg.User("@me")
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
