@@ -355,19 +355,6 @@ func getIDToken(token string) (string, error) {
 	return botUser.ID, nil
 }
 
-// getID retrive an id for a bot
-func getIDSession(session *discordgo.Session) (string, error) {
-	var id string
-
-	botUser, err := session.User("@me")
-	if err != nil {
-		logger.Errorf("Getting bot user: %s", err)
-		return id, err
-	}
-
-	return botUser.ID, nil
-}
-
 // setName will update a bots name
 func setName(session *discordgo.Session, name string) {
 
