@@ -90,7 +90,11 @@ func (s *Ticker) watchStockPrice() {
 		if err != nil {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
 		} else {
-			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+			if len(exData.QuoteSummary.Results) > 0 {
+				exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
+			} else {
+				logger.Errorf("Bad exchange rate for %s, default to USD.", s.Currency)
+			}
 		}
 	}
 
@@ -410,7 +414,12 @@ func (s *Ticker) watchCryptoPrice() {
 		if err != nil {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
 		} else {
-			exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
+			if len(exData.QuoteSummary.Results) > 0 {
+				exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
+			} else {
+				logger.Errorf("Bad exchange rate for %s, default to USD.", s.Currency)
+				exRate = float64(s.Multiplier)
+			}
 		}
 	} else {
 		exRate = float64(s.Multiplier)
@@ -465,7 +474,7 @@ func (s *Ticker) watchCryptoPrice() {
 				}
 			}
 			if err != nil {
-				logger.Errorf("Unable to fetch stock price for %s: %s", s.Name, err)
+				logger.Errorf("Unable to fetch crypto price for %s: %s", s.Name, err)
 				continue
 			}
 
