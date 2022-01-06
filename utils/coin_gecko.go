@@ -3,12 +3,11 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -60,15 +59,7 @@ func GetCryptoPrice(ticker string) (GeckoPriceResults, error) {
 	}
 
 	if resp.StatusCode == 429 {
-		rand.Seed(time.Now().UnixNano())
-		n := rand.Intn(10)
-		time.Sleep(time.Duration(n) * time.Second)
-		secondAttempt, err := GetCryptoPrice(ticker)
-		if err != nil {
-			return price, err
-		} else {
-			return secondAttempt, nil
-		}
+		return price, errors.New("being rate limited by coingecko")
 	}
 
 	results, err := ioutil.ReadAll(resp.Body)

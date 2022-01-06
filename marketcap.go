@@ -125,7 +125,7 @@ func (m *MarketCap) watchMarketCap() {
 				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, m.Name)
 			}
 			if err != nil {
-				logger.Errorf("Unable to fetch stock price for %s: %s", m.Name, err)
+				logger.Errorf("Unable to fetch marketcap for %s: %s", m.Name, err)
 				continue
 			}
 
