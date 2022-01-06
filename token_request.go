@@ -34,7 +34,7 @@ func (m *Manager) ImportToken() {
 		// activate bot
 		go importedToken.watchTokenPrice()
 		m.WatchToken(&importedToken)
-		logger.Infof("Loaded token from db: %s-%s", importedToken.Network, importedToken.Contract)
+		logger.Infof("Loaded token from db: %s", importedToken.label())
 	}
 	rows.Close()
 }
@@ -74,7 +74,7 @@ func (m *Manager) AddToken(w http.ResponseWriter, r *http.Request) {
 
 	// make sure token is valid
 	if tokenReq.ClientID == "" {
-		id, err := getID(tokenReq.Token)
+		id, err := getIDToken(tokenReq.Token)
 		if err != nil {
 			logger.Errorf("Unable to authenticate with discord token: %s", err)
 			w.WriteHeader(http.StatusBadRequest)

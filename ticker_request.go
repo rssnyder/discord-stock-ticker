@@ -34,13 +34,11 @@ func (m *Manager) ImportTicker() {
 		// activate bot
 		if importedTicker.Crypto {
 			go importedTicker.watchCryptoPrice()
-			m.WatchTicker(&importedTicker)
-			logger.Infof("Loaded ticker from db: %s", importedTicker.Name)
 		} else {
 			go importedTicker.watchStockPrice()
-			m.WatchTicker(&importedTicker)
-			logger.Infof("Loaded ticker from db: %s", importedTicker.Name)
 		}
+		m.WatchTicker(&importedTicker)
+		logger.Infof("Loaded ticker from db: %s", importedTicker.label())
 	}
 	rows.Close()
 }
@@ -77,7 +75,7 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 
 	// make sure token is valid
 	if stockReq.ClientID == "" {
-		id, err := getID(stockReq.Token)
+		id, err := getIDToken(stockReq.Token)
 		if err != nil {
 			logger.Errorf("Unable to authenticate with discord token: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -167,15 +165,6 @@ func (m *Manager) WatchTicker(ticker *Ticker) {
 
 // StoreTicker puts a ticker into the db
 func (m *Manager) StoreTicker(ticker *Ticker) {
-
-	if ticker.ClientID != "" {
-		id, err := getID(ticker.Token)
-		if err != nil {
-			logger.Errorf("Unable to get token for %s: %s", ticker.label(), err)
-			return
-		}
-		ticker.ClientID = id
-	}
 
 	// store new entry in db
 	stmt, err := m.DB.Prepare("INSERT INTO tickers(clientId, token, ticker, name, nickname, color, crypto, activity, decorator, decimals, currency, currencySymbol, pair, pairFlip, multiplier, twelveDataKey, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")

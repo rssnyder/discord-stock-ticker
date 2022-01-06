@@ -54,18 +54,13 @@ func (t *Token) watchTokenPrice() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Getting bot id: %s", err)
-		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Error getting guilds: %s\n", err)
+		t.Nickname = false
+	}
+	if len(guilds) == 0 {
 		t.Nickname = false
 	}
 
@@ -86,6 +81,11 @@ func (t *Token) watchTokenPrice() {
 	itrSeed := 0.0
 	if t.Activity != "" {
 		custom_activity = strings.Split(t.Activity, ";")
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, t.label())
 	}
 
 	logger.Infof("Watching token price for %s", t.Name)
@@ -253,20 +253,20 @@ func (t *Token) watchTokenPrice() {
 
 						// assign role based on change
 						if increase {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleRemove(g.ID, t.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleAdd(g.ID, t.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}
 						} else {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleRemove(g.ID, t.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleAdd(g.ID, t.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}

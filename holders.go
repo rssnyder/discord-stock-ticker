@@ -62,11 +62,19 @@ func (h *Holders) watchHolders() {
 		logger.Errorf("Error getting guilds: %s\n", err)
 		h.Nickname = false
 	}
+	if len(guilds) == 0 {
+		h.Nickname = false
+	}
 
 	// check for frequency override
 	// set to one hour to avoid lockout
 	if *frequency != 0 {
 		h.Frequency = 3600
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, h.label())
 	}
 
 	logger.Infof("Watching holders for %s", h.Address)

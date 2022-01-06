@@ -64,18 +64,13 @@ func (s *Ticker) watchStockPrice() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Getting bot id: %s", err)
-		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Getting guilds: %s", err)
+		s.Nickname = false
+	}
+	if len(guilds) == 0 {
 		s.Nickname = false
 	}
 
@@ -106,6 +101,11 @@ func (s *Ticker) watchStockPrice() {
 	itrSeed := 0.0
 	if s.Activity != "" {
 		custom_activity = strings.Split(s.Activity, ";")
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, s.label())
 	}
 
 	logger.Infof("Watching stock price for %s", s.Ticker)
@@ -259,20 +259,20 @@ func (s *Ticker) watchStockPrice() {
 
 						// assign role based on change
 						if increase {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}
 						} else {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}
@@ -384,14 +384,6 @@ func (s *Ticker) watchCryptoPrice() {
 		wg.Wait()
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Getting bot id: %s", err)
-		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
@@ -433,6 +425,11 @@ func (s *Ticker) watchCryptoPrice() {
 		}
 	} else if s.Multiplier > 1 {
 		custom_activity = append(custom_activity, fmt.Sprintf("x%d %s", s.Multiplier, strings.ToUpper(s.Name)))
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, s.label())
 	}
 
 	logger.Infof("Watching crypto price for %s", s.Name)
@@ -642,20 +639,20 @@ func (s *Ticker) watchCryptoPrice() {
 
 						// assign role based on change
 						if increase {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}
 						} else {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}

@@ -56,18 +56,13 @@ func (m *MarketCap) watchMarketCap() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Getting bot id: %s", err)
-		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Getting guilds: %s", err)
+		m.Nickname = false
+	}
+	if len(guilds) == 0 {
 		m.Nickname = false
 	}
 
@@ -98,6 +93,11 @@ func (m *MarketCap) watchMarketCap() {
 	itrSeed := 0.0
 	if m.Activity != "" {
 		custom_activity = strings.Split(m.Activity, ";")
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, m.label())
 	}
 
 	logger.Infof("Watching marketcap for %s", m.Name)
@@ -271,20 +271,20 @@ func (m *MarketCap) watchMarketCap() {
 
 						// assign role based on change
 						if increase {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleRemove(g.ID, m.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleAdd(g.ID, m.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}
 						} else {
-							err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+							err = dg.GuildMemberRoleRemove(g.ID, m.ClientID, greeenRole)
 							if err != nil {
 								logger.Errorf("Unable to remove role: %s", err)
 							}
-							err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+							err = dg.GuildMemberRoleAdd(g.ID, m.ClientID, redRole)
 							if err != nil {
 								logger.Errorf("Unable to set role: %s", err)
 							}

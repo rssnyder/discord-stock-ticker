@@ -20,7 +20,7 @@ var (
 func (m *Manager) ImportBoard() {
 
 	// query
-	rows, err := m.DB.Query("SELECT id, clientID, token, name, nickname, color, crypto, header, items, frequency FROM boards")
+	rows, err := m.DB.Query("SELECT clientID, token, name, nickname, color, crypto, header, items, frequency FROM boards")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -30,9 +30,8 @@ func (m *Manager) ImportBoard() {
 	for rows.Next() {
 		var importedBoard Board
 		var itemsBulk string
-		var importedID int
 
-		err = rows.Scan(importedID, &importedBoard.ClientID, &importedBoard.Token, &importedBoard.Name, &importedBoard.Nickname, &importedBoard.Color, &importedBoard.Crypto, &importedBoard.Header, &itemsBulk, &importedBoard.Frequency)
+		err = rows.Scan(&importedBoard.ClientID, &importedBoard.Token, &importedBoard.Name, &importedBoard.Nickname, &importedBoard.Color, &importedBoard.Crypto, &importedBoard.Header, &itemsBulk, &importedBoard.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
@@ -46,18 +45,7 @@ func (m *Manager) ImportBoard() {
 			go importedBoard.watchStockPrice()
 			m.WatchBoard(&importedBoard)
 		}
-		logger.Infof("Loaded board from db: %s", importedBoard.Name)
-
-		// make sure token is valid
-		if importedBoard.ClientID == "" {
-			id, err := getID(importedBoard.Token)
-			if err != nil {
-				logger.Errorf("Unable to authenticate with discord token: %s", err)
-				continue
-			}
-			importedBoard.ClientID = id
-
-		}
+		logger.Infof("Loaded board from db: %s", importedBoard.label())
 	}
 	rows.Close()
 }
@@ -94,7 +82,7 @@ func (m *Manager) AddBoard(w http.ResponseWriter, r *http.Request) {
 
 	// make sure token is valid
 	if boardReq.ClientID == "" {
-		id, err := getID(boardReq.Token)
+		id, err := getIDToken(boardReq.Token)
 		if err != nil {
 			logger.Errorf("Unable to authenticate with discord token: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -161,15 +149,6 @@ func (m *Manager) WatchBoard(board *Board) {
 
 // StoreBoard puts a board into the db
 func (m *Manager) StoreBoard(board *Board) {
-
-	if board.ClientID != "" {
-		id, err := getID(board.Token)
-		if err != nil {
-			logger.Errorf("Unable to get token for %s: %s", board.label(), err)
-			return
-		}
-		board.ClientID = id
-	}
 
 	// store new entry in db
 	stmt, err := m.DB.Prepare("INSERT INTO boards(clientId, token, name, nickname, color, crypto, header, items, frequency) values(?,?,?,?,?,?,?,?,?)")

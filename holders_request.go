@@ -32,7 +32,7 @@ func (m *Manager) ImportHolder() {
 
 		go importedHolders.watchHolders()
 		m.WatchHolders(&importedHolders)
-		logger.Infof("Loaded holder from db: %s-%s", importedHolders.Network, importedHolders.Address)
+		logger.Infof("Loaded holder from db: %s", importedHolders.label())
 	}
 	rows.Close()
 }
@@ -69,7 +69,7 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 
 	// make sure token is valid
 	if holdersReq.ClientID == "" {
-		id, err := getID(holdersReq.Token)
+		id, err := getIDToken(holdersReq.Token)
 		if err != nil {
 			logger.Errorf("Unable to authenticate with discord token: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -129,15 +129,6 @@ func (m *Manager) WatchHolders(holders *Holders) {
 
 // StoreTicker puts a holder into the db
 func (m *Manager) StoreHolders(holders *Holders) {
-
-	if holders.ClientID != "" {
-		id, err := getID(holders.Token)
-		if err != nil {
-			logger.Errorf("Unable to get token for %s: %s", holders.label(), err)
-			return
-		}
-		holders.ClientID = id
-	}
 
 	// store new entry in db
 	stmt, err := m.DB.Prepare("INSERT INTO holders(clientId, token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?,?)")

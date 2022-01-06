@@ -35,35 +35,7 @@ func (m *Manager) ImportFloor() {
 
 		go importedFloor.watchFloorPrice()
 		m.WatchFloor(&importedFloor)
-		logger.Infof("Loaded floor from db: %s", importedFloor.Marketplace)
-
-		// make sure token is valid
-		if importedFloor.ClientID == "" {
-			id, err := getID(importedFloor.Token)
-			if err != nil {
-				logger.Errorf("Unable to authenticate with discord token: %s", err)
-				continue
-			}
-			importedFloor.ClientID = id
-
-			stmt, err := m.DB.Prepare("UPDATE  floors set clientId = ? where id = ?")
-			if err != nil {
-				logger.Warningf("Unable to update floor in db %s: %s", importedFloor.label(), err)
-				return
-			}
-
-			res, err := stmt.Exec(importedFloor.ClientID, importedID)
-			if err != nil {
-				logger.Warningf("Unable to update floor in db %s: %s", importedFloor.label(), err)
-				return
-			}
-
-			_, err = res.LastInsertId()
-			if err != nil {
-				logger.Warningf("Unable to update floor in db %s: %s", importedFloor.label(), err)
-				return
-			}
-		}
+		logger.Infof("Loaded floor from db: %s", importedFloor.label())
 	}
 	rows.Close()
 }
@@ -100,7 +72,7 @@ func (m *Manager) AddFloor(w http.ResponseWriter, r *http.Request) {
 
 	// make sure token is valid
 	if floorReq.ClientID == "" {
-		id, err := getID(floorReq.Token)
+		id, err := getIDToken(floorReq.Token)
 		if err != nil {
 			logger.Errorf("Unable to authenticate with discord token: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -160,17 +132,6 @@ func (m *Manager) WatchFloor(floor *Floor) {
 
 // StoreTicker puts a floor into the db
 func (m *Manager) StoreFloor(floor *Floor) {
-	m.Lock()
-	defer m.Unlock()
-
-	if floor.ClientID != "" {
-		id, err := getID(floor.Token)
-		if err != nil {
-			logger.Errorf("Unable to get token for %s: %s", floor.label(), err)
-			return
-		}
-		floor.ClientID = id
-	}
 
 	// store new entry in db
 	stmt, err := m.DB.Prepare("INSERT INTO floors(clientId, token, nickname, marketplace, name, frequency) values(?,?,?,?,?,?)")

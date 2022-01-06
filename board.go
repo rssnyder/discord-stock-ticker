@@ -50,18 +50,13 @@ func (b *Board) watchStockPrice() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Error getting bot id: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Error getting guilds: %s\n", err)
+		b.Nickname = false
+	}
+	if len(guilds) == 0 {
 		b.Nickname = false
 	}
 
@@ -193,20 +188,20 @@ func (b *Board) watchStockPrice() {
 
 							// assign role based on change
 							if increase {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+								err = dg.GuildMemberRoleRemove(g.ID, b.ClientID, redRole)
 								if err != nil {
 									logger.Errorf("Unable to remove role: %s\n", err)
 								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+								err = dg.GuildMemberRoleAdd(g.ID, b.ClientID, greeenRole)
 								if err != nil {
 									logger.Errorf("Unable to set role: %s\n", err)
 								}
 							} else {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+								err = dg.GuildMemberRoleRemove(g.ID, b.ClientID, greeenRole)
 								if err != nil {
 									logger.Errorf("Unable to remove role: %s\n", err)
 								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+								err = dg.GuildMemberRoleAdd(g.ID, b.ClientID, redRole)
 								if err != nil {
 									logger.Errorf("Unable to set role: %s\n", err)
 								}
@@ -263,19 +258,19 @@ func (b *Board) watchCryptoPrice() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Error getting bot id: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Error getting guilds: %s\n", err)
 		b.Nickname = false
+	}
+	if len(guilds) == 0 {
+		b.Nickname = false
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, b.label())
 	}
 
 	logger.Infof("Watching board for %s", b.Name)
@@ -401,20 +396,20 @@ func (b *Board) watchCryptoPrice() {
 
 							// assign role based on change
 							if increase {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
+								err = dg.GuildMemberRoleRemove(g.ID, b.ClientID, redRole)
 								if err != nil {
 									logger.Errorf("Unable to remove role: %s\n", err)
 								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
+								err = dg.GuildMemberRoleAdd(g.ID, b.ClientID, greeenRole)
 								if err != nil {
 									logger.Errorf("Unable to set role: %s\n", err)
 								}
 							} else {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
+								err = dg.GuildMemberRoleRemove(g.ID, b.ClientID, greeenRole)
 								if err != nil {
 									logger.Errorf("Unable to remove role: %s\n", err)
 								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
+								err = dg.GuildMemberRoleAdd(g.ID, b.ClientID, redRole)
 								if err != nil {
 									logger.Errorf("Unable to set role: %s\n", err)
 								}

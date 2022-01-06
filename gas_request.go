@@ -32,7 +32,7 @@ func (m *Manager) ImportGas() {
 
 		go importedGas.watchGasPrice()
 		m.WatchGas(&importedGas)
-		logger.Infof("Loaded gas from db: %s", importedGas.Network)
+		logger.Infof("Loaded gas from db: %s", importedGas.label())
 	}
 	rows.Close()
 }
@@ -69,7 +69,7 @@ func (m *Manager) AddGas(w http.ResponseWriter, r *http.Request) {
 
 	// make sure token is valid
 	if gasReq.ClientID == "" {
-		id, err := getID(gasReq.Token)
+		id, err := getIDToken(gasReq.Token)
 		if err != nil {
 			logger.Errorf("Unable to authenticate with discord token: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -122,15 +122,6 @@ func (m *Manager) WatchGas(gas *Gas) {
 
 // StoreGas puts a gas into the db
 func (m *Manager) StoreGas(gas *Gas) {
-
-	if gas.ClientID != "" {
-		id, err := getID(gas.Token)
-		if err != nil {
-			logger.Errorf("Unable to get token for %s: %s", gas.label(), err)
-			return
-		}
-		gas.ClientID = id
-	}
 
 	// store new entry in db
 	stmt, err := m.DB.Prepare("INSERT INTO gases(clientId, token, nickname, network, frequency) values(?,?,?,?,?)")

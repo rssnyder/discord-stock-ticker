@@ -34,7 +34,7 @@ func (m *Manager) ImportMarketCap() {
 		// activate bot
 		go importedMarketCap.watchMarketCap()
 		m.WatchMarketCap(&importedMarketCap)
-		logger.Infof("Loaded marketcap from db: %s", importedMarketCap.Name)
+		logger.Infof("Loaded marketcap from db: %s", importedMarketCap.label())
 	}
 	rows.Close()
 }
@@ -71,7 +71,7 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 
 	// make sure token is valid
 	if marketCapReq.ClientID == "" {
-		id, err := getID(marketCapReq.Token)
+		id, err := getIDToken(marketCapReq.Token)
 		if err != nil {
 			logger.Errorf("Unable to authenticate with discord token: %s", err)
 			w.WriteHeader(http.StatusBadRequest)
@@ -134,15 +134,6 @@ func (m *Manager) WatchMarketCap(marketcap *MarketCap) {
 
 // StoreTicker puts a marketcap into the db
 func (m *Manager) StoreMarketcap(marketcap *MarketCap) {
-
-	if marketcap.ClientID != "" {
-		id, err := getID(marketcap.Token)
-		if err != nil {
-			logger.Errorf("Unable to get token for %s: %s", marketcap.label(), err)
-			return
-		}
-		marketcap.ClientID = id
-	}
 
 	// store new entry in db
 	stmt, err := m.DB.Prepare("INSERT INTO marketcaps(clientId, token, ticker, name, nickname, color, activity, decorator, decimals, currency, currencySymbol, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")

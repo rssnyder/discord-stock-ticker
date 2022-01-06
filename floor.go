@@ -52,11 +52,19 @@ func (f *Floor) watchFloorPrice() {
 		logger.Errorf("Error getting guilds: %s\n", err)
 		f.Nickname = false
 	}
+	if len(guilds) == 0 {
+		f.Nickname = false
+	}
 
 	// check for frequency override
 	// set to avoid lockout
 	if *frequency != 0 {
 		f.Frequency = 600
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, f.label())
 	}
 
 	logger.Infof("Watching floor price for %s/%s", f.Marketplace, f.Name)
@@ -96,7 +104,7 @@ func (f *Floor) watchFloorPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Debugf("Set activity")
+					logger.Debugf("Set activity: %s", f.Name)
 				}
 			} else {
 
