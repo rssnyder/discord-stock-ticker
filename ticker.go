@@ -33,6 +33,7 @@ type Ticker struct {
 	Crypto         bool     `json:"crypto"`
 	Token          string   `json:"discord_bot_token"`
 	TwelveDataKey  string   `json:"twelve_data_key"`
+	Exrate         float64  `json:"exrate"`
 	Close          chan int `json:"-"`
 }
 
@@ -46,7 +47,6 @@ func (s *Ticker) label() string {
 }
 
 func (s *Ticker) watchStockPrice() {
-	var exRate float64
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.Token)
@@ -91,7 +91,7 @@ func (s *Ticker) watchStockPrice() {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
 		} else {
 			if len(exData.QuoteSummary.Results) > 0 {
-				exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
+				s.Exrate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
 			} else {
 				logger.Errorf("Bad exchange rate for %s, default to USD.", s.Currency)
 			}
@@ -182,8 +182,8 @@ func (s *Ticker) watchStockPrice() {
 				fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
 
 				// Check if conversion is needed
-				if exRate != 0 {
-					rawPrice := exRate * priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+				if s.Exrate != 0 {
+					rawPrice := s.Exrate * priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
 					fmtPrice = strconv.FormatFloat(rawPrice, 'f', 2, 64)
 				}
 
@@ -330,7 +330,6 @@ func (s *Ticker) watchStockPrice() {
 
 func (s *Ticker) watchCryptoPrice() {
 	var nilCache *redis.Client
-	var exRate float64
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.Token)
@@ -410,19 +409,20 @@ func (s *Ticker) watchCryptoPrice() {
 
 	// If other currency, get rate
 	if s.Currency != "USD" {
+		logger.Infof("Using %s", s.Currency)
 		exData, err := utils.GetStockPrice(s.Currency + "=X")
 		if err != nil {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
 		} else {
 			if len(exData.QuoteSummary.Results) > 0 {
-				exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
+				s.Exrate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
 			} else {
 				logger.Errorf("Bad exchange rate for %s, default to USD.", s.Currency)
-				exRate = float64(s.Multiplier)
+				s.Exrate = float64(s.Multiplier)
 			}
 		}
 	} else {
-		exRate = float64(s.Multiplier)
+		s.Exrate = float64(s.Multiplier)
 	}
 
 	// Set arrows if no custom decorator
@@ -479,9 +479,9 @@ func (s *Ticker) watchCryptoPrice() {
 			}
 
 			// Check if conversion is needed
-			if exRate > 1.0 {
-				priceData.MarketData.CurrentPrice.USD = exRate * priceData.MarketData.CurrentPrice.USD
-				priceData.MarketData.PriceChangeCurrency.USD = exRate * priceData.MarketData.PriceChangeCurrency.USD
+			if s.Exrate > 1.0 {
+				priceData.MarketData.CurrentPrice.USD = s.Exrate * priceData.MarketData.CurrentPrice.USD
+				priceData.MarketData.PriceChangeCurrency.USD = s.Exrate * priceData.MarketData.PriceChangeCurrency.USD
 			}
 
 			// format the price changes
