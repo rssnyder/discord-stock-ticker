@@ -253,7 +253,7 @@ func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to delete a ticker")
 
 	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
+	id := vars["id"]
 
 	if _, ok := m.WatchingTicker[id]; !ok {
 		logger.Errorf("No ticker found: %s", id)
