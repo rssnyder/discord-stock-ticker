@@ -56,7 +56,8 @@ Now with five different types of tickers!
 
 ## Preview
 
-![image](https://user-images.githubusercontent.com/7338312/127577682-70b67f31-59c9-427b-b9dc-2736a2b4e378.png)![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)
+![image](https://user-images.githubusercontent.com/7338312/127577682-70b67f31-59c9-427b-b9dc-2736a2b4e378.png)![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)![FLOOR](https://user-images.githubusercontent.com/7338312/148694075-7ca93668-2ce6-4e26-af9c-1dc032bf6980.png)
+
 
 ## Join the discord server
 
@@ -182,13 +183,9 @@ Love these bots? You can support this project by subscribing to the [premium ver
 
 [![Ethereum Invite Link](https://user-images.githubusercontent.com/7338312/127579033-8785ed17-2bcc-474c-80d4-8ea356da70e6.png)](https://discord.com/api/oauth2/authorize?client_id=833797002684661821&permissions=0&scope=bot)[![Binance Smart Chain Invite Link](https://user-images.githubusercontent.com/7338312/127578976-d47069cb-c162-4ab5-ad73-be17b2c1796d.png)](https://discord.com/api/oauth2/authorize?client_id=856947934452645898&permissions=0&scope=bot)[![Polygon Invite Link](https://user-images.githubusercontent.com/7338312/127578967-a7097067-9b0a-44d2-baf6-e3541a511c70.png)](https://discord.com/api/oauth2/authorize?client_id=857023179210096674&permissions=0&scope=bot)
 
-### Other crypto bots I make (click for details)
-
-[![image](https://user-images.githubusercontent.com/7338312/147755805-b2562443-205c-44d3-8742-64d90ff81963.png)](https://github.com/rssnyder/discord-nft-floor-price)
-
 ## Premium
 
-For advanced features like faster update times and color changing names on price changes you can subscribe to my premuim offering.
+For advanced features like faster update times and color changing names on price changes without having to host the bot yourself, you can subscribe to my premuim offering.
 
 Price per bot (paid monthly): $1
 
@@ -205,21 +202,6 @@ docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:3.4.1
 ```
 
 You can set the config via ENV vars, since we use [namsral/flag](https://github.com/namsral/flag) the variables are the same as the flag inputs, but all uppercase:
-
-When using the binary...
-
-```shell
-  -address="localhost:8080": address:port to bind http server to.
-  -cache=false: enable cache for coingecko
-  -db="": file to store tickers in
-  -frequency=0: set frequency for all tickers
-  -logLevel=0: defines the log level. 0=production builds. 1=dev builds.
-  -redisAddress="localhost:6379": address:port for redis server.
-  -redisDB=0: redis db to use
-  -redisPassword="": redis password
-```
-
-When using env (docker)...
 
 ```shell
 export ADDRESS="localhost:8080" # address:port to bind http server to.
@@ -254,36 +236,11 @@ services:
       - "8112:8080"
 ```
 
-## Self-Hosting - binary
-
-This bot is distributed as a docker image and a binary.
-
-The program acts as a manager of one to many bots. You can have one running instance of the program and have any number of bots running within it.
+## Self-Hosting - Binary
 
 [Click here](https://youtu.be/LhgCdtE8kmc) to watch a quick video tutorial on how to self-host these bots on linux.
 
-If you are using windows and do not have a unix shell to use, you should use powershell. Here is an example of an API call using powershell:
-
-```powershell
-$Body = @{
-  name = "bitcoin"
-  crypto = $true
-  discord_bot_token = "xxxxxxxxxxxxxxxxxxxxxxxxx"
-}
- 
-$Parameters = @{
-    Method = "POST"
-    Uri =  "127.0.0.1:8080/ticker"
-    Body = ($Body | ConvertTo-Json) 
-    ContentType = "application/json"
-}
-
-Invoke-RestMethod @Parameters
-```
-
-### Using the binary
-
-Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases).
+Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases). Extract. Run.
 
 ```shell
 wget https://github.com/rssnyder/discord-stock-ticker/releases/download/v2.0.0/discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
@@ -308,7 +265,7 @@ There are options you can set for the service using flags:
   -redisPassword="": redis password
 ```
 
-#### Systemd service
+#### Systemd (linux)
 
 The script here (ran as root) will download and install a `discord-stock-ticker` service on your linux machine with an API avalible on port `8080` to manage bots.
 
@@ -345,13 +302,32 @@ PATCH /<bot type>/<id>  : restart a running bot
 DELETE /<bot type>/<id> : delete a running bot
 ```
 
-To interface with the API in the terminal, these examples will use curl:
+If you are new to use an API to manage things, there are several ways to make the calls:
 
+curl:
 ```shell
 curl -X <method> -H "Content-Type: application/json" --data '<json config>' localhost:8080/<bot type>
 ```
 
-What follow is a list of the bots types and their relevant configurations.
+powershell:
+```shell
+$Body = @{
+  name = "bitcoin"
+  crypto = $true
+  discord_bot_token = "xxxxxxxxxxxxxxxxxxxxxxxxx"
+}
+ 
+$Parameters = @{
+    Method = "POST"
+    Uri =  "127.0.0.1:8080/ticker"
+    Body = ($Body | ConvertTo-Json) 
+    ContentType = "application/json"
+}
+
+Invoke-RestMethod @Parameters
+```
+
+[postman](https://www.postman.com/)
 
 ## Stock and Crypto Price Tickers
 
@@ -525,6 +501,8 @@ Track the price of a token on Ethereum, Binance, or Polygon chains. Uses 1inch b
 ## OpenSea/Solanart NFT Collection Floor Price
 
 bot type: `floor`
+
+![image](https://user-images.githubusercontent.com/7338312/148694081-9e90f75d-dcef-4a68-b98a-11c37b2b616a.png)
 
 Track the floor price of an NFT collection on OpenSea or Solanart.
 
