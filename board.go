@@ -162,7 +162,7 @@ func (b *Board) watchStockPrice() {
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
 						// change bot color
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, b.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}
@@ -329,7 +329,7 @@ func (b *Board) watchCryptoPrice() {
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
 						// change bot color
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, b.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}

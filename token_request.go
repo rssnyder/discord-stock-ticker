@@ -37,6 +37,38 @@ func (m *Manager) ImportToken() {
 		logger.Infof("Loaded token from db: %s", importedToken.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, token := range m.WatchingToken {
+		if token.ClientID == "" {
+			id, err := getIDToken(token.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE tokens SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, token.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", token.label())
+				token.ClientID = id
+			}
+		}
+	}
 }
 
 // AddToken adds a new Token or crypto to the list of what to watch

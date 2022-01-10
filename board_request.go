@@ -48,6 +48,38 @@ func (m *Manager) ImportBoard() {
 		logger.Infof("Loaded board from db: %s", importedBoard.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, board := range m.WatchingBoard {
+		if board.ClientID == "" {
+			id, err := getIDToken(board.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE boards SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, board.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", board.label())
+				board.ClientID = id
+			}
+		}
+	}
 }
 
 // AddBoard adds a new board to the list of what to watch

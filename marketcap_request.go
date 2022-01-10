@@ -37,6 +37,38 @@ func (m *Manager) ImportMarketCap() {
 		logger.Infof("Loaded marketcap from db: %s", importedMarketCap.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, marketcap := range m.WatchingMarketCap {
+		if marketcap.ClientID == "" {
+			id, err := getIDToken(marketcap.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE marketcaps SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, marketcap.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", marketcap.label())
+				marketcap.ClientID = id
+			}
+		}
+	}
 }
 
 // AddMarketCap adds a new MarketCap or crypto to the list of what to watch

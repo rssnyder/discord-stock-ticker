@@ -38,6 +38,38 @@ func (m *Manager) ImportFloor() {
 		logger.Infof("Loaded floor from db: %s", importedFloor.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, floor := range m.WatchingFloor {
+		if floor.ClientID == "" {
+			id, err := getIDToken(floor.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE floors SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, floor.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", floor.label())
+				floor.ClientID = id
+			}
+		}
+	}
 }
 
 // AddTicker adds a new Ticker or crypto to the list of what to watch

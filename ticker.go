@@ -238,7 +238,7 @@ func (s *Ticker) watchStockPrice() {
 
 					if s.Color {
 						// change bot color
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, s.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}
@@ -583,7 +583,7 @@ func (s *Ticker) watchCryptoPrice() {
 
 					if s.Color {
 						// change bot color
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, s.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}

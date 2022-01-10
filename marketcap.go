@@ -244,7 +244,7 @@ func (m *MarketCap) watchMarketCap() {
 
 					// change bot color
 					if m.Color {
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, m.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}

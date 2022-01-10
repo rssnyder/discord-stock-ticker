@@ -35,6 +35,38 @@ func (m *Manager) ImportHolder() {
 		logger.Infof("Loaded holder from db: %s", importedHolders.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, holders := range m.WatchingHolders {
+		if holders.ClientID == "" {
+			id, err := getIDToken(holders.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE holders SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, holders.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", holders.label())
+				holders.ClientID = id
+			}
+		}
+	}
 }
 
 // AddTicker adds a new Ticker or crypto to the list of what to watch

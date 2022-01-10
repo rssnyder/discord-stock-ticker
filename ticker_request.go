@@ -46,6 +46,38 @@ func (m *Manager) ImportTicker() {
 		logger.Infof("Loaded ticker from db: %s", importedTicker.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, ticker := range m.WatchingTicker {
+		if ticker.ClientID == "" {
+			id, err := getIDToken(ticker.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE tickers SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, ticker.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", ticker.label())
+				ticker.ClientID = id
+			}
+		}
+	}
 }
 
 // AddTicker takes in a new ticker from the API
