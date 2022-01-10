@@ -50,18 +50,13 @@ func (b *Board) watchStockPrice() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Error getting bot id: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Error getting guilds: %s\n", err)
+		b.Nickname = false
+	}
+	if len(guilds) == 0 {
 		b.Nickname = false
 	}
 
@@ -167,7 +162,7 @@ func (b *Board) watchStockPrice() {
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
 						// change bot color
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, b.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}
@@ -222,19 +217,19 @@ func (b *Board) watchCryptoPrice() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Error getting bot id: %s\n", err)
-		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Error getting guilds: %s\n", err)
 		b.Nickname = false
+	}
+	if len(guilds) == 0 {
+		b.Nickname = false
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, b.label())
 	}
 
 	logger.Infof("Watching board for %s", b.Name)
@@ -334,7 +329,7 @@ func (b *Board) watchCryptoPrice() {
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
 						// change bot color
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, b.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}

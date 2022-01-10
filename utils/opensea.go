@@ -62,7 +62,6 @@ func GetOpenSeaData(collection string) (OpenSeaCollection, error) {
 
 	err = json.Unmarshal(results, &result)
 	if err != nil {
-		fmt.Printf(resp.Status)
 		return result, err
 	}
 

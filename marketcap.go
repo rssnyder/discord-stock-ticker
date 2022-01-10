@@ -56,18 +56,13 @@ func (m *MarketCap) watchMarketCap() {
 		return
 	}
 
-	// get bot id
-	botUser, err := dg.User("@me")
-	if err != nil {
-		logger.Errorf("Getting bot id: %s", err)
-		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
-		return
-	}
-
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
 		logger.Errorf("Getting guilds: %s", err)
+		m.Nickname = false
+	}
+	if len(guilds) == 0 {
 		m.Nickname = false
 	}
 
@@ -98,6 +93,11 @@ func (m *MarketCap) watchMarketCap() {
 	itrSeed := 0.0
 	if m.Activity != "" {
 		custom_activity = strings.Split(m.Activity, ";")
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, m.label())
 	}
 
 	logger.Infof("Watching marketcap for %s", m.Name)
@@ -244,7 +244,7 @@ func (m *MarketCap) watchMarketCap() {
 
 					// change bot color
 					if m.Color {
-						err = setRole(dg, botUser.ID, g.ID, increase)
+						err = setRole(dg, m.ClientID, g.ID, increase)
 						if err != nil {
 							logger.Errorf("Color roles: %s", err)
 						}

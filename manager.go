@@ -337,6 +337,48 @@ func dbInit(fileName string) *sql.DB {
 	return db
 }
 
+// getID retrive an id for a bot
+func getIDToken(token string) (string, error) {
+	var id string
+
+	dg, err := discordgo.New("Bot " + token)
+	if err != nil {
+		logger.Errorf("Creating Discord session: %s", err)
+		return id, err
+	}
+
+	botUser, err := dg.User("@me")
+	if err != nil {
+		logger.Errorf("Getting bot user: %s", err)
+		return id, err
+	}
+
+	return botUser.ID, nil
+}
+
+// setName will update a bots name
+func setName(session *discordgo.Session, name string) {
+
+	user, err := session.User("@me")
+	if err != nil {
+		logger.Errorf("Getting bot user: %s", err)
+		return
+	}
+
+	if user.Username == name {
+		logger.Debugf("Username already matches: %s", name)
+		return
+	}
+
+	_, err = session.UserUpdate("", "", name, "", "")
+	if err != nil {
+		logger.Errorf("Updating bot username: %s", err)
+		return
+	}
+
+	logger.Debugf("%s changed to %s", user.Username, name)
+}
+
 // setRole changes color roles based on change
 func setRole(session *discordgo.Session, id, guild string, increase bool) error {
 	var redRole string

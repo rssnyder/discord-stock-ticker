@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"sync"
 
@@ -21,6 +20,7 @@ var (
 	redisPassword *string
 	redisDB       *int
 	cache         *bool
+	managed       *bool
 	version       *bool
 	rdb           *redis.Client
 	ctx           context.Context
@@ -35,6 +35,7 @@ func init() {
 	redisPassword = flag.String("redisPassword", "", "redis password")
 	redisDB = flag.Int("redisDB", 0, "redis db to use")
 	cache = flag.Bool("cache", false, "enable cache for coingecko")
+	managed = flag.Bool("managed", false, "forcefully keep db and discord updated with bot values")
 	version = flag.Bool("version", false, "print version")
 	flag.Parse()
 
@@ -52,7 +53,7 @@ func main() {
 	var wg sync.WaitGroup
 
 	if *version {
-		fmt.Printf("discord-stock-ticker@%s\n", buildVersion)
+		logger.Infof("discord-stock-ticker@%s\n", buildVersion)
 		return
 	}
 

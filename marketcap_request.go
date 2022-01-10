@@ -33,10 +33,42 @@ func (m *Manager) ImportMarketCap() {
 
 		// activate bot
 		go importedMarketCap.watchMarketCap()
-		m.StoreMarketCap(true, &importedMarketCap, false)
-		logger.Infof("Loaded marketcap from db: %s", importedMarketCap.Name)
+		m.WatchMarketCap(&importedMarketCap)
+		logger.Infof("Loaded marketcap from db: %s", importedMarketCap.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, marketcap := range m.WatchingMarketCap {
+		if marketcap.ClientID == "" {
+			id, err := getIDToken(marketcap.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE marketcaps SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, marketcap.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", marketcap.label())
+				marketcap.ClientID = id
+			}
+		}
+	}
 }
 
 // AddMarketCap adds a new MarketCap or crypto to the list of what to watch
@@ -69,6 +101,17 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// make sure token is valid
+	if marketCapReq.ClientID == "" {
+		id, err := getIDToken(marketCapReq.Token)
+		if err != nil {
+			logger.Errorf("Unable to authenticate with discord token: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		marketCapReq.ClientID = id
+	}
+
 	// ensure frequency is set
 	if marketCapReq.Frequency <= 0 {
 		marketCapReq.Frequency = 60
@@ -99,7 +142,11 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go marketCapReq.watchMarketCap()
-	m.StoreMarketCap(true, &marketCapReq, true)
+	m.WatchMarketCap(&marketCapReq)
+
+	if *db != "" {
+		m.StoreMarketcap(&marketCapReq)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -111,81 +158,32 @@ func (m *Manager) AddMarketCap(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("Added marketcap: %s\n", marketCapReq.Name)
 }
 
-func (m *Manager) StoreMarketCap(crypto bool, marketcap *MarketCap, update bool) {
-	tickerCount.Inc()
+func (m *Manager) WatchMarketCap(marketcap *MarketCap) {
+	marketcapCount.Inc()
 	id := marketcap.label()
 	m.WatchingMarketCap[id] = marketcap
+}
 
-	var noDB *sql.DB
-	if (m.DB == noDB) || !update {
-		return
-	}
+// StoreTicker puts a marketcap into the db
+func (m *Manager) StoreMarketcap(marketcap *MarketCap) {
 
-	// query
-	var existingId int
-	stmt, err := m.DB.Prepare("SELECT id FROM marketcaps WHERE name = ? LIMIT 1")
+	// store new entry in db
+	stmt, err := m.DB.Prepare("INSERT INTO marketcaps(clientId, token, ticker, name, nickname, color, activity, decorator, decimals, currency, currencySymbol, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
-		logger.Warningf("Unable to query marketcap in db %s: %s", id, err)
+		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
 		return
 	}
 
-	rows, err := stmt.Query(marketcap.Name)
+	res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency)
 	if err != nil {
-		logger.Warningf("Unable to query marketcap in db %s: %s", id, err)
+		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
 		return
 	}
 
-	for rows.Next() {
-		err = rows.Scan(&existingId)
-		if err != nil {
-			logger.Warningf("Unable to query marketcap in db %s: %s", id, err)
-			return
-		}
-	}
-	rows.Close()
-
-	if existingId != 0 {
-
-		// update entry in db
-		stmt, err := m.DB.Prepare("update marketcaps set clientId = ?, token = ?, ticker = ?, name = ?, nickname = ?, color = ?, activity = ?, decorator = ?, decimals = ?, currency = ?, currencySymbol = ?, frequency = ? WHERE id = ?")
-		if err != nil {
-			logger.Warningf("Unable to update ticker in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency, existingId)
-		if err != nil {
-			logger.Warningf("Unable to update marketcap in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to update marketcap in db %s: %s", id, err)
-			return
-		}
-
-		logger.Infof("Updated marketcap in db %s", id)
-	} else {
-
-		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO marketcaps(clientId, token, ticker, name, nickname, color, activity, decorator, decimals, currency, currencySymbol, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
-		if err != nil {
-			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Color, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency)
-		if err != nil {
-			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to store ticker in db %s: %s", id, err)
-			return
-		}
+	_, err = res.LastInsertId()
+	if err != nil {
+		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
+		return
 	}
 }
 
@@ -206,7 +204,7 @@ func (m *Manager) DeleteMarketCap(w http.ResponseWriter, r *http.Request) {
 	}
 	// send shutdown sign
 	m.WatchingMarketCap[id].Close <- 1
-	tickerCount.Dec()
+	marketcapCount.Dec()
 
 	var noDB *sql.DB
 	if m.DB != noDB {
@@ -252,7 +250,7 @@ func (m *Manager) RestartMarketCap(w http.ResponseWriter, r *http.Request) {
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingMarketCap[id].Frequency) * 2 * time.Second)
 
-	// start the ticker again
+	// start the marketcap again
 	go m.WatchingMarketCap[id].watchMarketCap()
 
 	logger.Infof("Restarted marketcap %s", id)

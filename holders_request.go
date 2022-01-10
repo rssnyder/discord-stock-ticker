@@ -31,10 +31,42 @@ func (m *Manager) ImportHolder() {
 		}
 
 		go importedHolders.watchHolders()
-		m.StoreHolders(&importedHolders, false)
-		logger.Infof("Loaded holder from db: %s-%s", importedHolders.Network, importedHolders.Address)
+		m.WatchHolders(&importedHolders)
+		logger.Infof("Loaded holder from db: %s", importedHolders.label())
 	}
 	rows.Close()
+
+	// check all entries have id
+	for _, holders := range m.WatchingHolders {
+		if holders.ClientID == "" {
+			id, err := getIDToken(holders.Token)
+			if err != nil {
+				logger.Errorf("Unable to get id from token: %s", err)
+				continue
+			}
+
+			stmt, err := m.DB.Prepare("UPDATE holders SET clientId = ? WHERE token = ?")
+			if err != nil {
+				logger.Errorf("Unable to prepare id update: %s", err)
+				continue
+			}
+
+			res, err := stmt.Exec(id, holders.Token)
+			if err != nil {
+				logger.Errorf("Unable to update db: %s", err)
+				continue
+			}
+
+			_, err = res.LastInsertId()
+			if err != nil {
+				logger.Errorf("Unable to confirm db update: %s", err)
+				continue
+			} else {
+				logger.Infof("Updated id in db for %s", holders.label())
+				holders.ClientID = id
+			}
+		}
+	}
 }
 
 // AddTicker adds a new Ticker or crypto to the list of what to watch
@@ -67,6 +99,17 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// make sure token is valid
+	if holdersReq.ClientID == "" {
+		id, err := getIDToken(holdersReq.Token)
+		if err != nil {
+			logger.Errorf("Unable to authenticate with discord token: %s", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		holdersReq.ClientID = id
+	}
+
 	// ensure frequency is set
 	if holdersReq.Frequency <= 0 {
 		holdersReq.Frequency = 60
@@ -94,7 +137,11 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go holdersReq.watchHolders()
-	m.StoreHolders(&holdersReq, true)
+	m.WatchHolders(&holdersReq)
+
+	if *db != "" {
+		m.StoreHolders(&holdersReq)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -106,82 +153,32 @@ func (m *Manager) AddHolders(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("Added holder: %s-%s\n", holdersReq.Network, holdersReq.Address)
 }
 
-func (m *Manager) StoreHolders(holders *Holders, update bool) {
+func (m *Manager) WatchHolders(holders *Holders) {
 	holdersCount.Inc()
 	id := holders.label()
 	m.WatchingHolders[id] = holders
+}
 
-	var noDB *sql.DB
-	if (m.DB == noDB) || !update {
-		return
-	}
+// StoreTicker puts a holder into the db
+func (m *Manager) StoreHolders(holders *Holders) {
 
-	// query
-	stmt, err := m.DB.Prepare("SELECT id FROM holders WHERE network = ? AND address = ? LIMIT 1")
+	// store new entry in db
+	stmt, err := m.DB.Prepare("INSERT INTO holders(clientId, token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?,?)")
 	if err != nil {
-		logger.Warningf("Unable to query holders in db %s: %s", id, err)
+		logger.Warningf("Unable to store holders in db %s: %s", holders.label(), err)
 		return
 	}
 
-	rows, err := stmt.Query(holders.Network, holders.Address)
+	res, err := stmt.Exec(holders.ClientID, holders.Token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
 	if err != nil {
-		logger.Warningf("Unable to query holders in db %s: %s", id, err)
+		logger.Warningf("Unable to store holders in db %s: %s", holders.label(), err)
 		return
 	}
 
-	var existingId int
-
-	for rows.Next() {
-		err = rows.Scan(&existingId)
-		if err != nil {
-			logger.Warningf("Unable to query holders in db %s: %s", id, err)
-			return
-		}
-	}
-	rows.Close()
-
-	if existingId != 0 {
-
-		// update entry in db
-		stmt, err := m.DB.Prepare("update holders set clientId = ?, token = ?, nickname = ?, activity = ?, network = ?, address = ?, frequency = ? WHERE id = ?")
-		if err != nil {
-			logger.Warningf("Unable to update holders in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(holders.ClientID, holders.Token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency, existingId)
-		if err != nil {
-			logger.Warningf("Unable to update holders in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to update holders in db %s: %s", id, err)
-			return
-		}
-
-		logger.Infof("Updated holders in db %s", id)
-	} else {
-
-		// store new entry in db
-		stmt, err := m.DB.Prepare("INSERT INTO holders(clientId, token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?,?)")
-		if err != nil {
-			logger.Warningf("Unable to store holders in db %s: %s", id, err)
-			return
-		}
-
-		res, err := stmt.Exec(holders.ClientID, holders.Token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
-		if err != nil {
-			logger.Warningf("Unable to store holders in db %s: %s", id, err)
-			return
-		}
-
-		_, err = res.LastInsertId()
-		if err != nil {
-			logger.Warningf("Unable to store holders in db %s: %s", id, err)
-			return
-		}
+	_, err = res.LastInsertId()
+	if err != nil {
+		logger.Warningf("Unable to store holders in db %s: %s", holders.label(), err)
+		return
 	}
 }
 
@@ -250,10 +247,10 @@ func (m *Manager) RestartHolders(w http.ResponseWriter, r *http.Request) {
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingHolders[id].Frequency) * 2 * time.Second)
 
-	// start the ticker again
+	// start the holder again
 	go m.WatchingHolders[id].watchHolders()
 
-	logger.Infof("Restarted ticker %s", id)
+	logger.Infof("Restarted holder %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

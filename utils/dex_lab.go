@@ -53,12 +53,10 @@ func GetDexLabPrice(address string) (string, error) {
 
 	err = json.Unmarshal(results, &price)
 	if err != nil {
-		fmt.Printf(resp.Status)
 		return result, err
 	}
 
 	if len(price.Data) == 0 {
-		fmt.Printf(resp.Status)
 		return result, err
 	}
 

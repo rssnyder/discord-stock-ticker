@@ -51,6 +51,9 @@ func (g *Gas) watchGasPrice() {
 		logger.Errorf("Error getting guilds: %s\n", err)
 		g.Nickname = false
 	}
+	if len(guilds) == 0 {
+		g.Nickname = false
+	}
 
 	// check for frequency override
 	// set to one hour to avoid lockout
