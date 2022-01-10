@@ -166,51 +166,10 @@ func (b *Board) watchStockPrice() {
 						logger.Infof("Set nickname in %s: %s", g.Name, nickname)
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
-						if b.Color {
-							// get roles for colors
-							var redRole string
-							var greeenRole string
-
-							roles, err := dg.GuildRoles(g.ID)
-							if err != nil {
-								logger.Errorf("Error getting guilds: %s\n", err)
-								continue
-							}
-
-							// find role ids
-							for _, r := range roles {
-								if r.Name == "tickers-red" {
-									redRole = r.ID
-								} else if r.Name == "tickers-green" {
-									greeenRole = r.ID
-								}
-							}
-
-							if len(redRole) == 0 || len(greeenRole) == 0 {
-								logger.Error("Unable to find roles for color changes")
-								continue
-							}
-
-							// assign role based on change
-							if increase {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
-								if err != nil {
-									logger.Errorf("Unable to remove role: %s\n", err)
-								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
-								if err != nil {
-									logger.Errorf("Unable to set role: %s\n", err)
-								}
-							} else {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
-								if err != nil {
-									logger.Errorf("Unable to remove role: %s\n", err)
-								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
-								if err != nil {
-									logger.Errorf("Unable to set role: %s\n", err)
-								}
-							}
+						// change bot color
+						err = setRole(dg, botUser.ID, g.ID, increase)
+						if err != nil {
+							logger.Errorf("Color roles: %s", err)
 						}
 					}
 
@@ -374,51 +333,10 @@ func (b *Board) watchCryptoPrice() {
 						logger.Infof("Set nickname in %s: %s", g.Name, nickname)
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
-						if b.Color {
-							// get roles for colors
-							var redRole string
-							var greeenRole string
-
-							roles, err := dg.GuildRoles(g.ID)
-							if err != nil {
-								logger.Errorf("Error getting guilds: %s\n", err)
-								continue
-							}
-
-							// find role ids
-							for _, r := range roles {
-								if r.Name == "tickers-red" {
-									redRole = r.ID
-								} else if r.Name == "tickers-green" {
-									greeenRole = r.ID
-								}
-							}
-
-							if len(redRole) == 0 || len(greeenRole) == 0 {
-								logger.Error("Unable to find roles for color changes")
-								continue
-							}
-
-							// assign role based on change
-							if increase {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, redRole)
-								if err != nil {
-									logger.Errorf("Unable to remove role: %s\n", err)
-								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, greeenRole)
-								if err != nil {
-									logger.Errorf("Unable to set role: %s\n", err)
-								}
-							} else {
-								err = dg.GuildMemberRoleRemove(g.ID, botUser.ID, greeenRole)
-								if err != nil {
-									logger.Errorf("Unable to remove role: %s\n", err)
-								}
-								err = dg.GuildMemberRoleAdd(g.ID, botUser.ID, redRole)
-								if err != nil {
-									logger.Errorf("Unable to set role: %s\n", err)
-								}
-							}
+						// change bot color
+						err = setRole(dg, botUser.ID, g.ID, increase)
+						if err != nil {
+							logger.Errorf("Color roles: %s", err)
 						}
 					}
 
