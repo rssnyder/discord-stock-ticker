@@ -33,6 +33,7 @@ type Ticker struct {
 	Crypto         bool     `json:"crypto"`
 	Token          string   `json:"discord_bot_token"`
 	TwelveDataKey  string   `json:"twelve_data_key"`
+	Exrate         float64  `json:"exrate"`
 	Close          chan int `json:"-"`
 }
 
@@ -46,7 +47,6 @@ func (s *Ticker) label() string {
 }
 
 func (s *Ticker) watchStockPrice() {
-	var exRate float64
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.Token)
@@ -86,7 +86,7 @@ func (s *Ticker) watchStockPrice() {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
 		} else {
 			if len(exData.QuoteSummary.Results) > 0 {
-				exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
+				s.Exrate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
 			} else {
 				logger.Errorf("Bad exchange rate for %s, default to USD.", s.Currency)
 			}
@@ -182,8 +182,8 @@ func (s *Ticker) watchStockPrice() {
 				fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
 
 				// Check if conversion is needed
-				if exRate != 0 {
-					rawPrice := exRate * priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
+				if s.Exrate != 0 {
+					rawPrice := s.Exrate * priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw
 					fmtPrice = strconv.FormatFloat(rawPrice, 'f', 2, 64)
 				}
 
@@ -237,51 +237,13 @@ func (s *Ticker) watchStockPrice() {
 					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": g.Name}).SetToCurrentTime()
 
 					if s.Color {
-						// get roles for colors
-						var redRole string
-						var greeenRole string
-
-						roles, err := dg.GuildRoles(g.ID)
+						// change bot color
+						err = setRole(dg, botUser.ID, g.ID, increase)
 						if err != nil {
-							logger.Errorf("Getting guilds: %s", err)
-							continue
-						}
-
-						// find role ids
-						for _, r := range roles {
-							if r.Name == "tickers-red" {
-								redRole = r.ID
-							} else if r.Name == "tickers-green" {
-								greeenRole = r.ID
-							}
-						}
-
-						if len(redRole) == 0 || len(greeenRole) == 0 {
-							logger.Error("Unable to find roles for color changes")
-							continue
-						}
-
-						// assign role based on change
-						if increase {
-							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, redRole)
-							if err != nil {
-								logger.Errorf("Unable to remove role: %s", err)
-							}
-							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, greeenRole)
-							if err != nil {
-								logger.Errorf("Unable to set role: %s", err)
-							}
-						} else {
-							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, greeenRole)
-							if err != nil {
-								logger.Errorf("Unable to remove role: %s", err)
-							}
-							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, redRole)
-							if err != nil {
-								logger.Errorf("Unable to set role: %s", err)
-							}
+							logger.Errorf("Color roles: %s", err)
 						}
 					}
+
 					time.Sleep(time.Duration(s.Frequency) * time.Second)
 				}
 
@@ -330,7 +292,6 @@ func (s *Ticker) watchStockPrice() {
 
 func (s *Ticker) watchCryptoPrice() {
 	var nilCache *redis.Client
-	var exRate float64
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.Token)
@@ -402,19 +363,20 @@ func (s *Ticker) watchCryptoPrice() {
 
 	// If other currency, get rate
 	if s.Currency != "USD" {
+		logger.Infof("Using %s", s.Currency)
 		exData, err := utils.GetStockPrice(s.Currency + "=X")
 		if err != nil {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
 		} else {
 			if len(exData.QuoteSummary.Results) > 0 {
-				exRate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
+				s.Exrate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
 			} else {
 				logger.Errorf("Bad exchange rate for %s, default to USD.", s.Currency)
-				exRate = float64(s.Multiplier)
+				s.Exrate = float64(s.Multiplier)
 			}
 		}
 	} else {
-		exRate = float64(s.Multiplier)
+		s.Exrate = float64(s.Multiplier)
 	}
 
 	// Set arrows if no custom decorator
@@ -476,9 +438,9 @@ func (s *Ticker) watchCryptoPrice() {
 			}
 
 			// Check if conversion is needed
-			if exRate > 1.0 {
-				priceData.MarketData.CurrentPrice.USD = exRate * priceData.MarketData.CurrentPrice.USD
-				priceData.MarketData.PriceChangeCurrency.USD = exRate * priceData.MarketData.PriceChangeCurrency.USD
+			if s.Exrate > 1.0 {
+				priceData.MarketData.CurrentPrice.USD = s.Exrate * priceData.MarketData.CurrentPrice.USD
+				priceData.MarketData.PriceChangeCurrency.USD = s.Exrate * priceData.MarketData.PriceChangeCurrency.USD
 			}
 
 			// format the price changes
@@ -619,54 +581,14 @@ func (s *Ticker) watchCryptoPrice() {
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": g.Name}).SetToCurrentTime()
 
-					// change coin color
 					if s.Color {
-						var redRole string
-						var greeenRole string
-
-						// get the roles for color changing
-						roles, err := dg.GuildRoles(g.ID)
+						// change bot color
+						err = setRole(dg, botUser.ID, g.ID, increase)
 						if err != nil {
-							logger.Errorf("Getting guilds: %s", err)
-							continue
-						}
-
-						// find role ids
-						for _, r := range roles {
-							if r.Name == "tickers-red" {
-								redRole = r.ID
-							} else if r.Name == "tickers-green" {
-								greeenRole = r.ID
-							}
-						}
-
-						// make sure roles exist
-						if len(redRole) == 0 || len(greeenRole) == 0 {
-							logger.Error("Unable to find roles for color changes")
-							continue
-						}
-
-						// assign role based on change
-						if increase {
-							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, redRole)
-							if err != nil {
-								logger.Errorf("Unable to remove role: %s", err)
-							}
-							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, greeenRole)
-							if err != nil {
-								logger.Errorf("Unable to set role: %s", err)
-							}
-						} else {
-							err = dg.GuildMemberRoleRemove(g.ID, s.ClientID, greeenRole)
-							if err != nil {
-								logger.Errorf("Unable to remove role: %s", err)
-							}
-							err = dg.GuildMemberRoleAdd(g.ID, s.ClientID, redRole)
-							if err != nil {
-								logger.Errorf("Unable to set role: %s", err)
-							}
+							logger.Errorf("Color roles: %s", err)
 						}
 					}
+
 					time.Sleep(time.Duration(s.Frequency) * time.Second)
 				}
 

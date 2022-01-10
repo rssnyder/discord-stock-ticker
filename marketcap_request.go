@@ -163,7 +163,7 @@ func (m *Manager) DeleteMarketCap(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to delete a marketcap")
 
 	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
+	id := vars["id"]
 
 	if _, ok := m.WatchingMarketCap[id]; !ok {
 		logger.Errorf("No marketcap found: %s", id)

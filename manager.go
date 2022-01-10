@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"net/http"
 	"sync"
 	"time"
@@ -376,4 +377,53 @@ func setName(session *discordgo.Session, name string) {
 	}
 
 	logger.Debugf("%s changed to %s", user.Username, name)
+}
+
+// setRole changes color roles based on change
+func setRole(session *discordgo.Session, id, guild string, increase bool) error {
+	var redRole string
+	var greeenRole string
+
+	// get the roles for color changing
+	roles, err := session.GuildRoles(guild)
+	if err != nil {
+		return err
+	}
+
+	// find role ids
+	for _, r := range roles {
+		if r.Name == "tickers-red" {
+			redRole = r.ID
+		} else if r.Name == "tickers-green" {
+			greeenRole = r.ID
+		}
+	}
+
+	// make sure roles exist
+	if len(redRole) == 0 || len(greeenRole) == 0 {
+		return errors.New("unable to find roles for color changes")
+	}
+
+	// assign role based on change
+	if increase {
+		err = session.GuildMemberRoleRemove(guild, id, redRole)
+		if err != nil {
+			return err
+		}
+		err = session.GuildMemberRoleAdd(guild, id, greeenRole)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = session.GuildMemberRoleRemove(guild, id, greeenRole)
+		if err != nil {
+			return err
+		}
+		err = session.GuildMemberRoleAdd(guild, id, redRole)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

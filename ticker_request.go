@@ -31,6 +31,11 @@ func (m *Manager) ImportTicker() {
 			continue
 		}
 
+		// catch corrections
+		if importedTicker.Multiplier == 0 {
+			importedTicker.Multiplier = 1
+		}
+
 		// activate bot
 		if importedTicker.Crypto {
 			go importedTicker.watchCryptoPrice()
@@ -92,6 +97,11 @@ func (m *Manager) AddTicker(w http.ResponseWriter, r *http.Request) {
 	// ensure currency is set
 	if stockReq.Currency == "" {
 		stockReq.Currency = "usd"
+	}
+
+	// ensure multiplier is set
+	if stockReq.Multiplier == 0 {
+		stockReq.Multiplier = 1
 	}
 
 	// add stock or crypto ticker
@@ -194,7 +204,7 @@ func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to delete a ticker")
 
 	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
+	id := vars["id"]
 
 	if _, ok := m.WatchingTicker[id]; !ok {
 		logger.Errorf("No ticker found: %s", id)
