@@ -7,6 +7,12 @@ func GetFloorPrice(marketplace, name string) (string, error) {
 	var result string
 
 	switch marketplace {
+	case "solsea":
+		solsea, err := GetSolseaData(name)
+		if err != nil {
+			return result, err
+		}
+		result = fmt.Sprintf("%f SOL", solsea.Floorprice)
 	case "solanart":
 		solanart, err := GetSolanartData(name)
 		if err != nil {
