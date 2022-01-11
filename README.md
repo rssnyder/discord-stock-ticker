@@ -26,13 +26,11 @@ Now with five different types of tickers!
     - [Stocks](#stocks)
     - [Crypto](#crypto)
     - [Gas Prices](#gas-prices)
-    - [Other crypto bots I make (click for details)](#other-crypto-bots-i-make-click-for-details)
   - [Premium](#premium)
   - [Self-Hosting - Docker](#self-hosting---docker)
-  - [Self-Hosting - binary](#self-hosting---binary)
-    - [Using the binary](#using-the-binary)
+  - [Self-Hosting - Binary](#self-hosting---binary)
       - [Setting options](#setting-options)
-      - [Systemd service](#systemd-service)
+      - [Systemd (linux)](#systemd-linux)
   - [Managing bots](#managing-bots)
   - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
     - [Bot Configuration (stock)](#bot-configuration-stock)
@@ -341,11 +339,11 @@ Tracks stock or crypto prices. Uses Yahoo for stock or CoinGecko for crypto.
 {
   "ticker": "pfg",                                  # string: symbol for the stock from yahoo finance
   "name": "2) PFG",                                 # string/OPTIONAL: overwrites display name of bot
-  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "color": true,                                    # bool/OPTIONAL: requires nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "twelve_data_key": "xxx",                         # string/OPTIONAL: use twelve data as source, pass in api key
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
@@ -359,7 +357,7 @@ Tracks stock or crypto prices. Uses Yahoo for stock or CoinGecko for crypto.
   "name": "bitcoin",                                # string: name of the crypto from coingecko
   "crypto": true,                                   # bool: always true for crypto
   "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
-  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "color": true,                                    # bool/OPTIONAL: requires nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
   "currency_symbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
@@ -367,7 +365,7 @@ Tracks stock or crypto prices. Uses Yahoo for stock or CoinGecko for crypto.
   "pair_flip": true,                                # bool/OPTIONAL: show <pair>/<coin> rather than <coin>/<pair>
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
@@ -386,9 +384,9 @@ Tracks multiple stock or crypto prices. Uses Yahoo for stock or CoinGecko for cr
   "name": "Stocks",                                 # string: name of your board
   "items": ["PFG", "GME", "AMC"],                   # list of strings: symbols from yahoo finance to rotate through
   "header": "1. ",                                  # string/OPTIONAL: adds a header to the nickname to help sort bots
-  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "color": true,                                    # bool/OPTIONAL: requires nickname
   "arrows": true,                                   # bool/OPTIONAL: show arrows in ticker names
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
@@ -402,9 +400,9 @@ Tracks multiple stock or crypto prices. Uses Yahoo for stock or CoinGecko for cr
   "crypto": true,                                   # bool: always true for crypto
   "items": ["bitcoin", "ethereum", "dogecoin"],     # list of strings: names from coingecko to rotate through
   "header": "2. ",                                  # string/OPTIONAL: adds a header to the nickname to help sort bots
-  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "color": true,                                    # bool/OPTIONAL: requires nickname
   "arrows": true,                                   # bool/OPTIONAL: show arrows in ticker names
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
@@ -422,13 +420,13 @@ Tracks the marketcap of a coin. Uses CoinGecko for data.
 {
   "name": "bitcoin",                                # string: name of the crypto from coingecko
   "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
-  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "color": true,                                    # bool/OPTIONAL: requires nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
   "currency_symbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
@@ -447,7 +445,7 @@ Track the gas price on Ethereum, Binance, or Pol;ygon chains. Uses EthGasWatch f
 ```json
 {
   "network": "ethereum",                            # string: one of: ethereum, binance-smart-chain, or polygon
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
@@ -468,7 +466,7 @@ Track the number of token holders on Ethereum or Binance chains. Uses etherscan 
   "network": "ethereum",                            # string: one of: ethereum, binance-smart-chain, or polygon
   "address": "0x00000000000000000000000000",        # string: address of contract for token
   "activity": "ethereum",                           # string: text to show in activity section of the bot
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
@@ -488,8 +486,8 @@ Track the price of a token on Ethereum, Binance, or Polygon chains. Uses 1inch b
   "name": "my token",                               # string: display name of token
   "contract": "0x00000",                            # string: contract address of token
   "currency": "0x00000",                            # string/OPTIONAL: contract address of token to price against, default is USDC
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
-  "set_color": true,                                # bool/OPTIONAL: requires set_nickname
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
+  "color": true,                                    # bool/OPTIONAL: requires nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "source": "pancakeswap",                          # string/OPTIONAL: if the token is a BSC token, you can set pancakeswap here to use it vs 1inch; you can also set dexlab for solana tokens
@@ -512,7 +510,7 @@ Track the floor price of an NFT collection on OpenSea or Solanart.
 {
   "marketplace": "opensea",                         # string: one of: opensea or solanart
   "name": "ethereum",                               # string: one of: ethereum, binance-smart-chain, or polygon
-  "set_nickname": true,                             # bool/OPTIONAL: display information in nickname vs activity
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
