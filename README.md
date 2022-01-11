@@ -2,11 +2,20 @@
 
 Live stock and crypto tickers for your discord server.
 
-Now with five different types of tickers!
+With these bots you can track prices of...
+- Coins and Tokens on CoinGecko
+- Marketcaps of Coins and Tokens on CoinGecko
+- Stocks on Yahoo Finance
+- Tokens on Pancakeswap
+- Tokens on Dexlab
+- Tokens on 1Inch
+- NFT Collections on OpenSea, Solanart, and Solart
+- Gas on Ethereum, Binance, and Polygon Chains
+- Number of holders of a token on Ethereum and Binance Chains
 
-🍾 400+ public tickers with over 15k installs across 3k discord servers!
+🍾 100 public tickers with over 15k installs across 3k discord servers!
 
-*Are you just looking to add free tickers to your discord server? Click the discord icon below to join the support server and get the list of avalible bots!*
+🛠️ Use the code to host your own bots, or sign up for premium for a managed option!
 
 [![Publish](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
