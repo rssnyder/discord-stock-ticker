@@ -508,8 +508,8 @@ Track the floor price of an NFT collection on OpenSea or Solanart.
 
 ```json
 {
-  "marketplace": "opensea",                         # string: one of: opensea or solanart
-  "name": "ethereum",                               # string: one of: ethereum, binance-smart-chain, or polygon
+  "marketplace": "opensea",                         # string: one of: opensea, solsea or solanart
+  "name": "ethereum",                               # string: collection name/id from source
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
