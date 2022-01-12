@@ -202,46 +202,27 @@ If you are interested please see the [contact info on my github page](https://gi
 
 ## Self-Hosting - Docker
 
-Grab the current release number from the [release page](https://github.com/rssnyder/discord-stock-ticker/releases) and expose your designated API port:
+We will go over self-hosting with Docker using [docker-compose](https://docs.docker.com/compose/) only, as this is the generally recommended way to use Docker.
 
-```shell
-docker run -p "8080:8080" ghcr.io/rssnyder/discord-stock-ticker:3.4.1
-```
-
-You can set the config via ENV vars, since we use [namsral/flag](https://github.com/namsral/flag) the variables are the same as the flag inputs, but all uppercase:
-
-```shell
-export ADDRESS="localhost:8080" # address:port to bind http server to.
-export CACHE=false # enable cache for coingecko
-export DB="" # file to store tickers in
-export FREQUENCY=60 # set frequency for all tickers
-export LOGLEVEL=0 # defines the log level. 0=production builds. 1=dev builds.
-export REDISADDRESS="localhost:6379" # address:port for redis server.
-export REDISDB=0 # redis db to use
-export REDISPASSWORD="" # redis password
-```
-
-```shell
-docker run -p "8080:8080" --env CACHE=true ghcr.io/rssnyder/discord-stock-ticker:3.4.1
-```
-
-Then you can pass a volume to store the state (and at the same time, upgrade to using [docker-compose](https://docs.docker.com/compose/)):
+1) Find the current release number from the [release page](https://github.com/rssnyder/discord-stock-ticker/releases).
+2) Create your docker-compose file. The following example is a bare-bones example to get you up and running (anything after the # is a comment and unneeded):
 
 ```shell
 ---
 version: "3"
 services:
 
-  discordstockticker:
-    image: ghcr.io/rssnyder/discord-stock-ticker:3.4.1
-    environment:
-      - DB=/dst.db
-      - CACHE=true
-    volumes:
-      - /home/infra/dst.db:/dst.db
-    ports:
-      - "8112:8080"
+ discordstockticker:
+  image: ghcr.io/rssnyder/discord-stock-ticker:3.9.3
+  environment:
+    -CACHE=false  # Set to true if your bot:coin ratio is going to be greater than 1
+    -FREQUENCY=30 # How often to update all tickers, in seconds
+    -LOGLEVEL=0   # 0=production builds. 1=dev builds. Set to 1 if you are debugging/troubleshooting
+  ports:
+   - "8080:8080"  # Port you want to use for your API
 ```
+
+These instructions do not take advantage of Redis to store your tickers for if/when you stop your Docker container. Those instructions are yet to come. In the meantime, you can create a shell script (assuming you're running Linux) to start all your bots at once.
 
 ## Self-Hosting - Binary
 
@@ -300,23 +281,44 @@ Now that you have the service running, you can add bots using the API exposed on
 
 ## Managing bots
 
-All bots are controlled via an API interface. All bots follow the same api template for managment:
+All bots are controlled via an API interface and follow the same api template for management:
 
+Available methods:
+  
 ```text
-GET /<bot type>         : show all currently running bots and their configuration
-POST /<bot type>        : create a new bot
-PATCH /<bot type>/<id>  : restart a running bot
-DELETE /<bot type>/<id> : delete a running bot
+GET     # show all currently running bots and their configuration
+POST    # create a new bot
+PATCH   # restart a running bot
+DELETE  # delete a running bot
 ```
 
-If you are new to use an API to manage things, there are several ways to make the calls:
+If you are new to using an API to manage things, there are several ways to make API calls:
 
-curl:
+1) Curl. This is a command available on virtually all Linux distros. Replace anything between < and > with the appropriate information.
+
+The generic format for a curl API call:
 ```shell
-curl -X <method> -H "Content-Type: application/json" --data '<json config>' localhost:8080/<bot type>
+curl -X <method> -H "Content-type: application/json" -d <inline json or from file> hostname:port/<bot type>
 ```
 
-powershell:
+GET is the default method for curl, so you may omit the method. Also since you're just retrieving your bots, you can omit the -d flag as well.
+
+Get a listing of all your bots:
+```shell
+curl localhost:8080/<bot type>
+```
+
+Create a new bot:
+(In this example, the bot configuration is located in a file 'btc.json', in the folder bots/crypo)
+```shell
+curl -X POST -H "Content-type: application/json" -d @bots/crypto/btc.json localhost:8080/ticker
+```
+
+
+Instructions for restarting running bots and deleting bots are forthcoming.
+
+2) Powershell:
+  
 ```shell
 $Body = @{
   name = "bitcoin"
@@ -334,7 +336,7 @@ $Parameters = @{
 Invoke-RestMethod @Parameters
 ```
 
-[postman](https://www.postman.com/)
+3) [postman](https://www.postman.com/)
 
 ## Stock and Crypto Price Tickers
 
