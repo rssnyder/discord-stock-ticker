@@ -297,7 +297,7 @@ If you are new to using an API to manage things, there are several ways to make 
 
 The generic format for a curl API call:
 ```shell
-curl -X <method> -H "Content-type: application/json" -d <inline json or from file> hostname:port/<bot type>
+curl -X <method> -H "Content-type: application/json" -d <inline json or from file> <hostname>:<port>/<bot type>
 ```
 
 GET is the default method for curl, so you may omit the method. Also since you're just retrieving your bots, you can omit the -d flag as well.
