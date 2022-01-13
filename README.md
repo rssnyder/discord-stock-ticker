@@ -215,7 +215,6 @@ services:
  discordstockticker:
   image: ghcr.io/rssnyder/discord-stock-ticker:3.9.3
   environment:
-    -CACHE=false  # Set to true if your bot:coin ratio is going to be greater than 1
     -FREQUENCY=30 # How often to update all tickers, in seconds
     -LOGLEVEL=0   # 0=production builds. 1=dev builds. Set to 1 if you are debugging/troubleshooting
   ports:
