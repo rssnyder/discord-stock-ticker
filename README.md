@@ -218,7 +218,7 @@ services:
     -FREQUENCY=30 # How often to update all tickers, in seconds
     -LOGLEVEL=0   # 0=production builds. 1=dev builds. Set to 1 if you are debugging/troubleshooting
   ports:
-   - "8080:8080"  # Port you want to use for your API
+   - "8080:8080"  # The first number is the port you want to use for your API
 ```
 
 These instructions do not take advantage of Redis to store your tickers for if/when you stop your Docker container. Those instructions are yet to come. In the meantime, you can create a shell script (assuming you're running Linux) to start all your bots at once.
