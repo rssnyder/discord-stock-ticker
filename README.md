@@ -228,7 +228,7 @@ These instructions do not take advantage of Redis to store your tickers for if/w
 
 ## Self-Hosting - Binary
 
-[Click here](https://youtu.be/LhgCdtE8kmc) to watch a quick video tutorial on how to self-host these bots on linux.
+[Click here](https://youtu.be/LhgCdtE8kmc) to watch a quick video tutorial on how to self-host these bots on linux. There is also an in depth written format [gist here](https://gist.github.com/rssnyder/55eb4e0b18cca399592a557e95b5547b). If you are familar with ansible, I have a [playbook here](https://github.com/rssnyder/isengard/blob/master/playbooks/discord-stock-ticker.yml).
 
 Pull down the latest release for your OS [here](https://github.com/rssnyder/discord-stock-ticker/releases). Extract. Run.
 
