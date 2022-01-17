@@ -35,6 +35,12 @@ var (
 			Help: "Number of circulatings.",
 		},
 	)
+	valuelockedCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "valuelocked_count",
+			Help: "Number of valuelocked.",
+		},
+	)
 	boardCount = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "board_count",
@@ -95,6 +101,7 @@ type Manager struct {
 	WatchingTicker      map[string]*Ticker
 	WatchingMarketCap   map[string]*MarketCap
 	WatchingCirculating map[string]*Circulating
+	WatchingValueLocked map[string]*ValueLocked
 	WatchingBoard       map[string]*Board
 	WatchingGas         map[string]*Gas
 	WatchingToken       map[string]*Token
@@ -112,6 +119,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 		WatchingTicker:      make(map[string]*Ticker),
 		WatchingMarketCap:   make(map[string]*MarketCap),
 		WatchingCirculating: make(map[string]*Circulating),
+		WatchingValueLocked: make(map[string]*ValueLocked),
 		WatchingBoard:       make(map[string]*Board),
 		WatchingGas:         make(map[string]*Gas),
 		WatchingToken:       make(map[string]*Token),
@@ -142,6 +150,12 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	r.HandleFunc("/circulating/{id}", m.DeleteCirculating).Methods("DELETE")
 	r.HandleFunc("/circulating/{id}", m.RestartCirculating).Methods("PATCH")
 	r.HandleFunc("/circulating", m.GetCirculatings).Methods("GET")
+
+	// Value Locked
+	r.HandleFunc("/valuelocked", m.AddValueLocked).Methods("POST")
+	r.HandleFunc("/valuelocked/{id}", m.DeleteValueLocked).Methods("DELETE")
+	r.HandleFunc("/valuelocked/{id}", m.RestartValueLocked).Methods("PATCH")
+	r.HandleFunc("/valuelocked", m.GetValueLockeds).Methods("GET")
 
 	// Board
 	r.HandleFunc("/tickerboard", m.AddBoard).Methods("POST")
@@ -178,6 +192,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	p.MustRegister(tickerCount)
 	p.MustRegister(marketcapCount)
 	p.MustRegister(circulatingCount)
+	p.MustRegister(valuelockedCount)
 	p.MustRegister(boardCount)
 	p.MustRegister(gasCount)
 	p.MustRegister(tokenCount)
@@ -195,6 +210,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 		m.ImportToken()
 		m.ImportMarketCap()
 		m.ImportCirculating()
+		m.ImportValueLocked()
 		m.ImportTicker()
 		m.ImportHolder()
 		m.ImportGas()
@@ -282,6 +298,21 @@ func dbInit(fileName string) *sql.DB {
 		nickname bool,
 		activity string,
 		decimals integer,
+		currencySymbol string
+	);
+	CREATE TABLE IF NOT EXISTS valuelocks (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		ticker string,
+		name string,
+		nickname bool,
+		color bool,
+		activity string,
+		decorator string,
+		decimals integer,
+		currency string,
 		currencySymbol string
 	);
 	CREATE TABLE IF NOT EXISTS tokens (
