@@ -14,6 +14,6 @@ COPY . .
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 
-RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=1 go build -o /bin/ticker
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -o /bin/discord-stock-ticker
 
-ENTRYPOINT ["/bin/ticker"]
+ENTRYPOINT ["/bin/discord-stock-ticker"]
