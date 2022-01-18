@@ -24,6 +24,7 @@ type ValueLocked struct {
 	CurrencySymbol string   `json:"currency_symbol"`
 	Decimals       int      `json:"decimals"`
 	Activity       string   `json:"activity"`
+	Source         string   `json:"source"`
 	ClientID       string   `json:"client_id"`
 	Token          string   `json:"discord_bot_token"`
 	Close          chan int `json:"-"`
@@ -107,53 +108,68 @@ func (m *ValueLocked) watchValueLocked() {
 			var fmtPrice string
 
 			// get the coin price data
-			priceData, err = utils.GetCryptoPrice(m.Name)
-			if err != nil {
-				logger.Errorf("Unable to fetch marketcap for %s: %s", m.Name, err)
-				continue
-			}
+			if m.Source == "llama" {
+				llamaValue, err := utils.GetLlamaTVL(m.Name)
+				if err != nil {
+					logger.Errorf("Unable to fetch valuelocked from llama for %s: %s", m.Name, err)
+					continue
+				}
 
-			// Check if conversion is needed
-			if exRate != 0 {
-				priceData.MarketData.TotalValueLocked.USD = exRate * priceData.MarketData.TotalValueLocked.USD
-			}
+				// Check if conversion is needed
+				if exRate != 0 {
+					llamaValue = exRate * llamaValue
+				}
 
-			// Check for custom decimal places
-			p := message.NewPrinter(language.English)
-			switch m.Decimals {
-			case 1:
-				fmtPrice = p.Sprintf("%s%.1f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 2:
-				fmtPrice = p.Sprintf("%s%.2f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 3:
-				fmtPrice = p.Sprintf("%s%.3f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 4:
-				fmtPrice = p.Sprintf("%s%.4f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 5:
-				fmtPrice = p.Sprintf("%s%.5f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 6:
-				fmtPrice = p.Sprintf("%s%.6f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 7:
-				fmtPrice = p.Sprintf("%s%.7f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 8:
-				fmtPrice = p.Sprintf("%s%.8f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 9:
-				fmtPrice = p.Sprintf("%s%.9f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 10:
-				fmtPrice = p.Sprintf("%s%.10f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			case 11:
-				fmtPrice = p.Sprintf("%s%.11f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-			default:
-				fmtPrice = p.Sprintf("%s%.2f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
-				switch {
-				case priceData.MarketData.TotalValueLocked.USD < 1000000:
-					fmtPrice = p.Sprintf("%s%.2fk", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000)
-				case priceData.MarketData.TotalValueLocked.USD < 1000000000:
-					fmtPrice = p.Sprintf("%s%.2fM", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000000)
-				case priceData.MarketData.TotalValueLocked.USD < 1000000000000:
-					fmtPrice = p.Sprintf("%s%.2fB", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000000000)
-				case priceData.MarketData.TotalValueLocked.USD < 1000000000000000:
-					fmtPrice = p.Sprintf("%s%.2fT", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000000000000)
+				fmtPrice = fmt.Sprintf("%s%f", m.CurrencySymbol, llamaValue)
+			} else {
+				priceData, err = utils.GetCryptoPrice(m.Name)
+				if err != nil {
+					logger.Errorf("Unable to fetch valuelocked for %s: %s", m.Name, err)
+					continue
+				}
+
+				// Check if conversion is needed
+				if exRate != 0 {
+					priceData.MarketData.TotalValueLocked.USD = exRate * priceData.MarketData.TotalValueLocked.USD
+				}
+
+				// Check for custom decimal places
+				p := message.NewPrinter(language.English)
+				switch m.Decimals {
+				case 1:
+					fmtPrice = p.Sprintf("%s%.1f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 2:
+					fmtPrice = p.Sprintf("%s%.2f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 3:
+					fmtPrice = p.Sprintf("%s%.3f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 4:
+					fmtPrice = p.Sprintf("%s%.4f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 5:
+					fmtPrice = p.Sprintf("%s%.5f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 6:
+					fmtPrice = p.Sprintf("%s%.6f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 7:
+					fmtPrice = p.Sprintf("%s%.7f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 8:
+					fmtPrice = p.Sprintf("%s%.8f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 9:
+					fmtPrice = p.Sprintf("%s%.9f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 10:
+					fmtPrice = p.Sprintf("%s%.10f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				case 11:
+					fmtPrice = p.Sprintf("%s%.11f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+				default:
+					fmtPrice = p.Sprintf("%s%.2f", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD)
+					switch {
+					case priceData.MarketData.TotalValueLocked.USD < 1000000:
+						fmtPrice = p.Sprintf("%s%.2fk", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000)
+					case priceData.MarketData.TotalValueLocked.USD < 1000000000:
+						fmtPrice = p.Sprintf("%s%.2fM", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000000)
+					case priceData.MarketData.TotalValueLocked.USD < 1000000000000:
+						fmtPrice = p.Sprintf("%s%.2fB", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000000000)
+					case priceData.MarketData.TotalValueLocked.USD < 1000000000000000:
+						fmtPrice = p.Sprintf("%s%.2fT", m.CurrencySymbol, priceData.MarketData.TotalValueLocked.USD/1000000000000)
+					}
 				}
 			}
 

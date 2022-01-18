@@ -313,7 +313,8 @@ func dbInit(fileName string) *sql.DB {
 		decorator string,
 		decimals integer,
 		currency string,
-		currencySymbol string
+		currencySymbol string,
+		source string
 	);
 	CREATE TABLE IF NOT EXISTS tokens (
 		id integer primary key autoincrement,

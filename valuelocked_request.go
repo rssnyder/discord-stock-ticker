@@ -15,7 +15,7 @@ import (
 func (m *Manager) ImportValueLocked() {
 
 	// query
-	rows, err := m.DB.Query("SELECT clientID, token, ticker, name, nickname, activity, decorator, decimals, currency, currencySymbol, frequency FROM valuelocks")
+	rows, err := m.DB.Query("SELECT clientID, token, ticker, name, nickname, activity, decorator, decimals, currency, currencySymbol, source, frequency FROM valuelocks")
 	if err != nil {
 		logger.Warningf("Unable to query valuelocks in db: %s", err)
 		return
@@ -25,7 +25,7 @@ func (m *Manager) ImportValueLocked() {
 	for rows.Next() {
 		var importedValueLocked ValueLocked
 
-		err = rows.Scan(&importedValueLocked.ClientID, &importedValueLocked.Token, &importedValueLocked.Ticker, &importedValueLocked.Name, &importedValueLocked.Nickname, &importedValueLocked.Activity, &importedValueLocked.Decorator, &importedValueLocked.Decimals, &importedValueLocked.Currency, &importedValueLocked.CurrencySymbol, &importedValueLocked.Frequency)
+		err = rows.Scan(&importedValueLocked.ClientID, &importedValueLocked.Token, &importedValueLocked.Ticker, &importedValueLocked.Name, &importedValueLocked.Nickname, &importedValueLocked.Activity, &importedValueLocked.Decorator, &importedValueLocked.Decimals, &importedValueLocked.Currency, &importedValueLocked.CurrencySymbol, &importedValueLocked.Source, &importedValueLocked.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load valuelocks from db: %s", err)
 			continue
@@ -168,13 +168,13 @@ func (m *Manager) WatchValueLocked(marketcap *ValueLocked) {
 func (m *Manager) StoreValueLocked(marketcap *ValueLocked) {
 
 	// store new entry in db
-	stmt, err := m.DB.Prepare("INSERT INTO valuelocks(clientId, token, ticker, name, nickname, activity, decorator, decimals, currency, currencySymbol, frequency) values(?,?,?,?,?,?,?,?,?,?,?)")
+	stmt, err := m.DB.Prepare("INSERT INTO valuelocks(clientId, token, ticker, name, nickname, activity, decorator, decimals, currency, currencySymbol, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
 		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
 		return
 	}
 
-	res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Frequency)
+	res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Source, marketcap.Frequency)
 	if err != nil {
 		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
 		return

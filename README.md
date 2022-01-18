@@ -10,7 +10,7 @@ With these bots you can track prices of...
 - Tokens on Pancakeswap
 - Tokens on Dexlab
 - Tokens on 1Inch
-- NFT Collections on OpenSea, Solanart, and Solart
+- NFT Collections on OpenSea, Solanart, Solart, and Magiceden
 - Gas on Ethereum, Binance, and Polygon Chains
 - Number of holders of a token on Ethereum and Binance Chains
 
