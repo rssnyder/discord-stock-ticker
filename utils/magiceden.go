@@ -24,11 +24,11 @@ type MagicedenEscrow struct {
 			} `json:"attribute"`
 		} `json:"availableAttributes"`
 		Floorprice       float64 `json:"floorPrice"`
-		Listedcount      int     `json:"listedCount"`
-		Listedtotalvalue int64   `json:"listedTotalValue"`
-		Avgprice24Hr     int     `json:"avgPrice24hr"`
-		Volume24Hr       int64   `json:"volume24hr"`
-		Volumeall        int64   `json:"volumeAll"`
+		Listedcount      float64 `json:"listedCount"`
+		Listedtotalvalue float64 `json:"listedTotalValue"`
+		Avgprice24Hr     float64 `json:"avgPrice24hr"`
+		Volume24Hr       float64 `json:"volume24hr"`
+		Volumeall        float64 `json:"volumeAll"`
 	} `json:"results"`
 }
 
