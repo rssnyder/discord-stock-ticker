@@ -24,7 +24,11 @@ type Floor struct {
 
 // label returns a human readble id for this bot
 func (f *Floor) label() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", f.Marketplace, f.Name))
+	label := strings.ToLower(fmt.Sprintf("%s-%s", f.Marketplace, f.Name))
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 // watchFloorPrice gets floor prices and rotates through levels

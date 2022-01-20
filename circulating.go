@@ -30,7 +30,11 @@ type Circulating struct {
 
 // label returns a human readble id for this bot
 func (c *Circulating) label() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", c.Name, c.CurrencySymbol))
+	label := strings.ToLower(fmt.Sprintf("%s-%s", c.Name, c.CurrencySymbol))
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 func (c *Circulating) watchCirculating() {

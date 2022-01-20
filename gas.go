@@ -23,7 +23,11 @@ type Gas struct {
 
 // label returns a human readble id for this bot
 func (g *Gas) label() string {
-	return strings.ToLower(g.Network)
+	label := strings.ToLower(g.Network)
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 // watchGasPrice gets gas prices and rotates through levels

@@ -32,7 +32,11 @@ type Token struct {
 
 // label returns a human readble id for this bot
 func (t *Token) label() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", t.Network, t.Contract))
+	label := strings.ToLower(fmt.Sprintf("%s-%s", t.Network, t.Contract))
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 func (t *Token) watchTokenPrice() {
