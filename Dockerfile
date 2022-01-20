@@ -1,5 +1,4 @@
 FROM golang:latest AS base
-LABEL org.opencontainers.image.source https://github.com/rssnyder/discord-stock-ticker
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install software-properties-common && \

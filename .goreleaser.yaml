@@ -43,3 +43,13 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+dockers:
+  - image_templates:
+    - "gcr.io/rssnyder/discord-stock-ticker:latest"
+    - "gcr.io/rssnyder/discord-stock-ticker:{{ .Tag }}"
+    build_flag_templates:
+    - "--label=org.opencontainers.image.created={{.Date}}"
+    - "--label=org.opencontainers.image.title={{.ProjectName}}"
+    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    - "--label=org.opencontainers.image.version={{.Version}}"
+    - "--label=org.opencontainers.image.source={{.GitURL}}"
