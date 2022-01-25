@@ -386,7 +386,7 @@ Tracks stock or crypto prices. Uses Yahoo for stock or CoinGecko for crypto.
 
 ## Stock and Crypto Price Tickerboards
 
-bot type: `board`
+bot type: `tickerboard`
 
 Tracks multiple stock or crypto prices. Uses Yahoo for stock or CoinGecko for crypto.
 
