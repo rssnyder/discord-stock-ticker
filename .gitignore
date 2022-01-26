@@ -20,3 +20,4 @@ load.py
 state.db
 discord-stock-ticker
 test.state
+dist/
