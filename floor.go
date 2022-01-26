@@ -63,7 +63,7 @@ func (f *Floor) watchFloorPrice() {
 	// check for frequency override
 	// set to avoid lockout
 	if *frequency != 0 {
-		f.Frequency = 600
+		f.Frequency = 900
 	}
 
 	// perform management operations
