@@ -277,7 +277,7 @@ systemctl daemon-reload
 systemctl start discord-stock-ticker.service
 ```
 
-If you need to make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`.
+If you need to make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`. An example walkthrough can be found in [this issue](https://github.com/rssnyder/discord-stock-ticker/issues/137). Be sure to run `systemctl daemon-reload` to pick up and changes.
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 
