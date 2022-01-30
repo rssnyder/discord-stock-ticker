@@ -439,10 +439,12 @@ func (s *Ticker) watchCryptoPrice() {
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch crypto price for %s: %s", s.Name, err)
+				if strings.Contains(err.Error(), "rate limited") {
+					rateLimited.Inc()
+				} else {
+					updateError.Inc()
+				}
 				continue
-			}
-			if err.Error() == "being rate limited by coingecko" {
-				rateLimited.Inc()
 			}
 
 			// Check if conversion is needed

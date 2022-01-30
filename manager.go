@@ -89,6 +89,12 @@ var (
 			Help: "Number of times we have been rate limited",
 		},
 	)
+	updateError = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "update_error",
+			Help: "Number of times we have failed to update",
+		},
+	)
 	lastUpdate = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "time_of_last_update",
@@ -208,6 +214,7 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	p.MustRegister(cacheHits)
 	p.MustRegister(cacheMisses)
 	p.MustRegister(rateLimited)
+	p.MustRegister(updateError)
 	handler := promhttp.HandlerFor(p, promhttp.HandlerOpts{})
 	r.Handle("/metrics", handler)
 
