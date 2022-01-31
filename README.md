@@ -192,7 +192,7 @@ Love these bots? You can support this project by subscribing to the [premium ver
 
 ## Premium
 
-For advanced features like faster update times and color changing names on price changes without having to host the bot yourself, you can subscribe to my premuim offering.
+If you are interested in a ticker that isnt on this list, you can host your own using the code here or pay to have them made for you.
 
 Price per bot (paid monthly): $1
 
