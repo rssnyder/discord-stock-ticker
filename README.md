@@ -196,7 +196,7 @@ Love these bots? You can support this project by subscribing to the [premium ver
 
 ## Premium
 
-For advanced features like faster update times and color changing names on price changes without having to host the bot yourself, you can subscribe to my premuim offering.
+If you are interested in a ticker that isnt on this list, you can host your own using the code here or pay to have them made for you.
 
 Price per bot (paid monthly): $1
 
@@ -281,7 +281,7 @@ systemctl daemon-reload
 systemctl start discord-stock-ticker.service
 ```
 
-If you need to make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`.
+If you need to make modifications to the setting of the service, just edit the `/etc/systemd/system/discord-stock-ticker.service` file on the line with `ExecStart=`. An example walkthrough can be found in [this issue](https://github.com/rssnyder/discord-stock-ticker/issues/137). Be sure to run `systemctl daemon-reload` to pick up and changes.
 
 Now that you have the service running, you can add bots using the API exposed on the addres and port that the service runs on (this address is shown when you start the service).
 

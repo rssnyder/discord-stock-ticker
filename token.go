@@ -194,6 +194,8 @@ func (t *Token) watchTokenPrice() {
 				// format nickname & activity
 				// Check for custom decimal places
 				switch t.Decimals {
+				case 0:
+					nickname = fmt.Sprintf("%s %s $%.0f", t.Name, t.Decorator, fmtPrice)
 				case 1:
 					nickname = fmt.Sprintf("%s %s $%.1f", t.Name, t.Decorator, fmtPrice)
 				case 2:

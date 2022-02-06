@@ -459,6 +459,8 @@ func (s *Ticker) watchCryptoPrice() {
 
 			// Check for custom decimal places
 			switch s.Decimals {
+			case 0:
+				fmtPrice = fmt.Sprintf("%s%.0f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			case 1:
 				fmtPrice = fmt.Sprintf("%s%.1f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			case 2:
