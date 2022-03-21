@@ -78,7 +78,7 @@ func (f *Floor) watchFloorPrice() {
 			logger.Infof("Shutting down price watching for %s/%s", f.Marketplace, f.Name)
 			return
 		case <-ticker.C:
-			price, err := utils.GetFloorPrice(f.Marketplace, f.Name)
+			price, activity, err := utils.GetFloorPrice(f.Marketplace, f.Name)
 			if err != nil {
 				logger.Errorf("Error getting floor rates: %s\n", err)
 				continue
@@ -100,11 +100,11 @@ func (f *Floor) watchFloorPrice() {
 					time.Sleep(time.Duration(f.Frequency) * time.Second)
 				}
 
-				err = dg.UpdateGameStatus(0, f.Name)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Debugf("Set activity: %s", f.Name)
+					logger.Debugf("Set activity: %s", activity)
 				}
 			} else {
 
