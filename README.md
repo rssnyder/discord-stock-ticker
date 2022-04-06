@@ -16,7 +16,7 @@ With these bots you can track prices of...
 
 🍾 100 public tickers with over 15k installs across 3k discord servers!
 
-🛠️ Use the code to host your own bots, or sign up for premium for a managed option!
+🛠️ Use theis project to host your own tickers, or .[pay for custom tickers to be made](https://github.com/rssnyder/discord-stock-ticker/blob/master/README.md#premium).
 
 [![Publish](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
@@ -37,10 +37,9 @@ With these bots you can track prices of...
     - [Crypto](#crypto)
     - [Gas Prices](#gas-prices)
   - [Premium](#premium)
-  - [Self-Hosting - Docker](#self-hosting---docker)
-  - [Self-Hosting - Binary](#self-hosting---binary)
-    - [Setting options](#setting-options)
-    - [Systemd (linux)](#systemd-linux)
+  - [Self-Hosting](#self-hosting)
+      - [Setting options](#setting-options)
+      - [Systemd (linux)](#systemd-linux)
   - [Managing bots](#managing-bots)
   - [Stock and Crypto Price Tickers](#stock-and-crypto-price-tickers)
     - [Bot Configuration (stock)](#bot-configuration-stock)
@@ -204,33 +203,7 @@ Price per bot (paid yearly):  $10
 
 If you are interested please see the [contact info on my github page](https://github.com/rssnyder) and send me a messgae via your platform of choice (discord perferred). For a live demo, join the support discord linked at the top or bottom of this page.
 
-## Self-Hosting - Docker
-
-We will go over self-hosting with Docker using [docker-compose](https://docs.docker.com/compose/) only, as this is the generally recommended way to use Docker.
-
-1) Find the current release number from the [release page](https://github.com/rssnyder/discord-stock-ticker/releases).
-2) Create your docker-compose file. The following example is a bare-bones example to get you up and running (anything after the # is a comment and unneeded):
-
-```shell
----
-version: "3"
-services:
-
- discordstockticker:
-  image: ghcr.io/rssnyder/discord-stock-ticker:3.9.3
-  environment:
-    - FREQUENCY=30 # How often to update all tickers, in seconds
-    - LOGLEVEL=0       # 0=production builds. 1=dev builds. Set to 1 if you are debugging/troubleshooting
-    - DB=/state/bots.db # where to store your bots (a non existing file within the container) to have them persist on restarts
-    volumes:
-      - <local path to folder to store db in>:/state
-  ports:
-   - "8080:8080"  # The first number is the port you want to use for your API
-```
-
-These instructions do not take advantage of Redis to store your tickers for if/when you stop your Docker container. Those instructions are yet to come. In the meantime, you can create a shell script (assuming you're running Linux) to start all your bots at once.
-
-## Self-Hosting - Binary
+## Self-Hosting
 
 [Click here](https://youtu.be/LhgCdtE8kmc) to watch a quick video tutorial on how to self-host these bots on linux. There is also an in depth written format [gist here](https://gist.github.com/rssnyder/55eb4e0b18cca399592a557e95b5547b). If you are familar with ansible, I have a [playbook here](https://github.com/rssnyder/isengard/blob/master/playbooks/discord-stock-ticker.yml).
 
