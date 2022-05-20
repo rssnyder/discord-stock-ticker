@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -19,7 +20,7 @@ type SolseaCollection struct {
 
 func GetSolseaData(collection string) (SolseaCollection, error) {
 	var result SolseaCollection
-	var re = regexp.MustCompile(`(?m)Floor.+?([0-9.]+).+?SOL`)
+	var re = regexp.MustCompile(`<span>Floor</span>.*</span>`)
 
 	reqUrl := fmt.Sprintf(SolseaURL, collection)
 
@@ -42,11 +43,14 @@ func GetSolseaData(collection string) (SolseaCollection, error) {
 	}
 
 	var matches = re.FindStringSubmatch(string(results))
-	if len(matches) != 2 {
+	if len(matches) == 0 {
 		return result, errors.New("can't parse page")
 	}
 
-	f, err := strconv.ParseFloat(matches[1], 64)
+	var first = strings.Split(matches[0], "</span>")[1]
+	var second = strings.Split(first, ">")[1]	
+
+	f, err := strconv.ParseFloat(second, 64)
 	if err != nil {
 		return result, err
 	}
