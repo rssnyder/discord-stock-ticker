@@ -9,7 +9,6 @@ import (
 
 const (
 	ZapperURL = "https://api.zapper.fi/v2/gas-prices?network=%s&eip1559=true"
-	apiKey    = "96e0cc51-a62e-42ca-acee-910ea7d2a241"
 )
 
 type ZapperData struct {
