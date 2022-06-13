@@ -8,23 +8,41 @@ import (
 )
 
 const (
-	ZapperURL = "http://api.zapper.fi/v1/gas-price?network=%s&api_key=%s"
+	ZapperURL = "https://api.zapper.fi/v2/gas-prices?network=%s&eip1559=true"
 	apiKey    = "96e0cc51-a62e-42ca-acee-910ea7d2a241"
 )
 
-func GetZapperData(network string) (GasData, error) {
+type ZapperData struct {
+	Eip1559  bool `json:"eip1559"`
+	Standard struct {
+		BaseFeePerGas        int64 `json:"baseFeePerGas"`
+		MaxPriorityFeePerGas int64 `json:"maxPriorityFeePerGas"`
+		MaxFeePerGas         int64 `json:"maxFeePerGas"`
+	} `json:"standard"`
+	Fast struct {
+		BaseFeePerGas        int64 `json:"baseFeePerGas"`
+		MaxPriorityFeePerGas int64 `json:"maxPriorityFeePerGas"`
+		MaxFeePerGas         int64 `json:"maxFeePerGas"`
+	} `json:"fast"`
+	Instant struct {
+		BaseFeePerGas        int64 `json:"baseFeePerGas"`
+		MaxPriorityFeePerGas int64 `json:"maxPriorityFeePerGas"`
+		MaxFeePerGas         int64 `json:"maxFeePerGas"`
+	} `json:"instant"`
+}
 
-	var prices GasData
+func GetZapperData(network string) (ZapperData, error) {
 
-	reqUrl := fmt.Sprintf(ZapperURL, network, apiKey)
+	var prices ZapperData
+
+	reqUrl := fmt.Sprintf(ZapperURL, network)
 
 	req, err := http.NewRequest("GET", reqUrl, nil)
 	if err != nil {
 		return prices, err
 	}
-
-	req.Header.Add("User-Agent", "Mozilla/5.0")
 	req.Header.Add("accept", "application/json")
+	req.Header.Add("Authorization", "Basic OTZlMGNjNTEtYTYyZS00MmNhLWFjZWUtOTEwZWE3ZDJhMjQxOg==")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
