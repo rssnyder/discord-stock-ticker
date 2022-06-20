@@ -1,24 +1,27 @@
 package utils
 
 type GasData struct {
-	Standard int `json:"standard"`
-	Fast     int `json:"fast"`
-	Instant  int `json:"instant"`
+	Standard int64 `json:"standard"`
+	Fast     int64 `json:"fast"`
+	Instant  int64 `json:"instant"`
 }
 
 // get gas prices based on network
 func GetGasPrices(network string) (GasData, error) {
 	switch network {
-	case "polygon":
-		return GetZapperData(network)
-	case "binance-smart-chain":
-		return GetZapperData(network)
-	default:
-		result, err := GetEthGasWatchData()
+	case "ethereum":
+		result, err := GetZapperEth1559()
 		return GasData{
-			Standard: result.Normal.Gwei,
-			Fast:     result.Fast.Gwei,
-			Instant:  result.Instant.Gwei,
+			Standard: result.Standard.BaseFeePerGas,
+			Fast:     result.Fast.BaseFeePerGas,
+			Instant:  result.Instant.BaseFeePerGas,
+		}, err
+	default:
+		result, err := GetZapperData(network, true)
+		return GasData{
+			Standard: result.Standard,
+			Fast:     result.Fast,
+			Instant:  result.Instant,
 		}, err
 	}
 }

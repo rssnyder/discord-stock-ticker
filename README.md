@@ -418,13 +418,19 @@ Tracks the marketcap of a coin. Uses CoinGecko for data.
 }
 ```
 
-## Ethereum, BSC, and Polygon Gas Prices
+## Gas Prices
 
 bot type: `gas`
 
 ![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)
 
-Track the gas price on Ethereum, Binance, or Pol;ygon chains. Uses EthGasWatch for Ethereum or Zapper for others.
+Track the gas price on:
+- Ethereum
+- Binance
+- Polygon
+- ..and many more
+
+Uses [Zapper](https://api.zapper.fi/api/static/index.html#/Miscellaneous%20Data%20Endpoints/GasPriceController_getGasPrice) for data. For now always uses the eip1559 chains.
 
 ### Bot Configuration
 
