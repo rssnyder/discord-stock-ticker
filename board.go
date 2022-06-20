@@ -64,6 +64,11 @@ func (b *Board) watchStockPrice() {
 		b.Nickname = false
 	}
 
+	// perform management operations
+	if *managed {
+		setName(dg, b.label())
+	}
+
 	logger.Infof("Watching board for %s", b.Name)
 	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
 

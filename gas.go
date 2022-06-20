@@ -65,6 +65,11 @@ func (g *Gas) watchGasPrice() {
 		g.Frequency = 600
 	}
 
+	// perform management operations
+	if *managed {
+		setName(dg, g.label())
+	}
+
 	logger.Infof("Watching gas price for %s", g.Network)
 	ticker := time.NewTicker(time.Duration(g.Frequency) * time.Second)
 
