@@ -32,7 +32,11 @@ type Token struct {
 
 // label returns a human readble id for this bot
 func (t *Token) label() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", t.Network, t.Contract))
+	label := strings.ToLower(fmt.Sprintf("%s-%s", t.Network, t.Contract))
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 func (t *Token) watchTokenPrice() {
@@ -190,6 +194,8 @@ func (t *Token) watchTokenPrice() {
 				// format nickname & activity
 				// Check for custom decimal places
 				switch t.Decimals {
+				case 0:
+					nickname = fmt.Sprintf("%s %s $%.0f", t.Name, t.Decorator, fmtPrice)
 				case 1:
 					nickname = fmt.Sprintf("%s %s $%.1f", t.Name, t.Decorator, fmtPrice)
 				case 2:

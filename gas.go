@@ -23,7 +23,11 @@ type Gas struct {
 
 // label returns a human readble id for this bot
 func (g *Gas) label() string {
-	return strings.ToLower(g.Network)
+	label := strings.ToLower(g.Network)
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 // watchGasPrice gets gas prices and rotates through levels
@@ -59,6 +63,11 @@ func (g *Gas) watchGasPrice() {
 	// set to one hour to avoid lockout
 	if *frequency != 0 {
 		g.Frequency = 600
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, g.label())
 	}
 
 	logger.Infof("Watching gas price for %s", g.Network)

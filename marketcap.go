@@ -33,7 +33,11 @@ type MarketCap struct {
 
 // label returns a human readble id for this bot
 func (m *MarketCap) label() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", m.Name, m.Currency))
+	label := strings.ToLower(fmt.Sprintf("%s-%s", m.Name, m.Currency))
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 func (m *MarketCap) watchMarketCap() {

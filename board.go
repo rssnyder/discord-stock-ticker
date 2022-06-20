@@ -29,7 +29,11 @@ type Board struct {
 
 // label returns a human readble id for this bot
 func (b *Board) label() string {
-	return strings.ToLower(b.Name)
+	label := strings.ToLower(b.Name)
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 func (b *Board) watchStockPrice() {
@@ -58,6 +62,11 @@ func (b *Board) watchStockPrice() {
 	}
 	if len(guilds) == 0 {
 		b.Nickname = false
+	}
+
+	// perform management operations
+	if *managed {
+		setName(dg, b.label())
 	}
 
 	logger.Infof("Watching board for %s", b.Name)

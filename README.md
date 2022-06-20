@@ -3,13 +3,14 @@
 Live stock and crypto tickers for your discord server.
 
 With these bots you can track prices of...
+
 - Coins and Tokens on CoinGecko
 - Marketcaps of Coins and Tokens on CoinGecko
 - Stocks on Yahoo Finance
 - Tokens on Pancakeswap
 - Tokens on Dexlab
 - Tokens on 1Inch
-- NFT Collections on OpenSea, Solanart, and Solart
+- NFT Collections on OpenSea, Solanart, Solart, and Magiceden
 - Gas on Ethereum, Binance, and Polygon Chains
 - Number of holders of a token on Ethereum and Binance Chains
 
@@ -48,14 +49,18 @@ With these bots you can track prices of...
     - [Bot Configuration (crypto)](#bot-configuration-crypto-1)
   - [Crypto Market Cap](#crypto-market-cap)
     - [Bot Configuration](#bot-configuration)
-  - [Ethereum, BSC, and Polygon Gas Prices](#ethereum-bsc-and-polygon-gas-prices)
+  - [Crypto Circulating Supply](#crypto-circulating-supply)
     - [Bot Configuration](#bot-configuration-1)
-  - [Ethereum, BSC, or Polygon Token Holders](#ethereum-bsc-or-polygon-token-holders)
+  - [Crypto Total Value Locked](#crypto-total-value-locked)
     - [Bot Configuration](#bot-configuration-2)
-  - [ETH/BSC/MATIC Token Price](#ethbscmatic-token-price)
+  - [Ethereum, BSC, and Polygon Gas Prices](#ethereum-bsc-and-polygon-gas-prices)
     - [Bot Configuration](#bot-configuration-3)
-  - [OpenSea/Solanart NFT Collection Floor Price](#openseasolanart-nft-collection-floor-price)
+  - [Ethereum, BSC, or Polygon Token Holders](#ethereum-bsc-or-polygon-token-holders)
     - [Bot Configuration](#bot-configuration-4)
+  - [ETH/BSC/MATIC Token Price](#ethbscmatic-token-price)
+    - [Bot Configuration](#bot-configuration-5)
+  - [OpenSea/Solanart NFT Collection Floor Price](#openseasolanart-nft-collection-floor-price)
+    - [Bot Configuration](#bot-configuration-6)
   - [Roles for colors](#roles-for-colors)
   - [Kubernetes](#kubernetes)
   - [Louie](#louie)
@@ -63,7 +68,6 @@ With these bots you can track prices of...
 ## Preview
 
 ![image](https://user-images.githubusercontent.com/7338312/127577682-70b67f31-59c9-427b-b9dc-2736a2b4e378.png)![TICKERS](https://user-images.githubusercontent.com/7338312/126001327-2d7167d2-e998-4e13-9272-61feb4e9bf7a.png)![BOARDS](https://user-images.githubusercontent.com/7338312/126001753-4f0ec66e-5737-495a-a85b-cafeef6f5cea.gif)![image](https://user-images.githubusercontent.com/7338312/127577601-43500287-1cf4-47ee-9f21-67c22f606850.png)![HOLDERS](https://user-images.githubusercontent.com/7338312/126001392-dfb72cc1-d526-40e8-9982-077bb22fc44c.png)![FLOOR](https://user-images.githubusercontent.com/7338312/148694075-7ca93668-2ce6-4e26-af9c-1dc032bf6980.png)
-
 
 ## Join the discord server
 
@@ -213,7 +217,7 @@ tar zxf discord-stock-ticker-v3.3.0-linux-amd64.tar.gz
 ./discord-stock-ticker
 ```
 
-#### Setting options
+### Setting options
 
 There are options you can set for the service using flags:
 
@@ -228,7 +232,7 @@ There are options you can set for the service using flags:
   -redisPassword="": redis password
 ```
 
-#### Systemd (linux)
+### Systemd (linux)
 
 The script here (ran as root) will download and install a `discord-stock-ticker` service on your linux machine with an API avalible on port `8080` to manage bots.
 
@@ -272,6 +276,7 @@ If you are new to using an API to manage things, there are several ways to make 
 1) Curl. This is a command available on virtually all Linux distros. Replace anything between < and > with the appropriate information.
 
 The generic format for a curl API call:
+
 ```shell
 curl -X <method> -H "Content-type: application/json" -d <inline json or from file> <hostname>:<port>/<bot type>
 ```
@@ -279,16 +284,17 @@ curl -X <method> -H "Content-type: application/json" -d <inline json or from fil
 GET is the default method for curl, so you may omit the method. Also since you're just retrieving your bots, you can omit the -d flag as well.
 
 Get a listing of all your bots:
+
 ```shell
 curl localhost:8080/<bot type>
 ```
 
 Create a new bot:
 (In this example, the bot configuration is located in a file 'btc.json', in the folder bots/crypo)
+
 ```shell
 curl -X POST -H "Content-type: application/json" -d @bots/crypto/btc.json localhost:8080/ticker
 ```
-
 
 Instructions for restarting running bots and deleting bots are forthcoming.
 
@@ -408,6 +414,49 @@ Tracks the marketcap of a coin. Uses CoinGecko for data.
   "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
   "color": true,                                    # bool/OPTIONAL: requires nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "currency": "aud",                                # string/OPTIONAL: alternative curreny
+  "currency_symbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
+  "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
+  "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
+}
+```
+
+## Crypto Circulating Supply
+
+bot type: `circulating`
+
+Tracks the circulating supply of a coin. Uses CoinGecko for data.
+
+### Bot Configuration
+
+```json
+{
+  "name": "bitcoin",                                # string: name of the crypto from coingecko
+  "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
+  "currency_symbol": "BITCOIN",                     # string/OPTIONAL: alternative curreny symbol
+  "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
+  "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
+  "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
+  "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
+}
+```
+
+## Crypto Total Value Locked
+
+bot type: `valuelocked`
+
+Tracks the total value locked of a coin. Uses CoinGecko for data.
+
+### Bot Configuration
+
+```json
+{
+  "name": "bitcoin",                                # string: name of the crypto from coingecko
+  "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
   "currency_symbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section

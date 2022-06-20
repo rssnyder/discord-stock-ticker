@@ -39,11 +39,16 @@ type Ticker struct {
 
 // label returns a human readble id for this bot
 func (s *Ticker) label() string {
+	var label string
 	if s.Crypto {
-		return strings.ToLower(fmt.Sprintf("%s-%s", s.Name, s.Currency))
+		label = strings.ToLower(fmt.Sprintf("%s-%s", s.Name, s.Currency))
 	} else {
-		return strings.ToLower(fmt.Sprintf("%s-%s", s.Ticker, s.Currency))
+		label = strings.ToLower(fmt.Sprintf("%s-%s", s.Ticker, s.Currency))
 	}
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 func (s *Ticker) watchStockPrice() {
@@ -434,6 +439,11 @@ func (s *Ticker) watchCryptoPrice() {
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch crypto price for %s: %s", s.Name, err)
+				if strings.Contains(err.Error(), "rate limited") {
+					rateLimited.Inc()
+				} else {
+					updateError.Inc()
+				}
 				continue
 			}
 
@@ -449,6 +459,8 @@ func (s *Ticker) watchCryptoPrice() {
 
 			// Check for custom decimal places
 			switch s.Decimals {
+			case 0:
+				fmtPrice = fmt.Sprintf("%s%.0f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			case 1:
 				fmtPrice = fmt.Sprintf("%s%.1f", s.CurrencySymbol, priceData.MarketData.CurrentPrice.USD)
 			case 2:

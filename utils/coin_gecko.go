@@ -21,15 +21,21 @@ type CurrentPrice struct {
 	BTC float64 `json:"btc"`
 }
 
+type TotalValueLocked struct {
+	USD float64 `json:"usd"`
+	BTC float64 `json:"btc"`
+}
+
 type MarketData struct {
-	CurrentPrice            CurrentPrice `json:"current_price"`
-	MarketCap               CurrentPrice `json:"market_cap"`
-	PriceChangePercent      float64      `json:"price_change_percentage_24h"`
-	PriceChangeCurrency     CurrentPrice `json:"price_change_24h_in_currency"`
-	MarketCapChangePercent  float64      `json:"market_cap_change_percentage_24h"`
-	MarketCapChangeCurrency CurrentPrice `json:"market_cap_change_24h_in_currency"`
-	TotalSupply             float64      `json:"total_supply"`
-	CirculatingSupply       float64      `json:"circulating_supply"`
+	CurrentPrice            CurrentPrice     `json:"current_price"`
+	MarketCap               CurrentPrice     `json:"market_cap"`
+	TotalValueLocked        TotalValueLocked `json:"total_value_locked"`
+	PriceChangePercent      float64          `json:"price_change_percentage_24h"`
+	PriceChangeCurrency     CurrentPrice     `json:"price_change_24h_in_currency"`
+	MarketCapChangePercent  float64          `json:"market_cap_change_percentage_24h"`
+	MarketCapChangeCurrency CurrentPrice     `json:"market_cap_change_24h_in_currency"`
+	TotalSupply             float64          `json:"total_supply"`
+	CirculatingSupply       float64          `json:"circulating_supply"`
 }
 
 // The following is the API response gecko gives
@@ -78,6 +84,7 @@ func GetCryptoPrice(ticker string) (GeckoPriceResults, error) {
 func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker string) (GeckoPriceResults, error) {
 	var currentPrice CurrentPrice
 	var currentMarketCap CurrentPrice
+	var currentValueLocked TotalValueLocked
 	var marketData MarketData
 	var geckoPriceResults GeckoPriceResults
 	var symbol string
@@ -244,6 +251,7 @@ func GetCryptoPriceCache(client *redis.Client, ctx context.Context, ticker strin
 	marketData = MarketData{
 		currentPrice,
 		currentMarketCap,
+		currentValueLocked,
 		priceChangePercentFloat,
 		priceChangeCurrency,
 		marketCapChangePercentFloat,

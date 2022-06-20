@@ -25,7 +25,11 @@ type Holders struct {
 
 // label returns a human readble id for this bot
 func (h *Holders) label() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", h.Network, h.Address))
+	label := strings.ToLower(fmt.Sprintf("%s-%s", h.Network, h.Address))
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 func (h *Holders) watchHolders() {

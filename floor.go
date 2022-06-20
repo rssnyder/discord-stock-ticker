@@ -24,7 +24,11 @@ type Floor struct {
 
 // label returns a human readble id for this bot
 func (f *Floor) label() string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", f.Marketplace, f.Name))
+	label := strings.ToLower(fmt.Sprintf("%s-%s", f.Marketplace, f.Name))
+	if len(label) > 32 {
+		label = label[:32]
+	}
+	return label
 }
 
 // watchFloorPrice gets floor prices and rotates through levels
@@ -59,7 +63,7 @@ func (f *Floor) watchFloorPrice() {
 	// check for frequency override
 	// set to avoid lockout
 	if *frequency != 0 {
-		f.Frequency = 600
+		f.Frequency = 900
 	}
 
 	// perform management operations
@@ -78,7 +82,7 @@ func (f *Floor) watchFloorPrice() {
 			logger.Infof("Shutting down price watching for %s/%s", f.Marketplace, f.Name)
 			return
 		case <-ticker.C:
-			price, err := utils.GetFloorPrice(f.Marketplace, f.Name)
+			price, activity, err := utils.GetFloorPrice(f.Marketplace, f.Name)
 			if err != nil {
 				logger.Errorf("Error getting floor rates: %s\n", err)
 				continue
@@ -100,11 +104,11 @@ func (f *Floor) watchFloorPrice() {
 					time.Sleep(time.Duration(f.Frequency) * time.Second)
 				}
 
-				err = dg.UpdateGameStatus(0, f.Name)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Debugf("Set activity: %s", f.Name)
+					logger.Debugf("Set activity: %s", activity)
 				}
 			} else {
 

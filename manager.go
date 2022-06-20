@@ -29,6 +29,18 @@ var (
 			Help: "Number of marketcaps.",
 		},
 	)
+	circulatingCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "circulating_count",
+			Help: "Number of circulatings.",
+		},
+	)
+	valuelockedCount = prometheus.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "valuelocked_count",
+			Help: "Number of valuelocked.",
+		},
+	)
 	boardCount = prometheus.NewGauge(
 		prometheus.GaugeOpts{
 			Name: "board_count",
@@ -71,6 +83,18 @@ var (
 			Help: "Number of times the cache lacked data",
 		},
 	)
+	rateLimited = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "ratelimited",
+			Help: "Number of times we have been rate limited",
+		},
+	)
+	updateError = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "update_error",
+			Help: "Number of times we have failed to update",
+		},
+	)
 	lastUpdate = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "time_of_last_update",
@@ -86,32 +110,36 @@ var (
 
 // Manager holds a list of the crypto and stocks we are watching
 type Manager struct {
-	WatchingTicker    map[string]*Ticker
-	WatchingMarketCap map[string]*MarketCap
-	WatchingBoard     map[string]*Board
-	WatchingGas       map[string]*Gas
-	WatchingToken     map[string]*Token
-	WatchingHolders   map[string]*Holders
-	WatchingFloor     map[string]*Floor
-	DB                *sql.DB
-	Cache             *redis.Client
-	Context           context.Context
+	WatchingTicker      map[string]*Ticker
+	WatchingMarketCap   map[string]*MarketCap
+	WatchingCirculating map[string]*Circulating
+	WatchingValueLocked map[string]*ValueLocked
+	WatchingBoard       map[string]*Board
+	WatchingGas         map[string]*Gas
+	WatchingToken       map[string]*Token
+	WatchingHolders     map[string]*Holders
+	WatchingFloor       map[string]*Floor
+	DB                  *sql.DB
+	Cache               *redis.Client
+	Context             context.Context
 	sync.RWMutex
 }
 
 // NewManager stores all the information about the current stocks being watched and
 func NewManager(address string, dbFile string, count prometheus.Gauge, cache *redis.Client, context context.Context) *Manager {
 	m := &Manager{
-		WatchingTicker:    make(map[string]*Ticker),
-		WatchingMarketCap: make(map[string]*MarketCap),
-		WatchingBoard:     make(map[string]*Board),
-		WatchingGas:       make(map[string]*Gas),
-		WatchingToken:     make(map[string]*Token),
-		WatchingHolders:   make(map[string]*Holders),
-		WatchingFloor:     make(map[string]*Floor),
-		DB:                dbInit(dbFile),
-		Cache:             cache,
-		Context:           context,
+		WatchingTicker:      make(map[string]*Ticker),
+		WatchingMarketCap:   make(map[string]*MarketCap),
+		WatchingCirculating: make(map[string]*Circulating),
+		WatchingValueLocked: make(map[string]*ValueLocked),
+		WatchingBoard:       make(map[string]*Board),
+		WatchingGas:         make(map[string]*Gas),
+		WatchingToken:       make(map[string]*Token),
+		WatchingHolders:     make(map[string]*Holders),
+		WatchingFloor:       make(map[string]*Floor),
+		DB:                  dbInit(dbFile),
+		Cache:               cache,
+		Context:             context,
 	}
 
 	// Create a router to accept requests
@@ -128,6 +156,18 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	r.HandleFunc("/marketcap/{id}", m.DeleteMarketCap).Methods("DELETE")
 	r.HandleFunc("/marketcap/{id}", m.RestartMarketCap).Methods("PATCH")
 	r.HandleFunc("/marketcap", m.GetMarketCaps).Methods("GET")
+
+	// Circulating
+	r.HandleFunc("/circulating", m.AddCirculating).Methods("POST")
+	r.HandleFunc("/circulating/{id}", m.DeleteCirculating).Methods("DELETE")
+	r.HandleFunc("/circulating/{id}", m.RestartCirculating).Methods("PATCH")
+	r.HandleFunc("/circulating", m.GetCirculatings).Methods("GET")
+
+	// Value Locked
+	r.HandleFunc("/valuelocked", m.AddValueLocked).Methods("POST")
+	r.HandleFunc("/valuelocked/{id}", m.DeleteValueLocked).Methods("DELETE")
+	r.HandleFunc("/valuelocked/{id}", m.RestartValueLocked).Methods("PATCH")
+	r.HandleFunc("/valuelocked", m.GetValueLockeds).Methods("GET")
 
 	// Board
 	r.HandleFunc("/tickerboard", m.AddBoard).Methods("POST")
@@ -163,6 +203,8 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	p := prometheus.NewRegistry()
 	p.MustRegister(tickerCount)
 	p.MustRegister(marketcapCount)
+	p.MustRegister(circulatingCount)
+	p.MustRegister(valuelockedCount)
 	p.MustRegister(boardCount)
 	p.MustRegister(gasCount)
 	p.MustRegister(tokenCount)
@@ -171,6 +213,8 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	p.MustRegister(lastUpdate)
 	p.MustRegister(cacheHits)
 	p.MustRegister(cacheMisses)
+	p.MustRegister(rateLimited)
+	p.MustRegister(updateError)
 	handler := promhttp.HandlerFor(p, promhttp.HandlerOpts{})
 	r.Handle("/metrics", handler)
 
@@ -179,6 +223,8 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	if m.DB != noDB {
 		m.ImportToken()
 		m.ImportMarketCap()
+		m.ImportCirculating()
+		m.ImportValueLocked()
 		m.ImportTicker()
 		m.ImportHolder()
 		m.ImportGas()
@@ -255,6 +301,34 @@ func dbInit(fileName string) *sql.DB {
 		decimals integer,
 		currency string,
 		currencySymbol string
+	);
+	CREATE TABLE IF NOT EXISTS circulatings (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		ticker string,
+		name string,
+		nickname bool,
+		activity string,
+		decimals integer,
+		currencySymbol string
+	);
+	CREATE TABLE IF NOT EXISTS valuelocks (
+		id integer primary key autoincrement,
+		clientId string,
+		token string,
+		frequency integer,
+		ticker string,
+		name string,
+		nickname bool,
+		color bool,
+		activity string,
+		decorator string,
+		decimals integer,
+		currency string,
+		currencySymbol string,
+		source string
 	);
 	CREATE TABLE IF NOT EXISTS tokens (
 		id integer primary key autoincrement,
