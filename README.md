@@ -523,7 +523,7 @@ Track the price of a token on Ethereum, Binance, or Polygon chains. Uses 1inch b
 
 ```json
 {
-  "network": "ethereum",                            # string: network of token, options are ethereum, binance-smart-chain, or polygon
+  "network": "ethereum",                            # string: network of token, options are ethereum, optimism, binance-smart-chain, gnosis-chain, polygon, fantom, arbitrum, or avalanche
   "name": "my token",                               # string: display name of token
   "contract": "0x00000",                            # string: contract address of token
   "currency": "0x00000",                            # string/OPTIONAL: contract address of token to price against, default is USDC
