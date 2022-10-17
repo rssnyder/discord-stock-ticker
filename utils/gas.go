@@ -15,6 +15,9 @@ func GetGasPrices(network string, apiToken string) (GasData, error) {
 	switch network {
 	case "ethereum":
 		result, err := GetEtherscanGasData(apiToken)
+		if err != nil {
+			return GasData{}, err
+		}
 		safe, err := strconv.ParseInt(result.Result.SafeGasPrice, 10, 64)
 		if err != nil {
 			safe = 0
