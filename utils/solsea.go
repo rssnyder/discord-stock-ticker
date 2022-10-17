@@ -48,7 +48,7 @@ func GetSolseaData(collection string) (SolseaCollection, error) {
 	}
 
 	var first = strings.Split(matches[0], "</span>")[1]
-	var second = strings.Split(first, ">")[1]	
+	var second = strings.Split(first, ">")[1]
 
 	f, err := strconv.ParseFloat(second, 64)
 	if err != nil {
