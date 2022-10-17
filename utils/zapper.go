@@ -8,7 +8,9 @@ import (
 )
 
 const (
-	ZapperURL = "https://api.zapper.fi/v2/gas-prices?network=%s&eip1559=%t"
+	ZapperURL = "https://api.zapper.fi/v2/gas-prices?network=%s&eip1559=%t&api_key=%s"
+	// Change the Zapper API key
+	ZapperApiKey = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
 )
 
 type ZapperEth1559Data struct {
@@ -41,14 +43,13 @@ func GetZapperData(network string, eip1559 bool) (ZapperData, error) {
 
 	var prices ZapperData
 
-	reqUrl := fmt.Sprintf(ZapperURL, network, eip1559)
+	reqUrl := fmt.Sprintf(ZapperURL, network, eip1559, ZapperApiKey)
 
 	req, err := http.NewRequest("GET", reqUrl, nil)
 	if err != nil {
 		return prices, err
 	}
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("Authorization", "Basic OTZlMGNjNTEtYTYyZS00MmNhLWFjZWUtOTEwZWE3ZDJhMjQxOg==")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -72,14 +73,13 @@ func GetZapperEth1559() (ZapperEth1559Data, error) {
 
 	var prices ZapperEth1559Data
 
-	reqUrl := fmt.Sprintf(ZapperURL, "ethereum", true)
+	reqUrl := fmt.Sprintf(ZapperURL, "ethereum", true, ZapperApiKey)
 
 	req, err := http.NewRequest("GET", reqUrl, nil)
 	if err != nil {
 		return prices, err
 	}
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("Authorization", "Basic OTZlMGNjNTEtYTYyZS00MmNhLWFjZWUtOTEwZWE3ZDJhMjQxOg==")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
