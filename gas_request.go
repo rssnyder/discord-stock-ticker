@@ -14,7 +14,7 @@ import (
 func (m *Manager) ImportGas() {
 
 	// query
-	rows, err := m.DB.Query("SELECT clientID, token, nickname, network, frequency FROM gases")
+	rows, err := m.DB.Query("SELECT clientID, token, apiToken, nickname, network, frequency FROM gases")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -24,7 +24,7 @@ func (m *Manager) ImportGas() {
 	for rows.Next() {
 		var importedGas Gas
 
-		err = rows.Scan(&importedGas.ClientID, &importedGas.Token, &importedGas.Nickname, &importedGas.Network, &importedGas.Frequency)
+		err = rows.Scan(&importedGas.ClientID, &importedGas.Token, &importedGas.APIToken, &importedGas.Nickname, &importedGas.Network, &importedGas.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
@@ -156,13 +156,13 @@ func (m *Manager) WatchGas(gas *Gas) {
 func (m *Manager) StoreGas(gas *Gas) {
 
 	// store new entry in db
-	stmt, err := m.DB.Prepare("INSERT INTO gases(clientId, token, nickname, network, frequency) values(?,?,?,?,?)")
+	stmt, err := m.DB.Prepare("INSERT INTO gases(clientId, token, apiToken, nickname, network, frequency) values(?,?,?,?,?,?)")
 	if err != nil {
 		logger.Warningf("Unable to store gas in db %s: %s", gas.label(), err)
 		return
 	}
 
-	res, err := stmt.Exec(gas.ClientID, gas.Token, gas.Nickname, gas.Network, gas.Frequency)
+	res, err := stmt.Exec(gas.ClientID, gas.Token, gas.APIToken, gas.Nickname, gas.Network, gas.Frequency)
 	if err != nil {
 		logger.Warningf("Unable to store gas in db %s: %s", gas.label(), err)
 		return

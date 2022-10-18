@@ -36,7 +36,7 @@ func GetGasPrices(network string, apiToken string) (GasData, error) {
 			Instant:  fast,
 		}, err
 	default:
-		result, err := GetZapperData(network, true)
+		result, err := GetZapperData(network, true, apiToken)
 		return GasData{
 			Standard: result.Standard,
 			Fast:     result.Fast,
