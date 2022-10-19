@@ -1,0 +1,76 @@
+pipeline:
+  name: release
+  identifier: release
+  projectIdentifier: discordstockticker
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.rssnyder
+        repoName: discord-stock-ticker
+        build: <+input>
+  stages:
+    - stage:
+        name: build
+        identifier: build
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: account.orka
+              namespace: harness-delegate-ng
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: fetch tags
+                  identifier: fetch_tags
+                  spec:
+                    connectorRef: account.dockerhub
+                    image: docker:git
+                    shell: Sh
+                    command: git fetch --tags
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: build docker
+                  identifier: build
+                  spec:
+                    connectorRef: account.ghcr
+                    repo: ghcr.io/rssnyder/discord-stock-ticker
+                    tags:
+                      - latest
+                      - <+codebase.tag>
+                    labels:
+                      org.opencontainers.image.source: <+codebase.repoUrl>
+                    optimize: true
+                    resources:
+                      limits:
+                        memory: 1000Mi
+                        cpu: "1"
+                  failureStrategies: []
+              - step:
+                  type: Run
+                  name: build binaries
+                  identifier: release
+                  spec:
+                    connectorRef: account.dockerhub
+                    image: goreleaser/goreleaser
+                    shell: Sh
+                    command: goreleaser release
+                    envVariables:
+                      GITHUB_TOKEN: <+secrets.getValue("rssnyder_pat")>
+                    resources:
+                      limits:
+                        memory: 1000Mi
+                        cpu: "1"
+        variables:
+          - name: container
+            type: String
+            description: ""
+            value: kube
