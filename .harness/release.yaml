@@ -64,7 +64,7 @@ pipeline:
                     shell: Sh
                     command: goreleaser release
                     envVariables:
-                      GITHUB_TOKEN: <+secrets.getValue("rssnyder_pat")>
+                      GITHUB_TOKEN: <+secrets.getValue("account.rssnyder_pat")>
                     resources:
                       limits:
                         memory: 1000Mi
