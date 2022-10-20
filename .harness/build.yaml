@@ -1,0 +1,44 @@
+pipeline:
+  name: build
+  identifier: build
+  projectIdentifier: discordstockticker
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.rssnyder
+        repoName: discord-stock-ticker
+        build: <+input>
+  stages:
+    - stage:
+        name: build
+        identifier: build
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: build
+                  identifier: build
+                  spec:
+                    connectorRef: account.dockerhub
+                    image: goreleaser/goreleaser
+                    shell: Sh
+                    command: goreleaser release --snapshot --rm-dist
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: account.orka
+              namespace: harness-delegate-ng
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+        variables:
+          - name: container
+            type: String
+            description: ""
+            value: kube
