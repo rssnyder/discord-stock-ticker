@@ -31,7 +31,7 @@ pipeline:
                     command: goreleaser release --snapshot --rm-dist
                     resources:
                       limits:
-                        memory: 1000Mi
+                        memory: 1100Mi
                         cpu: "1"
           infrastructure:
             type: KubernetesDirect
