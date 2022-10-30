@@ -16,6 +16,7 @@ type Gas struct {
 	Network   string   `json:"network"`
 	Nickname  bool     `json:"nickname"`
 	Frequency int      `json:"frequency"`
+	APIToken  string   `json:"api_token"`
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
 	Close     chan int `json:"-"`
@@ -60,7 +61,7 @@ func (g *Gas) watchGasPrice() {
 	}
 
 	// check for frequency override
-	// set to one hour to avoid lockout
+	// set to ten min to avoid lockout
 	if *frequency != 0 {
 		g.Frequency = 600
 	}
@@ -82,7 +83,7 @@ func (g *Gas) watchGasPrice() {
 			return
 		case <-ticker.C:
 			// get gas prices
-			gasPrices, err := utils.GetGasPrices(g.Network)
+			gasPrices, err := utils.GetGasPrices(g.Network, g.APIToken)
 			if err != nil {
 				logger.Errorf("Error getting rates: %s\n", err)
 				continue

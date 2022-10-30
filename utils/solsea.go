@@ -3,7 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -37,7 +37,7 @@ func GetSolseaData(collection string) (SolseaCollection, error) {
 		return result, err
 	}
 
-	results, err := ioutil.ReadAll(resp.Body)
+	results, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return result, err
 	}
@@ -48,7 +48,7 @@ func GetSolseaData(collection string) (SolseaCollection, error) {
 	}
 
 	var first = strings.Split(matches[0], "</span>")[1]
-	var second = strings.Split(first, ">")[1]	
+	var second = strings.Split(first, ">")[1]
 
 	f, err := strconv.ParseFloat(second, 64)
 	if err != nil {

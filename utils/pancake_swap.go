@@ -3,7 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -40,7 +40,7 @@ func GetPancakeTokenPrice(contract string) (string, error) {
 		return result, err
 	}
 
-	results, err := ioutil.ReadAll(resp.Body)
+	results, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return result, err
 	}

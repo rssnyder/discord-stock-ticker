@@ -359,6 +359,7 @@ func dbInit(fileName string) *sql.DB {
 		id integer primary key autoincrement,
 		clientId string,
 		token string,
+		apiToken string,
 		frequency integer,
 		nickname bool,
 		network string
@@ -399,6 +400,19 @@ func dbInit(fileName string) *sql.DB {
 		logger.Warnln("Added new column to tickers: multiplier (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: multiplier (1)" {
 		logger.Debug("New column already exists in tickers: multiplier (1)")
+	} else if err != nil {
+		logger.Errorln(err)
+		logger.Warning("Will not be storing state.")
+		var dbNull *sql.DB
+		return dbNull
+	}
+
+	// v3.11.0 - add gas API Token
+	_, err = db.Exec("alter table gases add column apiToken default \"\";")
+	if err == nil {
+		logger.Warnln("Added new column to tickers: multiplier (1)")
+	} else if err.Error() == "SQL logic error: duplicate column name: apiToken (1)" {
+		logger.Debug("New column already exists in gases: apiToken (1)")
 	} else if err != nil {
 		logger.Errorln(err)
 		logger.Warning("Will not be storing state.")

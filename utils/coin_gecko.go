@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -68,7 +68,7 @@ func GetCryptoPrice(ticker string) (GeckoPriceResults, error) {
 		return price, errors.New("being rate limited by coingecko")
 	}
 
-	results, err := ioutil.ReadAll(resp.Body)
+	results, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return price, err
 	}

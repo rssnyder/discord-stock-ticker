@@ -3,7 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -49,7 +49,7 @@ func GetTimeSeries(ticker string, interval string, apiKey string) (TimeSeries, e
 		return price, err
 	}
 
-	results, err := ioutil.ReadAll(resp.Body)
+	results, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return price, err
 	}

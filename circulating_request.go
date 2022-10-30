@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -79,7 +79,7 @@ func (m *Manager) AddCirculating(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to add a Circulating")
 
 	// read body
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		logger.Errorf("%s", err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -3,12 +3,12 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
 const (
-	SolanartURL = "https://qzlsklfacc.medianetwork.cloud/get_nft?collection=%s&page=0&limit=1&order=&fits=any&trait=&search=&min=0&max=0&listed=true&ownedby=&attrib_count=&bid=all"
+	SolanartURL = "https://api-v2.solanart.io/nfts?collection_id=%s&page=0&limit=1&attributes=[]&query=&listed=all&order_by=price&direction=ASC"
 )
 
 type SolanartCollection struct {
@@ -20,7 +20,7 @@ type SolanartCollection struct {
 		Maxitems          int     `json:"maxItems"`
 		Owners            int     `json:"Owners"`
 		Floorpricefilters float64 `json:"floorPriceFilters"`
-		Maxpricefilters   int     `json:"maxPriceFilters"`
+		Maxpricefilters   float64 `json:"maxPriceFilters"`
 	} `json:"pagination"`
 }
 
@@ -42,7 +42,7 @@ func GetSolanartData(collection string) (SolanartCollection, error) {
 		return result, err
 	}
 
-	results, err := ioutil.ReadAll(resp.Body)
+	results, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return result, err
 	}
