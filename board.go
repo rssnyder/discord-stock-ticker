@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
@@ -208,7 +207,6 @@ func (b *Board) watchStockPrice() {
 }
 
 func (b *Board) watchCryptoPrice() {
-	var nilCache *redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + b.Token)
@@ -260,10 +258,10 @@ func (b *Board) watchCryptoPrice() {
 				var fmtDiff string
 
 				// save the price struct & do something with it
-				if rdb == nilCache {
-					priceData, err = utils.GetCryptoPrice(symbol)
-				} else {
+				if *cache {
 					priceData, err = utils.GetCryptoPriceCache(rdb, ctx, symbol)
+				} else {
+					priceData, err = utils.GetCryptoPrice(symbol)
 				}
 				if err != nil {
 					logger.Errorf("Unable to fetch stock price for %s: %s", symbol, err)

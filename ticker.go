@@ -296,7 +296,6 @@ func (s *Ticker) watchStockPrice() {
 }
 
 func (s *Ticker) watchCryptoPrice() {
-	var nilCache *redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.Token)
@@ -427,15 +426,15 @@ func (s *Ticker) watchCryptoPrice() {
 			var fmtDiffPercent string
 
 			// get the coin price data
-			if rdb == nilCache {
-				priceData, err = utils.GetCryptoPrice(s.Name)
-			} else {
+			if *cache {
 				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Name)
-				if err != nil {
+				if (err != nil) || (err == redis.Nil) {
 					cacheMisses.Inc()
 				} else {
 					cacheHits.Inc()
 				}
+			} else {
+				priceData, err = utils.GetCryptoPrice(s.Name)
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch crypto price for %s: %s", s.Name, err)
@@ -547,10 +546,10 @@ func (s *Ticker) watchCryptoPrice() {
 
 					// get price of target pair
 					var pairPriceData utils.GeckoPriceResults
-					if rdb == nilCache {
-						pairPriceData, err = utils.GetCryptoPrice(s.Pair)
-					} else {
+					if *cache {
 						pairPriceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Pair)
+					} else {
+						pairPriceData, err = utils.GetCryptoPrice(s.Pair)
 					}
 					if err != nil {
 						logger.Errorf("Unable to fetch pair price for %s: %s", s.Pair, err)

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -38,7 +37,6 @@ func (c *Circulating) label() string {
 }
 
 func (c *Circulating) watchCirculating() {
-	var nilCache *redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + c.Token)
@@ -100,10 +98,10 @@ func (c *Circulating) watchCirculating() {
 			var fmtPrice string
 
 			// get the coin price data
-			if rdb == nilCache {
-				priceData, err = utils.GetCryptoPrice(c.Name)
-			} else {
+			if *cache {
 				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, c.Name)
+			} else {
+				priceData, err = utils.GetCryptoPrice(c.Name)
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch marketcap for %s: %s", c.Name, err)
