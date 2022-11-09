@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
@@ -56,7 +55,7 @@ func (s *Ticker) watchStockPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.Token)
 	if err != nil {
-		logger.Errorf("Creating Discord session: %s", err)
+		logger.Errorf("Creating Discord session (%s): %s", s.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
 		return
 	}
@@ -64,7 +63,7 @@ func (s *Ticker) watchStockPrice() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("Opening discord connection: %s", err)
+		logger.Errorf("Opening discord connection (%s): %s", s.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).Set(0)
 		return
 	}
@@ -72,7 +71,7 @@ func (s *Ticker) watchStockPrice() {
 	// Get guides for bot
 	guilds, err := dg.UserGuilds(100, "", "")
 	if err != nil {
-		logger.Errorf("Getting guilds: %s", err)
+		logger.Errorf("Getting guilds (%s): %s", s.ClientID, err)
 		s.Nickname = false
 	}
 	if len(guilds) == 0 {
@@ -300,7 +299,7 @@ func (s *Ticker) watchCryptoPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + s.Token)
 	if err != nil {
-		logger.Errorf("Creating Discord session: %s", err)
+		logger.Errorf("Creating Discord session (%s): %s", s.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -308,7 +307,7 @@ func (s *Ticker) watchCryptoPrice() {
 	// get shards
 	st, err := dg.GatewayBot()
 	if err != nil {
-		logger.Errorf("Creating Discord gateway: %s", err)
+		logger.Errorf("Creating Discord gateway (%s): %s", s.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -318,7 +317,7 @@ func (s *Ticker) watchCryptoPrice() {
 	for i := 0; i < st.Shards; i++ {
 		shards[i], err = discordgo.New("Bot " + s.Token)
 		if err != nil {
-			logger.Errorf("Creating Discord sharded session: %s", err)
+			logger.Errorf("Creating Discord sharded session (%s): %s", s.ClientID, err)
 			lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": "None"}).Set(0)
 			return
 		}
@@ -409,6 +408,7 @@ func (s *Ticker) watchCryptoPrice() {
 
 	logger.Infof("Watching crypto price for %s", s.Name)
 	ticker := time.NewTicker(time.Duration(s.Frequency) * time.Second)
+	var success bool
 
 	// continuously watch
 	for {
@@ -427,11 +427,12 @@ func (s *Ticker) watchCryptoPrice() {
 
 			// get the coin price data
 			if *cache {
-				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Name)
-				if (err != nil) || (err == redis.Nil) {
-					cacheMisses.Inc()
-				} else {
+				// logger.Infof("========%s", ctx)
+				priceData, success, err = utils.GetCryptoPriceCache(rdb, ctx, s.Name)
+				if success {
 					cacheHits.Inc()
+				} else {
+					cacheMisses.Inc()
 				}
 			} else {
 				priceData, err = utils.GetCryptoPrice(s.Name)
@@ -547,7 +548,7 @@ func (s *Ticker) watchCryptoPrice() {
 					// get price of target pair
 					var pairPriceData utils.GeckoPriceResults
 					if *cache {
-						pairPriceData, err = utils.GetCryptoPriceCache(rdb, ctx, s.Pair)
+						pairPriceData, _, err = utils.GetCryptoPriceCache(rdb, ctx, s.Pair)
 					} else {
 						pairPriceData, err = utils.GetCryptoPrice(s.Pair)
 					}

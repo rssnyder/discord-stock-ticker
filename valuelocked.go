@@ -41,7 +41,7 @@ func (m *ValueLocked) watchValueLocked() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + m.Token)
 	if err != nil {
-		logger.Errorf("Creating Discord session: %s", err)
+		logger.Errorf("Creating Discord session (%s): %s", m.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -49,7 +49,7 @@ func (m *ValueLocked) watchValueLocked() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("Opening discord connection: %s", err)
+		logger.Errorf("Opening discord connection (%s): %s", m.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}

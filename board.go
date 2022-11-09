@@ -40,7 +40,7 @@ func (b *Board) watchStockPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + b.Token)
 	if err != nil {
-		logger.Errorf("Error creating Discord session: %s\n", err)
+		logger.Errorf("Creating Discord session (%s): %s", b.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -48,7 +48,7 @@ func (b *Board) watchStockPrice() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("error opening discord connection: %s\n", err)
+		logger.Errorf("Opening discord connection (%s): %s", b.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -241,6 +241,7 @@ func (b *Board) watchCryptoPrice() {
 
 	logger.Infof("Watching board for %s", b.Name)
 	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
+	var success bool
 
 	// continuously watch
 	for {
@@ -259,7 +260,12 @@ func (b *Board) watchCryptoPrice() {
 
 				// save the price struct & do something with it
 				if *cache {
-					priceData, err = utils.GetCryptoPriceCache(rdb, ctx, symbol)
+					priceData, success, err = utils.GetCryptoPriceCache(rdb, ctx, symbol)
+					if success {
+						cacheHits.Inc()
+					} else {
+						cacheMisses.Inc()
+					}
 				} else {
 					priceData, err = utils.GetCryptoPrice(symbol)
 				}

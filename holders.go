@@ -37,7 +37,7 @@ func (h *Holders) watchHolders() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + h.Token)
 	if err != nil {
-		logger.Errorf("Error creating Discord session: %s\n", err)
+		logger.Errorf("Creating Discord session (%s): %s", h.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).Set(0)
 		return
 	}
@@ -45,7 +45,7 @@ func (h *Holders) watchHolders() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("error opening discord connection: %s\n", err)
+		logger.Errorf("Opening discord connection (%s): %s", h.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).Set(0)
 		return
 	}

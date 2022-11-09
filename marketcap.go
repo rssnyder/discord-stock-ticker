@@ -45,7 +45,7 @@ func (m *MarketCap) watchMarketCap() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + m.Token)
 	if err != nil {
-		logger.Errorf("Creating Discord session: %s", err)
+		logger.Errorf("Creating Discord session (%s): %s", m.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -53,7 +53,7 @@ func (m *MarketCap) watchMarketCap() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("Opening discord connection: %s", err)
+		logger.Errorf("Opening discord connection (%s): %s", m.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -104,6 +104,7 @@ func (m *MarketCap) watchMarketCap() {
 
 	logger.Infof("Watching marketcap for %s", m.Name)
 	ticker := time.NewTicker(time.Duration(m.Frequency) * time.Second)
+	var success bool
 
 	// continuously watch
 	for {
@@ -122,7 +123,12 @@ func (m *MarketCap) watchMarketCap() {
 
 			// get the coin price data
 			if *cache {
-				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, m.Name)
+				priceData, success, err = utils.GetCryptoPriceCache(rdb, ctx, m.Name)
+				if success {
+					cacheHits.Inc()
+				} else {
+					cacheMisses.Inc()
+				}
 			} else {
 				priceData, err = utils.GetCryptoPrice(m.Name)
 			}
