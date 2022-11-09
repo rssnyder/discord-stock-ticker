@@ -33,14 +33,12 @@ pipeline:
                       limits:
                         memory: 1100Mi
                         cpu: "1"
-          infrastructure:
-            type: KubernetesDirect
-            spec:
-              connectorRef: account.orka
-              namespace: harness-delegate-ng
-              automountServiceAccountToken: true
-              nodeSelector: {}
-              os: Linux
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
         variables:
           - name: container
             type: String
