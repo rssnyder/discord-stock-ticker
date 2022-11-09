@@ -1,0 +1,14 @@
+inputSet:
+  identifier: "trigger"
+  name: "trigger"
+  orgIdentifier: "default"
+  projectIdentifier: "discordstockticker"
+  pipeline:
+    identifier: "release"
+    properties:
+      ci:
+        codebase:
+          build:
+            type: "tag"
+            spec:
+              tag: "<+eventPayload.release.tag_name>"
