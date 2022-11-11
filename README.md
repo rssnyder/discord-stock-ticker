@@ -16,9 +16,8 @@ With these bots you can track prices of...
 
 🍾 100 public tickers with over 15k installs across 3k discord servers!
 
-🛠️ Use theis project to host your own tickers, or .[pay for custom tickers to be made](https://github.com/rssnyder/discord-stock-ticker/blob/master/README.md#premium).
+🛠️ Use theis project to host your own tickers, or [pay for custom tickers to be made](https://github.com/rssnyder/discord-stock-ticker/blob/master/README.md#premium).
 
-[![Publish](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml/badge.svg)](https://github.com/rssnyder/discord-stock-ticker/actions/workflows/deploy.yml)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/rssnyder/discord-stock-ticker.svg?style=flat)](https://github.com/rssnyder/discord-stock-ticker/pulse)
@@ -91,30 +90,30 @@ Love these bots? You can support this project by subscribing to the [premium ver
 [aapl](https://discord.com/oauth2/authorize?client_id=806569145184550922&permissions=0&scope=bot) |
 [amzn](https://discord.com/oauth2/authorize?client_id=806570287042002945&permissions=0&scope=bot) |
 [goog](https://discord.com/oauth2/authorize?client_id=806570628156882945&permissions=0&scope=bot) |
-[^gspc](https://discord.com/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot) |
-[^dji](https://discord.com/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot) |
-[^ixic](https://discord.com/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot) |
+[sp500](https://discord.com/oauth2/authorize?client_id=808431853363134484&permissions=0&scope=bot) |
+[dow](https://discord.com/oauth2/authorize?client_id=808432655746072596&permissions=0&scope=bot) |
+[nasdaq](https://discord.com/oauth2/authorize?client_id=808432811644026921&permissions=0&scope=bot) |
 [tsla](https://discord.com/oauth2/authorize?client_id=808723743069306882&permissions=0&scope=bot) |
 [dkng](https://discord.com/oauth2/authorize?client_id=808724381608968202&permissions=0&scope=bot) |
 [spy](https://discord.com/oauth2/authorize?client_id=811418568846737500&permissions=0&scope=bot) |
 [amd](https://discord.com/oauth2/authorize?client_id=816049122850897923&permissions=0&scope=bot) |
 [nio](https://discord.com/oauth2/authorize?client_id=816049780546994196&permissions=0&scope=bot) |
-[gc=f](https://discord.com/oauth2/authorize?client_id=816375134122147850&permissions=0&scope=bot) |
-[si=f](https://discord.com/oauth2/authorize?client_id=816375586066661456&permissions=0&scope=bot) |
-[cl=f](https://discord.com/oauth2/authorize?client_id=816375780442636288&permissions=0&scope=bot) |
+[gold](https://discord.com/oauth2/authorize?client_id=816375134122147850&permissions=0&scope=bot) |
+[silver](https://discord.com/oauth2/authorize?client_id=816375586066661456&permissions=0&scope=bot) |
+[oil](https://discord.com/oauth2/authorize?client_id=816375780442636288&permissions=0&scope=bot) |
 [pltr](https://discord.com/oauth2/authorize?client_id=818471352415551518&permissions=0&scope=bot) |
 [pypl](https://discord.com/oauth2/authorize?client_id=819395115465572352&permissions=0&scope=bot) |
 [sndl](https://discord.com/oauth2/authorize?client_id=819638060894388305&permissions=0&scope=bot) |
-[rty=f](https://discord.com/oauth2/authorize?client_id=819578053881102336&permissions=0&scope=bot) |
-[^vix](https://discord.com/oauth2/authorize?client_id=819576744176386048&permissions=0&scope=bot) |
+[russell](https://discord.com/oauth2/authorize?client_id=819578053881102336&permissions=0&scope=bot) |
+[vix](https://discord.com/oauth2/authorize?client_id=819576744176386048&permissions=0&scope=bot) |
 [arkk](https://discord.com/oauth2/authorize?client_id=826512765580869673&permissions=0&scope=bot) |
 [msft](https://discord.com/oauth2/authorize?client_id=827236206575222794&permissions=0&scope=bot) |
 [nflx](https://discord.com/oauth2/authorize?client_id=827236295323025408&permissions=0&scope=bot) |
 [gme](https://discord.com/oauth2/authorize?client_id=828417475624435712&permissions=0&scope=bot) |
 [dis](https://discord.com/oauth2/authorize?client_id=828613902740357121&permissions=0&scope=bot) |
-[es=f](https://discord.com/oauth2/authorize?client_id=831958978455535667&permissions=0&scope=bot) |
-[nq=f](https://discord.com/oauth2/authorize?client_id=833759608861622353&permissions=0&scope=bot) |
-[ym=f](https://discord.com/oauth2/authorize?client_id=833759696783409195&permissions=0&scope=bot) |
+[minisp500](https://discord.com/oauth2/authorize?client_id=831958978455535667&permissions=0&scope=bot) |
+[mininasdaq](https://discord.com/oauth2/authorize?client_id=833759608861622353&permissions=0&scope=bot) |
+[minidow](https://discord.com/oauth2/authorize?client_id=833759696783409195&permissions=0&scope=bot) |
 [nvda](https://discord.com/oauth2/authorize?client_id=836385897372581910&permissions=0&scope=bot) |
 [fb](https://discord.com/oauth2/authorize?client_id=836385990113361951&permissions=0&scope=bot) |
 [btc](https://discord.com/oauth2/authorize?client_id=839289136418783322&permissions=0&scope=bot) |

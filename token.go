@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
@@ -40,12 +39,11 @@ func (t *Token) label() string {
 }
 
 func (t *Token) watchTokenPrice() {
-	var nilCache *redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + t.Token)
 	if err != nil {
-		logger.Errorf("Error creating Discord session: %s\n", err)
+		logger.Errorf("Creating Discord session (%s): %s", t.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": "None"}).Set(0)
 		return
 	}
@@ -53,7 +51,7 @@ func (t *Token) watchTokenPrice() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("error opening discord connection: %s\n", err)
+		logger.Errorf("Opening discord connection (%s): %s", t.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "token", "ticker": fmt.Sprintf("%s-%s", t.Network, t.Contract), "guild": "None"}).Set(0)
 		return
 	}
@@ -94,6 +92,7 @@ func (t *Token) watchTokenPrice() {
 
 	logger.Infof("Watching token price for %s", t.Name)
 	ticker := time.NewTicker(time.Duration(t.Frequency) * time.Second)
+	var success bool
 
 	// continuously watch
 	var oldPrice float64
@@ -121,15 +120,15 @@ func (t *Token) watchTokenPrice() {
 				}
 
 				// get the bnb price
-				if rdb == nilCache {
-					bnbRate, err = utils.GetCryptoPrice("binancecoin")
-				} else {
-					bnbRate, err = utils.GetCryptoPriceCache(rdb, ctx, "binancecoin")
-					if err != nil {
+				if *cache {
+					bnbRate, success, err = utils.GetCryptoPriceCache(rdb, ctx, "binancecoin")
+					if !success || (err != nil) {
 						cacheMisses.Inc()
 					} else {
 						cacheHits.Inc()
 					}
+				} else {
+					bnbRate, err = utils.GetCryptoPrice("binancecoin")
 				}
 				if err != nil {
 					logger.Errorf("Unable to fetch bnb price for %s", t.Name)

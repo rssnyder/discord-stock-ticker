@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/rssnyder/discord-stock-ticker/utils"
@@ -41,7 +40,7 @@ func (b *Board) watchStockPrice() {
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + b.Token)
 	if err != nil {
-		logger.Errorf("Error creating Discord session: %s\n", err)
+		logger.Errorf("Creating Discord session (%s): %s", b.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -49,7 +48,7 @@ func (b *Board) watchStockPrice() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("error opening discord connection: %s\n", err)
+		logger.Errorf("Opening discord connection (%s): %s", b.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -208,7 +207,6 @@ func (b *Board) watchStockPrice() {
 }
 
 func (b *Board) watchCryptoPrice() {
-	var nilCache *redis.Client
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + b.Token)
@@ -243,6 +241,7 @@ func (b *Board) watchCryptoPrice() {
 
 	logger.Infof("Watching board for %s", b.Name)
 	ticker := time.NewTicker(time.Duration(b.Frequency) * time.Second)
+	var success bool
 
 	// continuously watch
 	for {
@@ -260,10 +259,15 @@ func (b *Board) watchCryptoPrice() {
 				var fmtDiff string
 
 				// save the price struct & do something with it
-				if rdb == nilCache {
-					priceData, err = utils.GetCryptoPrice(symbol)
+				if *cache {
+					priceData, success, err = utils.GetCryptoPriceCache(rdb, ctx, symbol)
+					if success {
+						cacheHits.Inc()
+					} else {
+						cacheMisses.Inc()
+					}
 				} else {
-					priceData, err = utils.GetCryptoPriceCache(rdb, ctx, symbol)
+					priceData, err = utils.GetCryptoPrice(symbol)
 				}
 				if err != nil {
 					logger.Errorf("Unable to fetch stock price for %s: %s", symbol, err)

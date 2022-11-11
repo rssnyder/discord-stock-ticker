@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -41,13 +40,12 @@ func (m *MarketCap) label() string {
 }
 
 func (m *MarketCap) watchMarketCap() {
-	var nilCache *redis.Client
 	var exRate float64
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + m.Token)
 	if err != nil {
-		logger.Errorf("Creating Discord session: %s", err)
+		logger.Errorf("Creating Discord session (%s): %s", m.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -55,7 +53,7 @@ func (m *MarketCap) watchMarketCap() {
 	// show as online
 	err = dg.Open()
 	if err != nil {
-		logger.Errorf("Opening discord connection: %s", err)
+		logger.Errorf("Opening discord connection (%s): %s", m.ClientID, err)
 		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}
@@ -106,6 +104,7 @@ func (m *MarketCap) watchMarketCap() {
 
 	logger.Infof("Watching marketcap for %s", m.Name)
 	ticker := time.NewTicker(time.Duration(m.Frequency) * time.Second)
+	var success bool
 
 	// continuously watch
 	for {
@@ -123,10 +122,15 @@ func (m *MarketCap) watchMarketCap() {
 			var fmtDiffPercent string
 
 			// get the coin price data
-			if rdb == nilCache {
-				priceData, err = utils.GetCryptoPrice(m.Name)
+			if *cache {
+				priceData, success, err = utils.GetCryptoPriceCache(rdb, ctx, m.Name)
+				if success {
+					cacheHits.Inc()
+				} else {
+					cacheMisses.Inc()
+				}
 			} else {
-				priceData, err = utils.GetCryptoPriceCache(rdb, ctx, m.Name)
+				priceData, err = utils.GetCryptoPrice(m.Name)
 			}
 			if err != nil {
 				logger.Errorf("Unable to fetch marketcap for %s: %s", m.Name, err)
