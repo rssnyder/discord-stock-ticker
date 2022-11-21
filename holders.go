@@ -20,7 +20,7 @@ type Holders struct {
 	Frequency int      `json:"frequency"`
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
-	Close     chan int `json:"-"`
+	close     chan int `json:"-"`
 }
 
 // label returns a human readble id for this bot
@@ -30,6 +30,11 @@ func (h *Holders) label() string {
 		label = label[:32]
 	}
 	return label
+}
+
+// Shutdown sends a signal to shut off the goroutine
+func (h *Holders) Shutdown() {
+	h.close <- 1
 }
 
 func (h *Holders) watchHolders() {
@@ -84,10 +89,12 @@ func (h *Holders) watchHolders() {
 	logger.Infof("Watching holders for %s", h.Address)
 	ticker := time.NewTicker(time.Duration(h.Frequency) * time.Second)
 
+	h.close = make(chan int, 1)
+
 	for {
 
 		select {
-		case <-h.Close:
+		case <-h.close:
 			logger.Infof("Shutting down price watching for %s", h.Activity)
 			return
 		case <-ticker.C:

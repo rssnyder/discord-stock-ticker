@@ -220,7 +220,7 @@ func (m *Manager) DeleteBoard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingBoard[id].Close <- 1
+	m.WatchingBoard[id].Shutdown()
 	boardCount.Dec()
 
 	var noDB *sql.DB
@@ -264,7 +264,7 @@ func (m *Manager) RestartBoard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingBoard[id].Close <- 1
+	m.WatchingBoard[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingBoard[id].Frequency) * 2 * time.Second)

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -245,7 +244,7 @@ func (m *Manager) DeleteTicker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingTicker[id].Close <- 1
+	m.WatchingTicker[id].Shutdown()
 	tickerCount.Dec()
 
 	var noDB *sql.DB
@@ -293,7 +292,7 @@ func (m *Manager) RestartTicker(w http.ResponseWriter, r *http.Request) {
 	logger.Debugf("Got an API request to restart a ticker")
 
 	vars := mux.Vars(r)
-	id := strings.ToUpper(vars["id"])
+	id := vars["id"]
 
 	if _, ok := m.WatchingTicker[id]; !ok {
 		logger.Errorf("No ticker found: %s", id)
@@ -301,7 +300,7 @@ func (m *Manager) RestartTicker(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingTicker[id].Close <- 1
+	m.WatchingTicker[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingTicker[id].Frequency) * 2 * time.Second)

@@ -27,7 +27,7 @@ type MarketCap struct {
 	Activity       string   `json:"activity"`
 	ClientID       string   `json:"client_id"`
 	Token          string   `json:"discord_bot_token"`
-	Close          chan int `json:"-"`
+	close          chan int `json:"-"`
 }
 
 // label returns a human readble id for this bot
@@ -37,6 +37,11 @@ func (m *MarketCap) label() string {
 		label = label[:32]
 	}
 	return label
+}
+
+// Shutdown sends a signal to shut off the goroutine
+func (m *MarketCap) Shutdown() {
+	m.close <- 1
 }
 
 func (m *MarketCap) watchMarketCap() {
@@ -106,10 +111,12 @@ func (m *MarketCap) watchMarketCap() {
 	ticker := time.NewTicker(time.Duration(m.Frequency) * time.Second)
 	var success bool
 
+	m.close = make(chan int, 1)
+
 	// continuously watch
 	for {
 		select {
-		case <-m.Close:
+		case <-m.close:
 			logger.Infof("Shutting down price watching for %s", m.Name)
 			return
 		case <-ticker.C:

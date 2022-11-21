@@ -202,7 +202,7 @@ func (m *Manager) DeleteFloor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingFloor[id].Close <- 1
+	m.WatchingFloor[id].Shutdown()
 	floorCount.Dec()
 
 	var noDB *sql.DB
@@ -245,7 +245,7 @@ func (m *Manager) RestartFloor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingFloor[id].Close <- 1
+	m.WatchingFloor[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingFloor[id].Frequency) * 2 * time.Second)

@@ -193,7 +193,7 @@ func (m *Manager) DeleteCirculating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingCirculating[id].Close <- 1
+	m.WatchingCirculating[id].Shutdown()
 	circulatingCount.Dec()
 
 	var noDB *sql.DB
@@ -235,7 +235,7 @@ func (m *Manager) RestartCirculating(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingCirculating[id].Close <- 1
+	m.WatchingCirculating[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingCirculating[id].Frequency) * 2 * time.Second)

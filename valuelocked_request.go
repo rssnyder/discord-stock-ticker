@@ -34,14 +34,14 @@ func (m *Manager) ImportValueLocked() {
 		// activate bot
 		go importedValueLocked.watchValueLocked()
 		m.WatchValueLocked(&importedValueLocked)
-		logger.Infof("Loaded marketcap from db: %s", importedValueLocked.label())
+		logger.Infof("Loaded valuelocked from db: %s", importedValueLocked.label())
 	}
 	rows.Close()
 
 	// check all entries have id
-	for _, marketcap := range m.WatchingValueLocked {
-		if marketcap.ClientID == "" {
-			id, err := getIDToken(marketcap.Token)
+	for _, valuelocked := range m.WatchingValueLocked {
+		if valuelocked.ClientID == "" {
+			id, err := getIDToken(valuelocked.Token)
 			if err != nil {
 				logger.Errorf("Unable to get id from token: %s", err)
 				continue
@@ -53,7 +53,7 @@ func (m *Manager) ImportValueLocked() {
 				continue
 			}
 
-			res, err := stmt.Exec(id, marketcap.Token)
+			res, err := stmt.Exec(id, valuelocked.Token)
 			if err != nil {
 				logger.Errorf("Unable to update db: %s", err)
 				continue
@@ -64,8 +64,8 @@ func (m *Manager) ImportValueLocked() {
 				logger.Errorf("Unable to confirm db update: %s", err)
 				continue
 			} else {
-				logger.Infof("Updated id in db for %s", marketcap.label())
-				marketcap.ClientID = id
+				logger.Infof("Updated id in db for %s", valuelocked.label())
+				valuelocked.ClientID = id
 			}
 		}
 	}
@@ -155,34 +155,34 @@ func (m *Manager) AddValueLocked(w http.ResponseWriter, r *http.Request) {
 		logger.Errorf("Unable to encode valuelocks: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	logger.Infof("Added marketcap: %s\n", valueLockedReq.Name)
+	logger.Infof("Added valuelocked: %s\n", valueLockedReq.Name)
 }
 
-func (m *Manager) WatchValueLocked(marketcap *ValueLocked) {
-	marketcapCount.Inc()
-	id := marketcap.label()
-	m.WatchingValueLocked[id] = marketcap
+func (m *Manager) WatchValueLocked(valuelocked *ValueLocked) {
+	valuelockedCount.Inc()
+	id := valuelocked.label()
+	m.WatchingValueLocked[id] = valuelocked
 }
 
-// StoreTicker puts a marketcap into the db
-func (m *Manager) StoreValueLocked(marketcap *ValueLocked) {
+// StoreTicker puts a valuelocked into the db
+func (m *Manager) StoreValueLocked(valuelocked *ValueLocked) {
 
 	// store new entry in db
 	stmt, err := m.DB.Prepare("INSERT INTO valuelocks(clientId, token, ticker, name, nickname, activity, decorator, decimals, currency, currencySymbol, source, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
-		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
+		logger.Warningf("Unable to store valuelocked in db %s: %s", valuelocked.label(), err)
 		return
 	}
 
-	res, err := stmt.Exec(marketcap.ClientID, marketcap.Token, marketcap.Ticker, marketcap.Name, marketcap.Nickname, marketcap.Activity, marketcap.Decorator, marketcap.Decimals, marketcap.Currency, marketcap.CurrencySymbol, marketcap.Source, marketcap.Frequency)
+	res, err := stmt.Exec(valuelocked.ClientID, valuelocked.Token, valuelocked.Ticker, valuelocked.Name, valuelocked.Nickname, valuelocked.Activity, valuelocked.Decorator, valuelocked.Decimals, valuelocked.Currency, valuelocked.CurrencySymbol, valuelocked.Source, valuelocked.Frequency)
 	if err != nil {
-		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
+		logger.Warningf("Unable to store valuelocked in db %s: %s", valuelocked.label(), err)
 		return
 	}
 
 	_, err = res.LastInsertId()
 	if err != nil {
-		logger.Warningf("Unable to store marketcap in db %s: %s", marketcap.label(), err)
+		logger.Warningf("Unable to store valuelocked in db %s: %s", valuelocked.label(), err)
 		return
 	}
 }
@@ -192,32 +192,32 @@ func (m *Manager) DeleteValueLocked(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
 
-	logger.Debugf("Got an API request to delete a marketcap")
+	logger.Debugf("Got an API request to delete a valuelocked")
 
 	vars := mux.Vars(r)
 	id := vars["id"]
 
 	if _, ok := m.WatchingValueLocked[id]; !ok {
-		logger.Errorf("No marketcap found: %s", id)
+		logger.Errorf("No valuelocked found: %s", id)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	// send shutdown sign
-	m.WatchingValueLocked[id].Close <- 1
-	marketcapCount.Dec()
+	m.WatchingValueLocked[id].Shutdown()
+	valuelockedCount.Dec()
 
 	var noDB *sql.DB
 	if m.DB != noDB {
 		// remove from db
 		stmt, err := m.DB.Prepare("DELETE FROM valuelocks WHERE name = ?")
 		if err != nil {
-			logger.Warningf("Unable to query marketcap in db %s: %s", id, err)
+			logger.Warningf("Unable to query valuelocked in db %s: %s", id, err)
 			return
 		}
 
 		_, err = stmt.Exec(m.WatchingValueLocked[id].Name)
 		if err != nil {
-			logger.Warningf("Unable to query marketcap in db %s: %s", id, err)
+			logger.Warningf("Unable to query valuelocked in db %s: %s", id, err)
 			return
 		}
 	}
@@ -225,35 +225,35 @@ func (m *Manager) DeleteValueLocked(w http.ResponseWriter, r *http.Request) {
 	// remove from cache
 	delete(m.WatchingValueLocked, id)
 
-	logger.Infof("Deleted marketcap %s", id)
+	logger.Infof("Deleted valuelocked %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// RestartValueLocked stops and starts a marketcap
+// RestartValueLocked stops and starts a valuelocked
 func (m *Manager) RestartValueLocked(w http.ResponseWriter, r *http.Request) {
 	m.Lock()
 	defer m.Unlock()
 
-	logger.Debugf("Got an API request to restart a marketcap")
+	logger.Debugf("Got an API request to restart a valuelocked")
 
 	vars := mux.Vars(r)
 	id := strings.ToUpper(vars["id"])
 
 	if _, ok := m.WatchingValueLocked[id]; !ok {
-		logger.Errorf("No marketcap found: %s", id)
+		logger.Errorf("No valuelocked found: %s", id)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	// send shutdown sign
-	m.WatchingValueLocked[id].Close <- 1
+	m.WatchingValueLocked[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingValueLocked[id].Frequency) * 2 * time.Second)
 
-	// start the marketcap again
+	// start the valuelocked again
 	go m.WatchingValueLocked[id].watchValueLocked()
 
-	logger.Infof("Restarted marketcap %s", id)
+	logger.Infof("Restarted valuelocked %s", id)
 	w.WriteHeader(http.StatusNoContent)
 }
 

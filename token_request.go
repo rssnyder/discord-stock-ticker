@@ -203,7 +203,7 @@ func (m *Manager) DeleteToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingToken[id].Close <- 1
+	m.WatchingToken[id].Shutdown()
 	tokenCount.Dec()
 
 	var noDB *sql.DB
@@ -247,7 +247,7 @@ func (m *Manager) RestartToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingToken[id].Close <- 1
+	m.WatchingToken[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingToken[id].Frequency) * 2 * time.Second)
