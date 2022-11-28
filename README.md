@@ -542,13 +542,13 @@ bot type: `floor`
 
 ![image](https://user-images.githubusercontent.com/7338312/148694081-9e90f75d-dcef-4a68-b98a-11c37b2b616a.png)
 
-Track the floor price of an NFT collection on OpenSea or Solanart.
+Track the floor price of an NFT collection on OpenSea, Solanart, Solsea or MagicEden
 
 ### Bot Configuration
 
 ```json
 {
-  "marketplace": "opensea",                         # string: one of: opensea, solsea or solanart
+  "marketplace": "opensea",                         # string: one of: opensea, solanart, solsea or magiceden
   "name": "ethereum",                               # string: collection name/id from source
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
