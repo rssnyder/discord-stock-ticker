@@ -199,7 +199,7 @@ func (c *Circulating) watchCirculating() {
 				}
 
 				// set activity
-				err = dg.UpdateGameStatus(0, c.Activity)
+				err = dg.UpdateWatchStatus(0, c.Activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
@@ -209,7 +209,7 @@ func (c *Circulating) watchCirculating() {
 			} else {
 
 				// format activity
-				err = dg.UpdateGameStatus(0, c.Activity)
+				err = dg.UpdateWatchStatus(0, c.Activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {

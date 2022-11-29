@@ -183,7 +183,7 @@ func (b *Board) watchStockPrice() {
 						}
 					}
 
-					err = dg.UpdateGameStatus(0, b.Name)
+					err = dg.UpdateWatchStatus(0, b.Name)
 					if err != nil {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
@@ -200,7 +200,7 @@ func (b *Board) watchStockPrice() {
 						activity = fmt.Sprintf("%s %s %s $%s", symbol, fmtPrice, decorator, fmtDiff)
 					}
 
-					err = dg.UpdateGameStatus(0, activity)
+					err = dg.UpdateWatchStatus(0, activity)
 					if err != nil {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
@@ -357,7 +357,7 @@ func (b *Board) watchCryptoPrice() {
 						}
 					}
 
-					err = dg.UpdateGameStatus(0, b.Name)
+					err = dg.UpdateWatchStatus(0, b.Name)
 					if err != nil {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
@@ -368,7 +368,7 @@ func (b *Board) watchCryptoPrice() {
 
 					// format activity
 					activity := fmt.Sprintf("%s $%s %s %s", strings.ToUpper(priceData.Symbol), fmtPrice, decorator, fmtDiff)
-					err = dg.UpdateGameStatus(0, activity)
+					err = dg.UpdateWatchStatus(0, activity)
 					if err != nil {
 						logger.Errorf("Unable to set activity: %s\n", err)
 					} else {
