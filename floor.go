@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,6 +20,7 @@ type Floor struct {
 	Nickname    bool     `json:"nickname"`
 	Activity    string   `json:"activity"`
 	Frequency   int      `json:"frequency"`
+	Color       bool     `json:"color"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
 	close       chan int `json:"-"`
@@ -92,6 +94,8 @@ func (f *Floor) watchFloorPrice() {
 	f.close = make(chan int, 1)
 
 	// watch floor price
+	var oldPrice float64
+	var increase bool
 	for {
 
 		select {
@@ -105,19 +109,39 @@ func (f *Floor) watchFloorPrice() {
 				continue
 			}
 
+			// calculate if price has moved up or down
+			var priceRaw float64
+			if priceRaw, err = strconv.ParseFloat(strings.ReplaceAll(price, " SOL", ""), 64); err != nil {
+				logger.Errorf("Error with price format for %s", f.Name)
+				continue
+			}
+			if priceRaw > oldPrice {
+				increase = true
+			} else if priceRaw < oldPrice {
+				increase = false
+			}
+
 			// change nickname
 			if f.Nickname {
 
-				for _, gu := range guilds {
-
-					err = dg.GuildMemberNickname(gu.ID, "@me", price)
+				// Update nickname in guilds
+				for _, g := range guilds {
+					err = dg.GuildMemberNickname(g.ID, "@me", price)
 					if err != nil {
-						logger.Errorf("Error updating nickname: %s\n", err)
+						logger.Errorf("Updating nickname: %s", err)
 						continue
-					} else {
-						logger.Debugf("Set nickname in %s: %s\n", gu.Name, price)
 					}
-					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": gu.Name}).SetToCurrentTime()
+					logger.Debugf("Set nickname in %s: %s", g.Name, price)
+					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": g.Name}).SetToCurrentTime()
+
+					if f.Color {
+						// change bot color
+						err = setRole(dg, f.ClientID, g.ID, increase)
+						if err != nil {
+							logger.Errorf("Color roles: %s", err)
+						}
+					}
+
 					time.Sleep(time.Duration(f.Frequency) * time.Second)
 				}
 
@@ -155,6 +179,7 @@ func (f *Floor) watchFloorPrice() {
 					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
+			oldPrice = priceRaw
 		}
 	}
 }

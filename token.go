@@ -102,6 +102,7 @@ func (t *Token) watchTokenPrice() {
 
 	// continuously watch
 	var oldPrice float64
+	var increase bool
 	for {
 		select {
 		case <-t.close:
@@ -177,10 +178,9 @@ func (t *Token) watchTokenPrice() {
 			}
 
 			// calculate if price has moved up or down
-			var increase bool
-			if fmtPrice >= oldPrice {
+			if fmtPrice > oldPrice {
 				increase = true
-			} else {
+			} else if fmtPrice < oldPrice {
 				increase = false
 			}
 
