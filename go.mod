@@ -13,3 +13,5 @@ require (
 	golang.org/x/text v0.3.6
 	modernc.org/sqlite v1.14.1
 )
+
+replace github.com/bwmarrin/discordgo => /home/ricks/Development/personal/discordgo
