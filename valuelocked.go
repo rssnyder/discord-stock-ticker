@@ -27,12 +27,17 @@ type ValueLocked struct {
 	Source         string   `json:"source"`
 	ClientID       string   `json:"client_id"`
 	Token          string   `json:"discord_bot_token"`
-	Close          chan int `json:"-"`
+	close          chan int `json:"-"`
 }
 
 // label returns a human readble id for this bot
 func (m *ValueLocked) label() string {
 	return strings.ToLower(fmt.Sprintf("%s-%s", m.Name, m.Currency))
+}
+
+// Shutdown sends a signal to shut off the goroutine
+func (m *ValueLocked) Shutdown() {
+	m.close <- 1
 }
 
 func (m *ValueLocked) watchValueLocked() {
@@ -42,7 +47,7 @@ func (m *ValueLocked) watchValueLocked() {
 	dg, err := discordgo.New("Bot " + m.Token)
 	if err != nil {
 		logger.Errorf("Creating Discord session (%s): %s", m.ClientID, err)
-		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -50,7 +55,7 @@ func (m *ValueLocked) watchValueLocked() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("Opening discord connection (%s): %s", m.ClientID, err)
-		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": m.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -92,13 +97,15 @@ func (m *ValueLocked) watchValueLocked() {
 		setName(dg, m.label())
 	}
 
-	logger.Infof("Watching marketcap for %s", m.Name)
+	logger.Infof("Watching circulating for %s", m.Name)
 	ticker := time.NewTicker(time.Duration(m.Frequency) * time.Second)
+
+	m.close = make(chan int, 1)
 
 	// continuously watch
 	for {
 		select {
-		case <-m.Close:
+		case <-m.close:
 			logger.Infof("Shutting down price watching for %s", m.Name)
 			return
 		case <-ticker.C:
@@ -186,7 +193,7 @@ func (m *ValueLocked) watchValueLocked() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
-					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": m.Name, "guild": g.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(m.Frequency) * time.Second)
 				}
 
@@ -223,7 +230,7 @@ func (m *ValueLocked) watchValueLocked() {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", nickname)
-					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": m.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}

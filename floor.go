@@ -19,7 +19,7 @@ type Floor struct {
 	Frequency   int      `json:"frequency"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
-	Close       chan int `json:"-"`
+	close       chan int `json:"-"`
 }
 
 // label returns a human readble id for this bot
@@ -29,6 +29,11 @@ func (f *Floor) label() string {
 		label = label[:32]
 	}
 	return label
+}
+
+// Shutdown sends a signal to shut off the goroutine
+func (f *Floor) Shutdown() {
+	f.close <- 1
 }
 
 // watchFloorPrice gets floor prices and rotates through levels
@@ -74,11 +79,13 @@ func (f *Floor) watchFloorPrice() {
 	logger.Infof("Watching floor price for %s/%s", f.Marketplace, f.Name)
 	ticker := time.NewTicker(time.Duration(f.Frequency) * time.Second)
 
+	f.close = make(chan int, 1)
+
 	// watch floor price
 	for {
 
 		select {
-		case <-f.Close:
+		case <-f.close:
 			logger.Infof("Shutting down price watching for %s/%s", f.Marketplace, f.Name)
 			return
 		case <-ticker.C:

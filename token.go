@@ -26,7 +26,7 @@ type Token struct {
 	Source    string   `json:"source"`
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
-	Close     chan int `json:"-"`
+	close     chan int `json:"-"`
 }
 
 // label returns a human readble id for this bot
@@ -36,6 +36,10 @@ func (t *Token) label() string {
 		label = label[:32]
 	}
 	return label
+}
+
+func (t *Token) Shutdown() {
+	t.close <- 1
 }
 
 func (t *Token) watchTokenPrice() {
@@ -94,11 +98,13 @@ func (t *Token) watchTokenPrice() {
 	ticker := time.NewTicker(time.Duration(t.Frequency) * time.Second)
 	var success bool
 
+	t.close = make(chan int, 1)
+
 	// continuously watch
 	var oldPrice float64
 	for {
 		select {
-		case <-t.Close:
+		case <-t.close:
 			logger.Infof("Shutting down price watching for %s", t.Name)
 			return
 		case <-ticker.C:

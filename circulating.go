@@ -24,7 +24,7 @@ type Circulating struct {
 	Activity       string   `json:"activity"`
 	ClientID       string   `json:"client_id"`
 	Token          string   `json:"discord_bot_token"`
-	Close          chan int `json:"-"`
+	close          chan int `json:"-"`
 }
 
 // label returns a human readble id for this bot
@@ -36,13 +36,18 @@ func (c *Circulating) label() string {
 	return label
 }
 
+// Shutdown sends a signal to shut off the goroutine
+func (c *Circulating) Shutdown() {
+	c.close <- 1
+}
+
 func (c *Circulating) watchCirculating() {
 
 	// create a new discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + c.Token)
 	if err != nil {
 		logger.Errorf("Creating Discord session (%s): %s", c.ClientID, err)
-		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": c.Name, "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": c.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -50,7 +55,7 @@ func (c *Circulating) watchCirculating() {
 	err = dg.Open()
 	if err != nil {
 		logger.Errorf("Opening discord connection (%s): %s", c.ClientID, err)
-		lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": c.Name, "guild": "None"}).Set(0)
+		lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": c.Name, "guild": "None"}).Set(0)
 		return
 	}
 
@@ -82,14 +87,16 @@ func (c *Circulating) watchCirculating() {
 		setName(dg, c.label())
 	}
 
-	logger.Infof("Watching marketcap for %s", c.Name)
+	logger.Infof("Watching circulating for %s", c.Name)
 	ticker := time.NewTicker(time.Duration(c.Frequency) * time.Second)
 	var success bool
+
+	c.close = make(chan int, 1)
 
 	// continuously watch
 	for {
 		select {
-		case <-c.Close:
+		case <-c.close:
 			logger.Infof("Shutting down price watching for %s", c.Name)
 			return
 		case <-ticker.C:
@@ -110,7 +117,7 @@ func (c *Circulating) watchCirculating() {
 				priceData, err = utils.GetCryptoPrice(c.Name)
 			}
 			if err != nil {
-				logger.Errorf("Unable to fetch marketcap for %s: %s", c.Name, err)
+				logger.Errorf("Unable to fetch circulating for %s: %s", c.Name, err)
 				continue
 			}
 
@@ -170,7 +177,7 @@ func (c *Circulating) watchCirculating() {
 						continue
 					}
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
-					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": c.Name, "guild": g.Name}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": c.Name, "guild": g.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(c.Frequency) * time.Second)
 				}
 
@@ -207,7 +214,7 @@ func (c *Circulating) watchCirculating() {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
 					logger.Debugf("Set activity: %s", c.Activity)
-					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": c.Name, "guild": "None"}).SetToCurrentTime()
+					lastUpdate.With(prometheus.Labels{"type": "circulating", "ticker": c.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
 		}

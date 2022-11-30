@@ -203,7 +203,7 @@ func (m *Manager) DeleteMarketCap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingMarketCap[id].Close <- 1
+	m.WatchingMarketCap[id].Shutdown()
 	marketcapCount.Dec()
 
 	var noDB *sql.DB
@@ -245,7 +245,7 @@ func (m *Manager) RestartMarketCap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// send shutdown sign
-	m.WatchingMarketCap[id].Close <- 1
+	m.WatchingMarketCap[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingMarketCap[id].Frequency) * 2 * time.Second)

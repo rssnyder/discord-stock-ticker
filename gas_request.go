@@ -192,7 +192,7 @@ func (m *Manager) DeleteGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingGas[id].Close <- 1
+	m.WatchingGas[id].Shutdown()
 	gasCount.Dec()
 
 	var noDB *sql.DB
@@ -235,7 +235,7 @@ func (m *Manager) RestartGas(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingGas[id].Close <- 1
+	m.WatchingGas[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingGas[id].Frequency) * 2 * time.Second)

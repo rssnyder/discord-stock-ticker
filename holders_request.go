@@ -199,7 +199,7 @@ func (m *Manager) DeleteHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingHolders[id].Close <- 1
+	m.WatchingHolders[id].Shutdown()
 	holdersCount.Dec()
 
 	var noDB *sql.DB
@@ -242,7 +242,7 @@ func (m *Manager) RestartHolders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send shutdown sign
-	m.WatchingHolders[id].Close <- 1
+	m.WatchingHolders[id].Shutdown()
 
 	// wait twice the update time
 	time.Sleep(time.Duration(m.WatchingHolders[id].Frequency) * 2 * time.Second)
