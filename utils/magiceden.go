@@ -8,34 +8,21 @@ import (
 )
 
 const (
-	magicedenEscrowURL = "https://api-mainnet.magiceden.io/rpc/getCollectionEscrowStats/%s"
+	magicedenURL = "http://api-mainnet.magiceden.dev/v2/collections/%s/stats"
 )
 
-type MagicedenEscrow struct {
-	Results struct {
-		Symbol                   string `json:"symbol"`
-		Enabledattributesfilters bool   `json:"enabledAttributesFilters"`
-		Availableattributes      []struct {
-			Count     int `json:"count"`
-			Floor     int `json:"floor"`
-			Attribute struct {
-				TraitType string `json:"trait_type"`
-				Value     string `json:"value"`
-			} `json:"attribute"`
-		} `json:"availableAttributes"`
-		Floorprice       float64 `json:"floorPrice"`
-		Listedcount      float64 `json:"listedCount"`
-		Listedtotalvalue float64 `json:"listedTotalValue"`
-		Avgprice24Hr     float64 `json:"avgPrice24hr"`
-		Volume24Hr       float64 `json:"volume24hr"`
-		Volumeall        float64 `json:"volumeAll"`
-	} `json:"results"`
+type MagicedenOpenSeaCollection struct {
+	Symbol       string  `json:"symbol"`
+	Floorprice   float64 `json:"floorPrice"`
+	Listedcount  float64 `json:"listedCount"`
+	Avgprice24Hr float64 `json:"avgPrice24hr"`
+	Volumeall    float64 `json:"volumeAll"`
 }
 
-func GetMagicedenData(collection string) (MagicedenEscrow, error) {
-	var result MagicedenEscrow
+func GetMagicedenData(collection string) (MagicedenOpenSeaCollection, error) {
+	var result MagicedenOpenSeaCollection
 
-	reqUrl := fmt.Sprintf(magicedenEscrowURL, collection)
+	reqUrl := fmt.Sprintf(magicedenURL, collection)
 
 	req, err := http.NewRequest("GET", reqUrl, nil)
 	if err != nil {

@@ -457,7 +457,7 @@ func setName(session *discordgo.Session, name string) {
 		return
 	}
 
-	_, err = session.UserUpdate("", "", name, "", "")
+	_, err = session.UserUpdate(name, "")
 	if err != nil {
 		logger.Errorf("Updating bot username: %s", err)
 		return
