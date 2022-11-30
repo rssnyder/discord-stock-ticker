@@ -1,0 +1,15 @@
+inputSet:
+  identifier: "prtrigger"
+  name: "pr-trigger"
+  orgIdentifier: "default"
+  projectIdentifier: "discordstockticker"
+  pipeline:
+    identifier: "build"
+    properties:
+      ci:
+        codebase:
+          repoName: "<+eventPayload.pull_request.head.repo.html_url>"
+          build:
+            type: "branch"
+            spec:
+              branch: "<+eventPayload.pull_request.head.ref>"
