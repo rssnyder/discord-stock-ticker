@@ -250,15 +250,7 @@ func (m *MarketCap) watchMarketCap() {
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": g.Name}).SetToCurrentTime()
 
-					// change bot color
-					if m.Color {
-						err = setRole(dg, m.ClientID, g.ID, increase)
-						if err != nil {
-							logger.Errorf("Color roles: %s", err)
-						}
-					}
-
-					time.Sleep(time.Duration(m.Frequency) * time.Second)
+					time.Sleep(time.Duration(m.Frequency) * time.Second / 4)
 				}
 
 				// Custom activity messages
@@ -296,6 +288,18 @@ func (m *MarketCap) watchMarketCap() {
 				} else {
 					logger.Debugf("Set activity: %s", activity)
 					lastUpdate.With(prometheus.Labels{"type": "marketcap", "ticker": m.Name, "guild": "None"}).SetToCurrentTime()
+				}
+			}
+
+			// change bot color
+			if m.Color {
+				for _, g := range guilds {
+					err = setRole(dg, m.ClientID, g.ID, increase)
+					if err != nil {
+						logger.Errorf("Color roles: %s", err)
+						m.Color = false
+					}
+					time.Sleep(time.Duration(m.Frequency) * time.Second / 4)
 				}
 			}
 		}

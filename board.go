@@ -341,11 +341,7 @@ func (b *Board) watchCryptoPrice() {
 						logger.Infof("Set nickname in %s: %s", g.Name, nickname)
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name, "guild": g.Name}).SetToCurrentTime()
 
-						// change bot color
-						err = setRole(dg, b.ClientID, g.ID, increase)
-						if err != nil {
-							logger.Errorf("Color roles: %s", err)
-						}
+						time.Sleep(time.Duration(b.Frequency) * time.Second / 4)
 					}
 
 					err = dg.UpdateGameStatus(0, b.Name)
@@ -365,6 +361,18 @@ func (b *Board) watchCryptoPrice() {
 					} else {
 						logger.Infof("Set activity: %s", activity)
 						lastUpdate.With(prometheus.Labels{"type": "board", "ticker": b.Name}).SetToCurrentTime()
+					}
+				}
+
+				// change bot color
+				if b.Color {
+					for _, g := range guilds {
+						err = setRole(dg, b.ClientID, g.ID, increase)
+						if err != nil {
+							logger.Errorf("Color roles: %s", err)
+							b.Color = false
+						}
+						time.Sleep(time.Duration(b.Frequency) * time.Second / 4)
 					}
 				}
 			}
