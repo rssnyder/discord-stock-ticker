@@ -8,7 +8,7 @@ pipeline:
     ci:
       codebase:
         connectorRef: account.rssnyder
-        repoName: discord-stock-ticker
+        repoName: <+input>
         build: <+input>
   stages:
     - stage:
