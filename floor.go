@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ type Floor struct {
 	Marketplace string   `json:"marketplace"`
 	Name        string   `json:"name"`
 	Nickname    bool     `json:"nickname"`
+	Activity    string   `json:"activity"`
 	Frequency   int      `json:"frequency"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
@@ -71,6 +73,14 @@ func (f *Floor) watchFloorPrice() {
 		f.Frequency = 900
 	}
 
+	// Grab custom activity messages
+	var custom_activity []string
+	itr := 0
+	itrSeed := 0.0
+	if f.Activity != "" {
+		custom_activity = strings.Split(f.Activity, ";")
+	}
+
 	// perform management operations
 	if *managed {
 		setName(dg, f.label())
@@ -111,11 +121,29 @@ func (f *Floor) watchFloorPrice() {
 					time.Sleep(time.Duration(f.Frequency) * time.Second)
 				}
 
-				err = dg.UpdateGameStatus(0, activity)
+				// Custom activity messages
+				if len(custom_activity) > 0 {
+
+					// Display the real activity once per cycle
+					if itr == len(custom_activity) {
+						itr = 0
+						itrSeed = 0.0
+						f.Activity = activity
+					} else if math.Mod(itrSeed, 2.0) == 1.0 {
+						f.Activity = custom_activity[itr]
+						itr++
+						itrSeed++
+					} else {
+						f.Activity = custom_activity[itr]
+						itrSeed++
+					}
+				}
+
+				err = dg.UpdateGameStatus(0, f.Activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Debugf("Set activity: %s", activity)
+					logger.Debugf("Set activity: %s", f.Activity)
 				}
 			} else {
 
