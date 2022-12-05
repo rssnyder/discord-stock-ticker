@@ -106,6 +106,8 @@ func (s *Ticker) watchStockPrice() {
 	var arrows bool
 	if s.Decorator == "" {
 		arrows = true
+	} else if s.Decorator == " " { // Set to space to disable
+		s.Decorator = ""
 	}
 
 	// Grab custom activity messages

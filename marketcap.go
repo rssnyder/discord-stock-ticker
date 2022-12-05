@@ -92,6 +92,8 @@ func (m *MarketCap) watchMarketCap() {
 	var arrows bool
 	if m.Decorator == "" {
 		arrows = true
+	} else if m.Decorator == " " { // Set to space to disable
+		m.Decorator = ""
 	}
 
 	// Grab custom activity messages
