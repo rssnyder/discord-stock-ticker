@@ -21,6 +21,7 @@ type Floor struct {
 	Activity    string   `json:"activity"`
 	Frequency   int      `json:"frequency"`
 	Color       bool     `json:"color"`
+	Decorator   string   `json:"decorator"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
 	close       chan int `json:"-"`
@@ -75,6 +76,14 @@ func (f *Floor) watchFloorPrice() {
 		f.Frequency = 900
 	}
 
+	// Set arrows if no custom decorator
+	var arrows bool
+	if f.Decorator == "" {
+		arrows = true
+	} else if f.Decorator == " " { // Set to space to disable
+		f.Decorator = ""
+	}
+
 	// Grab custom activity messages
 	var custom_activity []string
 	itr := 0
@@ -95,10 +104,7 @@ func (f *Floor) watchFloorPrice() {
 
 	// watch floor price
 	var oldPrice float64
-<<<<<<< HEAD
 	var increase bool
-=======
->>>>>>> feat: add floor colors argument
 	for {
 
 		select {
@@ -124,12 +130,20 @@ func (f *Floor) watchFloorPrice() {
 				increase = false
 			}
 
+			// Add arrows to price if requested
+			if arrows {
+				f.Decorator = "⬊"
+				if increase {
+					f.Decorator = "⬈"
+				}
+			}
+
 			// change nickname
 			if f.Nickname {
 
 				// Update nickname in guilds
 				for _, g := range guilds {
-					err = dg.GuildMemberNickname(g.ID, "@me", price)
+					err = dg.GuildMemberNickname(g.ID, "@me", fmt.Sprintf("%s %s", f.Decorator, price))
 					if err != nil {
 						logger.Errorf("Updating nickname: %s", err)
 						continue
@@ -146,53 +160,6 @@ func (f *Floor) watchFloorPrice() {
 					}
 
 					time.Sleep(time.Duration(f.Frequency) * time.Second)
-
-					if f.Color {
-						// get roles for colors
-						var redRole string
-						var greeenRole string
-
-						roles, err := dg.GuildRoles(gu.ID)
-						if err != nil {
-							logger.Errorf("Getting guilds: %s", err)
-							continue
-						}
-
-						// find role ids
-						for _, r := range roles {
-							if r.Name == "tickers-red" {
-								redRole = r.ID
-							} else if r.Name == "tickers-green" {
-								greeenRole = r.ID
-							}
-						}
-
-						if len(redRole) == 0 || len(greeenRole) == 0 {
-							logger.Error("Unable to find roles for color changes")
-							continue
-						}
-
-						// assign role based on change
-						if increase {
-							err = dg.GuildMemberRoleRemove(gu.ID, f.ClientID, redRole)
-							if err != nil {
-								logger.Errorf("Unable to remove role: %s", err)
-							}
-							err = dg.GuildMemberRoleAdd(gu.ID, f.ClientID, greeenRole)
-							if err != nil {
-								logger.Errorf("Unable to set role: %s", err)
-							}
-						} else {
-							err = dg.GuildMemberRoleRemove(gu.ID, f.ClientID, greeenRole)
-							if err != nil {
-								logger.Errorf("Unable to remove role: %s", err)
-							}
-							err = dg.GuildMemberRoleAdd(gu.ID, f.ClientID, redRole)
-							if err != nil {
-								logger.Errorf("Unable to set role: %s", err)
-							}
-						}
-					}
 				}
 
 				// Custom activity messages
@@ -220,8 +187,9 @@ func (f *Floor) watchFloorPrice() {
 					logger.Debugf("Set activity: %s", f.Activity)
 				}
 			} else {
+				activity := fmt.Sprintf("%s %s $%s", f.Name, f.Decorator, price)
 
-				err = dg.UpdateWatchStatus(0, price)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {

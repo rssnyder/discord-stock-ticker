@@ -447,6 +447,19 @@ func dbInit(fileName string) *sql.DB {
 		return dbNull
 	}
 
+	// v3.11.0 - add floor decorator
+	_, err = db.Exec("alter table floors add column decorator default \"\";")
+	if err == nil {
+		logger.Warnln("Added new column to tickers: decorator (1)")
+	} else if err.Error() == "SQL logic error: duplicate column name: decorator (1)" {
+		logger.Debug("New column already exists in floors: decorator (1)")
+	} else if err != nil {
+		logger.Errorln(err)
+		logger.Warning("Will not be storing state.")
+		var dbNull *sql.DB
+		return dbNull
+	}
+
 	logger.Infof("Will be storing state in %s\n", fileName)
 
 	return db
