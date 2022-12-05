@@ -355,7 +355,7 @@ Tracks stock or crypto prices. Uses Yahoo for stock or CoinGecko for crypto.
   "pair": "binancecoin",                            # string/OPTIONAL: pair the coin with another coin, replaces activity section
   "pair_flip": true,                                # bool/OPTIONAL: show <pair>/<coin> rather than <coin>/<pair>
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
-  "decimals": 3,                                    # int/OPTIONAL: set number of decimal places
+  "decimals": 3,                                    # int/OPTIONAL: set number of decimal places. Use -1 for scientific notation.
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
