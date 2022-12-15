@@ -1,6 +1,9 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 // GetFloorPrice based on marketplace and name
 func GetFloorPrice(marketplace, name string) (string, string, error) {
@@ -34,7 +37,7 @@ func GetFloorPrice(marketplace, name string) (string, string, error) {
 		if err != nil {
 			return result, activity, err
 		}
-		result = fmt.Sprintf("Ξ%f", opensea.Stats.FloorPrice)
+		result = fmt.Sprintf("Ξ%s", strconv.FormatFloat(opensea.Stats.FloorPrice, 'f', -1, 64))
 		activity = fmt.Sprintf("%.0f | %.2fk", opensea.Stats.OneDaySales, opensea.Stats.TotalSupply/1000)
 	}
 
