@@ -127,9 +127,9 @@ func (f *Floor) watchFloorPrice() {
 
 			// Convert price to string format.
 			if f.Currency == "ETH" {
-				priceString = fmt.Sprintf("Ξ%s", strconv.FormatFloat(price, 'f', -1, 64))
+				priceString = fmt.Sprintf("%s Ξ%s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64))
 			} else {
-				priceString = fmt.Sprintf("%s %s", strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
+				priceString = fmt.Sprintf("%s %s %s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
 			}
 
 			// calculate if price has moved up or down
@@ -196,7 +196,7 @@ func (f *Floor) watchFloorPrice() {
 					logger.Debugf("Set activity: %s", f.Activity)
 				}
 			} else {
-				activity := fmt.Sprintf("%s %s %s", f.Name, f.Decorator, priceString)
+				activity := fmt.Sprintf("%s %s", f.Name, priceString)
 
 				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
