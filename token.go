@@ -40,7 +40,7 @@ func (t *Token) label() string {
 
 // Format nickname
 func formatNickname(t *Token, price float64) string {
-	if t.Decimals == -1 {
+	if price <= math.Pow10(-t.Decimals) {
 		return fmt.Sprintf("%s %s $%.2e", t.Name, t.Decorator, price)
 	} else {
 		return fmt.Sprintf("%s %s $%."+strconv.Itoa(t.Decimals)+"f", t.Name, t.Decorator, price)
@@ -49,7 +49,7 @@ func formatNickname(t *Token, price float64) string {
 
 // Format activity when not using nickname
 func formatActivity(t *Token, price float64) string {
-	if t.Decimals == -1 {
+	if price <= math.Pow10(-t.Decimals) {
 		return fmt.Sprintf("%s %s $%.2e", t.Name, t.Decorator, price)
 	} else {
 		return fmt.Sprintf("%s %s $%."+strconv.Itoa(t.Decimals)+"f", t.Name, t.Decorator, price)
