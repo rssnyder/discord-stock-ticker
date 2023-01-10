@@ -125,13 +125,6 @@ func (f *Floor) watchFloorPrice() {
 				f.Currency = currency
 			}
 
-			// Convert price to string format.
-			if f.Currency == "ETH" {
-				priceString = fmt.Sprintf("%s Ξ%s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64))
-			} else {
-				priceString = fmt.Sprintf("%s %s %s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
-			}
-
 			// calculate if price has moved up or down
 			if price > oldPrice {
 				increase = true
@@ -145,6 +138,13 @@ func (f *Floor) watchFloorPrice() {
 				if increase {
 					f.Decorator = "⬈"
 				}
+			}
+
+			// Convert price to string format.
+			if f.Currency == "ETH" {
+				priceString = fmt.Sprintf("%s Ξ%s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64))
+			} else {
+				priceString = fmt.Sprintf("%s %s %s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
 			}
 
 			// change nickname
