@@ -118,7 +118,7 @@ func (f *Floor) watchFloorPrice() {
 
 			// Convert price to string format.
 			if f.Currency == "ETH" {
-				priceString = fmt.Sprintf("Ξ %s", strconv.FormatFloat(price, 'f', -1, 64))
+				priceString = fmt.Sprintf("Ξ%s", strconv.FormatFloat(price, 'f', -1, 64))
 			} else {
 				priceString = fmt.Sprintf("%s %s", strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
 			}
