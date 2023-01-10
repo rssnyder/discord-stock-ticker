@@ -21,6 +21,7 @@ type Floor struct {
 	Activity    string   `json:"activity"`
 	Frequency   int      `json:"frequency"`
 	Color       bool     `json:"color"`
+	Currency    string   `json:"currency"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
 	close       chan int `json:"-"`
@@ -96,6 +97,7 @@ func (f *Floor) watchFloorPrice() {
 	// watch floor price
 	var oldPrice float64
 	var increase bool
+	var priceString string
 	for {
 
 		select {
@@ -103,21 +105,28 @@ func (f *Floor) watchFloorPrice() {
 			logger.Infof("Shutting down price watching for %s/%s", f.Marketplace, f.Name)
 			return
 		case <-ticker.C:
-			price, activity, err := utils.GetFloorPrice(f.Marketplace, f.Name)
+			price, activity, currency, err := utils.GetFloorPrice(f.Marketplace, f.Name)
 			if err != nil {
 				logger.Errorf("Error getting floor rates: %s\n", err)
 				continue
 			}
 
-			// calculate if price has moved up or down
-			var priceRaw float64
-			if priceRaw, err = strconv.ParseFloat(strings.ReplaceAll(price, " SOL", ""), 64); err != nil {
-				logger.Errorf("Error with price format for %s", f.Name)
-				continue
+			// Use platform currency if not set.
+			if f.Currency == "" {
+				f.Currency = currency
 			}
-			if priceRaw > oldPrice {
+
+			// Convert price to string format.
+			if f.Currency == "ETH" {
+				priceString = fmt.Sprintf("Ξ %s", strconv.FormatFloat(price, 'f', -1, 64))
+			} else {
+				priceString = fmt.Sprintf("%s %s", strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
+			}
+
+			// calculate if price has moved up or down
+			if price > oldPrice {
 				increase = true
-			} else if priceRaw < oldPrice {
+			} else if price < oldPrice {
 				increase = false
 			}
 
@@ -126,7 +135,7 @@ func (f *Floor) watchFloorPrice() {
 
 				// Update nickname in guilds
 				for _, g := range guilds {
-					err = dg.GuildMemberNickname(g.ID, "@me", price)
+					err = dg.GuildMemberNickname(g.ID, "@me", priceString)
 					if err != nil {
 						logger.Errorf("Updating nickname: %s", err)
 						continue
@@ -171,7 +180,7 @@ func (f *Floor) watchFloorPrice() {
 				}
 			} else {
 
-				err = dg.UpdateGameStatus(0, price)
+				err = dg.UpdateGameStatus(0, priceString)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
@@ -179,7 +188,7 @@ func (f *Floor) watchFloorPrice() {
 					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
-			oldPrice = priceRaw
+			oldPrice = price
 		}
 	}
 }

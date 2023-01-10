@@ -551,6 +551,7 @@ Track the floor price of an NFT collection on OpenSea, Solanart, Solsea or Magic
   "marketplace": "opensea",                         # string: one of: opensea, solanart, solsea or magiceden
   "name": "ethereum",                               # string: collection name/id from source
   "color": true,                                    # bool/OPTIONAL: requires nickname
+  "currency": "MATIC",                              # string/OPTIONAL: alternative curreny
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
