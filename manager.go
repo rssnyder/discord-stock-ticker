@@ -436,7 +436,7 @@ func dbInit(fileName string) *sql.DB {
 	}
 
 	// v3.11.0 - add floor color
-	_, err = db.Exec("alter table floors add column color default \"\";")
+	_, err = db.Exec("alter table floors add column color default false;")
 	if err == nil {
 		logger.Warnln("Added new column to tickers: color (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: color (1)" {
