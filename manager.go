@@ -461,6 +461,32 @@ func dbInit(fileName string) *sql.DB {
 		return dbNull
 	}
 
+	// v3.11.0 - add floor collectionStats
+	_, err = db.Exec("alter table floors add column collectionStats default false;")
+	if err == nil {
+		logger.Warnln("Added new column to tickers: collectionStats (1)")
+	} else if err.Error() == "SQL logic error: duplicate column name: collectionStats (1)" {
+		logger.Debug("New column already exists in floors: collectionStats (1)")
+	} else if err != nil {
+		logger.Errorln(err)
+		logger.Warning("Will not be storing state.")
+		var dbNull *sql.DB
+		return dbNull
+	}
+
+	// v3.11.0 - add floor collectionStatsAppend
+	_, err = db.Exec("alter table floors add column collectionStatsAppend default false;")
+	if err == nil {
+		logger.Warnln("Added new column to tickers: collectionStatsAppend (1)")
+	} else if err.Error() == "SQL logic error: duplicate column name: collectionStatsAppend (1)" {
+		logger.Debug("New column already exists in floors: collectionStatsAppend (1)")
+	} else if err != nil {
+		logger.Errorln(err)
+		logger.Warning("Will not be storing state.")
+		var dbNull *sql.DB
+		return dbNull
+	}
+
 	logger.Infof("Will be storing state in %s\n", fileName)
 
 	return db

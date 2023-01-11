@@ -15,16 +15,19 @@ import (
 
 // Floor represents the floor data
 type Floor struct {
-	Marketplace string   `json:"marketplace"`
-	Name        string   `json:"name"`
-	Nickname    bool     `json:"nickname"`
-	Activity    string   `json:"activity"`
-	Frequency   int      `json:"frequency"`
-	Color       bool     `json:"color"`
-	Currency    string   `json:"currency"`
-	ClientID    string   `json:"client_id"`
-	Token       string   `json:"discord_bot_token"`
-	close       chan int `json:"-"`
+	Marketplace           string   `json:"marketplace"`
+	Name                  string   `json:"name"`
+	Nickname              bool     `json:"nickname"`
+	Activity              string   `json:"activity"`
+	Frequency             int      `json:"frequency"`
+	Color                 bool     `json:"color"`
+	Decorator             string   `json:"decorator"`
+	CollectionStats       bool     `json:"collection_stats"`
+	CollectionStatsAppend bool     `json:"collection_stats_append"`
+	Currency              string   `json:"currency"`
+	ClientID              string   `json:"client_id"`
+	Token                 string   `json:"discord_bot_token"`
+	close                 chan int `json:"-"`
 }
 
 // label returns a human readble id for this bot
@@ -105,7 +108,7 @@ func (f *Floor) watchFloorPrice() {
 			logger.Infof("Shutting down price watching for %s/%s", f.Marketplace, f.Name)
 			return
 		case <-ticker.C:
-			price, activity, currency, err := utils.GetFloorPrice(f.Marketplace, f.Name)
+			price, activity, currency, collectionStats, err := utils.GetFloorPrice(f.Marketplace, f.Name)
 			if err != nil {
 				logger.Errorf("Error getting floor rates: %s\n", err)
 				continue
@@ -154,22 +157,38 @@ func (f *Floor) watchFloorPrice() {
 					time.Sleep(time.Duration(f.Frequency) * time.Second)
 				}
 
+				// Add collection stats if requested.
+				var activityStats = ""
+				var customActivityTemp []string = custom_activity
+				if f.CollectionStats {
+					if len(collectionStats) > 0 {
+						// Append to activity if requested.
+						if f.CollectionStatsAppend {
+							activityStats = ": " + collectionStats
+						} else {
+							customActivityTemp = append(customActivityTemp, collectionStats)
+						}
+					}
+				}
+
 				// Custom activity messages
-				if len(custom_activity) > 0 {
+				if len(customActivityTemp) > 0 {
 
 					// Display the real activity once per cycle
-					if itr == len(custom_activity) {
+					if itr == len(customActivityTemp) {
 						itr = 0
 						itrSeed = 0.0
-						f.Activity = activity
-					} else if math.Mod(itrSeed, 2.0) == 1.0 {
-						f.Activity = custom_activity[itr]
+						f.Activity = activity + activityStats
+					} else if math.Mod(itrSeed, 2.0) == 1.0 { // Display custom activities 2 times per cycle.
+						f.Activity = customActivityTemp[itr] + activityStats
 						itr++
 						itrSeed++
 					} else {
-						f.Activity = custom_activity[itr]
+						f.Activity = customActivityTemp[itr] + activityStats
 						itrSeed++
 					}
+				} else {
+					f.Activity = fmt.Sprintf("%s: %s", activity, collectionStats)
 				}
 
 				err = dg.UpdateGameStatus(0, f.Activity)
@@ -179,8 +198,13 @@ func (f *Floor) watchFloorPrice() {
 					logger.Debugf("Set activity: %s", f.Activity)
 				}
 			} else {
+				if f.CollectionStats {
+					activity = fmt.Sprintf("%s | %s", priceString, collectionStats)
+				} else {
+					activity = priceString
+				}
 
-				err = dg.UpdateGameStatus(0, priceString)
+				err = dg.UpdateGameStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
