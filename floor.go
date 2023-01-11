@@ -196,9 +196,8 @@ func (f *Floor) watchFloorPrice() {
 					logger.Debugf("Set activity: %s", f.Activity)
 				}
 			} else {
-				activity := fmt.Sprintf("%s %s", f.Name, priceString)
 
-				err = dg.UpdateGameStatus(0, activity)
+				err = dg.UpdateGameStatus(0, priceString)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
