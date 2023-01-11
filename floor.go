@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,6 +20,8 @@ type Floor struct {
 	Nickname    bool     `json:"nickname"`
 	Activity    string   `json:"activity"`
 	Frequency   int      `json:"frequency"`
+	Color       bool     `json:"color"`
+	Currency    string   `json:"currency"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
 	close       chan int `json:"-"`
@@ -92,6 +95,9 @@ func (f *Floor) watchFloorPrice() {
 	f.close = make(chan int, 1)
 
 	// watch floor price
+	var oldPrice float64
+	var increase bool
+	var priceString string
 	for {
 
 		select {
@@ -99,25 +105,52 @@ func (f *Floor) watchFloorPrice() {
 			logger.Infof("Shutting down price watching for %s/%s", f.Marketplace, f.Name)
 			return
 		case <-ticker.C:
-			price, activity, err := utils.GetFloorPrice(f.Marketplace, f.Name)
+			price, activity, currency, err := utils.GetFloorPrice(f.Marketplace, f.Name)
 			if err != nil {
 				logger.Errorf("Error getting floor rates: %s\n", err)
 				continue
 			}
 
+			// Use platform currency if not set.
+			if f.Currency == "" {
+				f.Currency = currency
+			}
+
+			// Convert price to string format.
+			if f.Currency == "ETH" {
+				priceString = fmt.Sprintf("Ξ%s", strconv.FormatFloat(price, 'f', -1, 64))
+			} else {
+				priceString = fmt.Sprintf("%s %s", strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
+			}
+
+			// calculate if price has moved up or down
+			if price > oldPrice {
+				increase = true
+			} else if price < oldPrice {
+				increase = false
+			}
+
 			// change nickname
 			if f.Nickname {
 
-				for _, gu := range guilds {
-
-					err = dg.GuildMemberNickname(gu.ID, "@me", price)
+				// Update nickname in guilds
+				for _, g := range guilds {
+					err = dg.GuildMemberNickname(g.ID, "@me", priceString)
 					if err != nil {
-						logger.Errorf("Error updating nickname: %s\n", err)
+						logger.Errorf("Updating nickname: %s", err)
 						continue
-					} else {
-						logger.Debugf("Set nickname in %s: %s\n", gu.Name, price)
 					}
-					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": gu.Name}).SetToCurrentTime()
+					logger.Debugf("Set nickname in %s: %s", g.Name, price)
+					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": g.Name}).SetToCurrentTime()
+
+					if f.Color {
+						// change bot color
+						err = setRole(dg, f.ClientID, g.ID, increase)
+						if err != nil {
+							logger.Errorf("Color roles: %s", err)
+						}
+					}
+
 					time.Sleep(time.Duration(f.Frequency) * time.Second)
 				}
 
@@ -147,7 +180,7 @@ func (f *Floor) watchFloorPrice() {
 				}
 			} else {
 
-				err = dg.UpdateGameStatus(0, price)
+				err = dg.UpdateGameStatus(0, priceString)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
@@ -155,6 +188,7 @@ func (f *Floor) watchFloorPrice() {
 					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
+			oldPrice = price
 		}
 	}
 }
