@@ -114,7 +114,7 @@ func (g *Gas) watchGasPrice() {
 					time.Sleep(time.Duration(g.Frequency) * time.Second)
 				}
 
-				err = dg.UpdateGameStatus(0, "Fast, Avg, Slow")
+				err = dg.UpdateWatchStatus(0, "Fast, Avg, Slow")
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
@@ -122,7 +122,7 @@ func (g *Gas) watchGasPrice() {
 				}
 			} else {
 
-				err = dg.UpdateGameStatus(0, nickname)
+				err = dg.UpdateWatchStatus(0, nickname)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {

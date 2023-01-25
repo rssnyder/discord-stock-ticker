@@ -57,7 +57,7 @@ func (h *Holders) watchHolders() {
 
 	// set activity as desc
 	if h.Nickname {
-		err = dg.UpdateGameStatus(0, h.Activity)
+		err = dg.UpdateWatchStatus(0, h.Activity)
 		if err != nil {
 			logger.Errorf("Unable to set activity: %s\n", err)
 		} else {
@@ -117,7 +117,7 @@ func (h *Holders) watchHolders() {
 				}
 			} else {
 
-				err = dg.UpdateGameStatus(0, nickname)
+				err = dg.UpdateWatchStatus(0, nickname)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
