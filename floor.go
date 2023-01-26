@@ -189,7 +189,7 @@ func (f *Floor) watchFloorPrice() {
 					}
 				}
 
-				err = dg.UpdateGameStatus(0, f.Activity)
+				err = dg.UpdateWatchStatus(0, f.Activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {

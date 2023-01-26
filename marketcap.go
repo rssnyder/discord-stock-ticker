@@ -288,7 +288,7 @@ func (m *MarketCap) watchMarketCap() {
 				}
 
 				// set activity
-				err = dg.UpdateGameStatus(0, activity)
+				err = dg.UpdateWatchStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
@@ -299,7 +299,7 @@ func (m *MarketCap) watchMarketCap() {
 
 				// format activity
 				activity := fmt.Sprintf("%s %s %s%%", fmtPrice, m.Decorator, fmtDiffPercent)
-				err = dg.UpdateGameStatus(0, activity)
+				err = dg.UpdateWatchStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
