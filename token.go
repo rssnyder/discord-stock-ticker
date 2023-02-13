@@ -97,6 +97,8 @@ func (t *Token) watchTokenPrice() {
 	var arrows bool
 	if t.Decorator == "" {
 		arrows = true
+	} else if t.Decorator == " " {
+		t.Decorator = ""
 	}
 
 	// Grab custom activity messages

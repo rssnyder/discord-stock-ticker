@@ -331,7 +331,7 @@ Tracks stock or crypto prices. Uses Yahoo for stock or CoinGecko for crypto.
   "ticker": "pfg",                                  # string: symbol for the stock from yahoo finance
   "name": "2) PFG",                                 # string/OPTIONAL: overwrites display name of bot
   "color": true,                                    # bool/OPTIONAL: requires nickname
-  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows. Set to " " to disable arrows.
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
@@ -412,7 +412,7 @@ Tracks the marketcap of a coin. Uses CoinGecko for data.
   "name": "bitcoin",                                # string: name of the crypto from coingecko
   "ticker": "1) BTC",                               # string/OPTIONAL: overwrites display name of bot
   "color": true,                                    # bool/OPTIONAL: requires nickname
-  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows. Set to " " to disable arrows.
   "currency": "aud",                                # string/OPTIONAL: alternative curreny
   "currency_symbol": "AUD",                         # string/OPTIONAL: alternative curreny symbol
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
@@ -528,7 +528,7 @@ Track the price of a token on Ethereum, Binance, or Polygon chains. Uses 1inch b
   "currency": "0x00000",                            # string/OPTIONAL: contract address of token to price against, default is USDC
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "color": true,                                    # bool/OPTIONAL: requires nickname
-  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows. Set to " " to disable arrows.
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "source": "pancakeswap",                          # string/OPTIONAL: if the token is a BSC token, you can set pancakeswap here to use it vs 1inch; you can also set dexlab for solana tokens
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
@@ -551,6 +551,7 @@ Track the floor price of an NFT collection on OpenSea, Solanart, Solsea or Magic
   "marketplace": "opensea",                         # string: one of: opensea, solanart, solsea or magiceden
   "name": "ethereum",                               # string: collection name/id from source
   "color": true,                                    # bool/OPTIONAL: requires nickname
+  "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows. Set to " " to disable arrows.
   "currency": "MATIC",                              # string/OPTIONAL: alternative curreny
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section

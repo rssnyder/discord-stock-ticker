@@ -21,6 +21,7 @@ type Floor struct {
 	Activity    string   `json:"activity"`
 	Frequency   int      `json:"frequency"`
 	Color       bool     `json:"color"`
+	Decorator   string   `json:"decorator"`
 	Currency    string   `json:"currency"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
@@ -76,6 +77,14 @@ func (f *Floor) watchFloorPrice() {
 		f.Frequency = 900
 	}
 
+	// Set arrows if no custom decorator
+	var arrows bool
+	if f.Decorator == "" {
+		arrows = true
+	} else if f.Decorator == " " { // Set to space to disable
+		f.Decorator = ""
+	}
+
 	// Grab custom activity messages
 	var custom_activity []string
 	itr := 0
@@ -116,18 +125,26 @@ func (f *Floor) watchFloorPrice() {
 				f.Currency = currency
 			}
 
-			// Convert price to string format.
-			if f.Currency == "ETH" {
-				priceString = fmt.Sprintf("Ξ%s", strconv.FormatFloat(price, 'f', -1, 64))
-			} else {
-				priceString = fmt.Sprintf("%s %s", strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
-			}
-
 			// calculate if price has moved up or down
 			if price > oldPrice {
 				increase = true
 			} else if price < oldPrice {
 				increase = false
+			}
+
+			// Add arrows to price if requested
+			if arrows {
+				f.Decorator = "⬊"
+				if increase {
+					f.Decorator = "⬈"
+				}
+			}
+
+			// Convert price to string format.
+			if f.Currency == "ETH" {
+				priceString = fmt.Sprintf("%s Ξ%s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64))
+			} else {
+				priceString = fmt.Sprintf("%s %s %s", f.Decorator, strconv.FormatFloat(price, 'f', -1, 64), f.Currency)
 			}
 
 			// change nickname
