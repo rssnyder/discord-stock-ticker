@@ -92,7 +92,7 @@ func (m *MarketCap) watchMarketCap() {
 	var arrows bool
 	if m.Decorator == "" {
 		arrows = true
-	} else if m.Decorator == " " { // Set to space to disable
+	} else if m.Decorator == " " {
 		m.Decorator = ""
 	}
 
