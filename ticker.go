@@ -106,7 +106,7 @@ func (s *Ticker) watchStockPrice() {
 	var arrows bool
 	if s.Decorator == "" {
 		arrows = true
-	} else if s.Decorator == " " { // Set to space to disable
+	} else if s.Decorator == " " {
 		s.Decorator = ""
 	}
 
