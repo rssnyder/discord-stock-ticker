@@ -97,7 +97,7 @@ func (t *Token) watchTokenPrice() {
 	var arrows bool
 	if t.Decorator == "" {
 		arrows = true
-	} else if t.Decorator == " " { // Set to space to disable
+	} else if t.Decorator == " " {
 		t.Decorator = ""
 	}
 
