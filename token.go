@@ -97,6 +97,8 @@ func (t *Token) watchTokenPrice() {
 	var arrows bool
 	if t.Decorator == "" {
 		arrows = true
+	} else if t.Decorator == " " {
+		t.Decorator = ""
 	}
 
 	// Grab custom activity messages
@@ -295,7 +297,7 @@ func (t *Token) watchTokenPrice() {
 					}
 				}
 
-				err = dg.UpdateGameStatus(0, activity)
+				err = dg.UpdateWatchStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {
@@ -305,7 +307,7 @@ func (t *Token) watchTokenPrice() {
 			} else {
 				activity := formatActivity(t, fmtPrice)
 
-				err = dg.UpdateGameStatus(0, activity)
+				err = dg.UpdateWatchStatus(0, activity)
 				if err != nil {
 					logger.Error("Unable to set activity: ", err)
 				} else {

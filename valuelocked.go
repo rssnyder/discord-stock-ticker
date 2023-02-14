@@ -215,7 +215,7 @@ func (m *ValueLocked) watchValueLocked() {
 				}
 
 				// set activity
-				err = dg.UpdateGameStatus(0, m.Activity)
+				err = dg.UpdateWatchStatus(0, m.Activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
@@ -225,7 +225,7 @@ func (m *ValueLocked) watchValueLocked() {
 			} else {
 
 				// format activity
-				err = dg.UpdateGameStatus(0, nickname)
+				err = dg.UpdateWatchStatus(0, nickname)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {

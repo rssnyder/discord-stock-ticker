@@ -106,6 +106,8 @@ func (s *Ticker) watchStockPrice() {
 	var arrows bool
 	if s.Decorator == "" {
 		arrows = true
+	} else if s.Decorator == " " {
+		s.Decorator = ""
 	}
 
 	// Grab custom activity messages
@@ -275,7 +277,7 @@ func (s *Ticker) watchStockPrice() {
 					}
 				}
 
-				err = dg.UpdateGameStatus(0, activity)
+				err = dg.UpdateWatchStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
@@ -285,7 +287,7 @@ func (s *Ticker) watchStockPrice() {
 			} else {
 				activity := fmt.Sprintf("%s %s %s", fmtPrice, s.Decorator, fmtDiffPercent)
 
-				err = dg.UpdateGameStatus(0, activity)
+				err = dg.UpdateWatchStatus(0, activity)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s", err)
 				} else {
@@ -633,7 +635,7 @@ func (s *Ticker) watchCryptoPrice() {
 				// set activity
 				wg := sync.WaitGroup{}
 				for _, sess := range shards {
-					err = sess.UpdateGameStatus(0, activity)
+					err = sess.UpdateWatchStatus(0, activity)
 					if err != nil {
 						logger.Errorf("Unable to set activity: %s", err)
 					} else {
@@ -650,7 +652,7 @@ func (s *Ticker) watchCryptoPrice() {
 
 				wg := sync.WaitGroup{}
 				for _, sess := range shards {
-					err = sess.UpdateGameStatus(0, activity)
+					err = sess.UpdateWatchStatus(0, activity)
 					if err != nil {
 						logger.Errorf("Unable to set activity: %s", err)
 					} else {
