@@ -157,7 +157,7 @@ func (f *Floor) watchFloorPrice() {
 						logger.Errorf("Updating nickname: %s", err)
 						continue
 					}
-					logger.Debugf("Set nickname in %s: %s", g.Name, price)
+					logger.Debugf("Set nickname in %s: %f", g.Name, price)
 					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": g.Name}).SetToCurrentTime()
 
 					if f.Color {
@@ -201,7 +201,7 @@ func (f *Floor) watchFloorPrice() {
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Debugf("Set activity: %s\n", price)
+					logger.Debugf("Set activity: %f\n", price)
 					lastUpdate.With(prometheus.Labels{"type": "floor", "ticker": f.Name, "guild": "None"}).SetToCurrentTime()
 				}
 			}
