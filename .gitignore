@@ -15,9 +15,8 @@
 # vendor/
 
 bin*
-test.sh
+test.*
 load.py
-state.db
 discord-stock-ticker
 test.state
 dist/

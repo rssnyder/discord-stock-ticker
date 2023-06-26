@@ -556,6 +556,7 @@ Track the floor price of an NFT collection on OpenSea, Solanart, Solsea or Magic
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section
   "frequency": 10,                                  # int/OPTIONAL: seconds between refresh
+  "api_key": "XXX",                                 # int/OPTIONAL: api key, used for opensea
   "discord_bot_token": "xxxxxxxxxxxxxxxxxxxxxxxx"   # string: dicord bot token
 }
 ```

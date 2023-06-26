@@ -23,6 +23,7 @@ type Floor struct {
 	Color       bool     `json:"color"`
 	Decorator   string   `json:"decorator"`
 	Currency    string   `json:"currency"`
+	ApiKey      string   `json:"api_key"`
 	ClientID    string   `json:"client_id"`
 	Token       string   `json:"discord_bot_token"`
 	close       chan int `json:"-"`
@@ -114,7 +115,7 @@ func (f *Floor) watchFloorPrice() {
 			logger.Infof("Shutting down price watching for %s/%s", f.Marketplace, f.Name)
 			return
 		case <-ticker.C:
-			price, activity, currency, err := utils.GetFloorPrice(f.Marketplace, f.Name)
+			price, activity, currency, err := utils.GetFloorPrice(f.Marketplace, f.Name, f.ApiKey)
 			if err != nil {
 				logger.Errorf("Error getting floor rates: %s\n", err)
 				continue

@@ -37,7 +37,7 @@ type OpenSeaCollection struct {
 	} `json:"stats"`
 }
 
-func GetOpenSeaData(collection string) (OpenSeaCollection, error) {
+func GetOpenSeaData(collection, apiKey string) (OpenSeaCollection, error) {
 	var result OpenSeaCollection
 
 	reqUrl := fmt.Sprintf(OpenSeaURL, collection)
@@ -49,6 +49,7 @@ func GetOpenSeaData(collection string) (OpenSeaCollection, error) {
 
 	req.Header.Add("User-Agent", "Mozilla/5.0")
 	req.Header.Add("accept", "application/json")
+	req.Header.Add("x-api-key", apiKey)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

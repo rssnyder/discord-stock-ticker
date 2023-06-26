@@ -5,7 +5,7 @@ import (
 )
 
 // GetFloorPrice based on marketplace and name
-func GetFloorPrice(marketplace, name string) (float64, string, string, error) {
+func GetFloorPrice(marketplace, name, apiKey string) (float64, string, string, error) {
 	var result float64
 	var activity string
 	var currency string
@@ -39,7 +39,7 @@ func GetFloorPrice(marketplace, name string) (float64, string, string, error) {
 		result = solanart.Pagination.Floorpricefilters
 		activity = "SolanArt: Floor"
 	default:
-		opensea, err := GetOpenSeaData(name)
+		opensea, err := GetOpenSeaData(name, apiKey)
 		currency = "ETH" // OpenSea API currently doesn't return the currency.
 
 		if err != nil {
