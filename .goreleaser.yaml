@@ -35,8 +35,9 @@ builds:
       - goos: windows
         goarch: 386
 archives:
-  - replacements:
-      386: i386
+  format_overrides:
+    - goos: windows
+      format: zip
 changelog:
   sort: asc
   filters:
