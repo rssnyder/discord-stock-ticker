@@ -83,6 +83,30 @@ var (
 			Help: "Number of times the cache lacked data",
 		},
 	)
+	yahooHits = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "yahoo_hits",
+			Help: "Number of times we got data from yahoo",
+		},
+	)
+	yahooMisses = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "yahoo_misses",
+			Help: "Number of times we failed to get data from yahoo",
+		},
+	)
+	coingeckoHits = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "coingecko_hits",
+			Help: "Number of times we got data from coingecko",
+		},
+	)
+	coingeckoMisses = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "coingecko_misses",
+			Help: "Number of times we failed to get data from coingecko",
+		},
+	)
 	rateLimited = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "ratelimited",
@@ -212,6 +236,10 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	prometheus.MustRegister(lastUpdate)
 	prometheus.MustRegister(cacheHits)
 	prometheus.MustRegister(cacheMisses)
+	prometheus.MustRegister(yahooHits)
+	prometheus.MustRegister(yahooMisses)
+	prometheus.MustRegister(coingeckoHits)
+	prometheus.MustRegister(coingeckoMisses)
 	prometheus.MustRegister(rateLimited)
 	prometheus.MustRegister(updateError)
 

@@ -93,11 +93,13 @@ func (s *Ticker) watchStockPrice() {
 		exData, err := utils.GetStockPrice(s.Currency + "=X")
 		if err != nil {
 			logger.Errorf("Unable to fetch exchange rate for %s, default to USD.", s.Currency)
+			yahooMisses.Inc()
 		} else {
 			if len(exData.QuoteSummary.Results) > 0 {
 				s.Exrate = exData.QuoteSummary.Results[0].Price.RegularMarketPrice.Raw * float64(s.Multiplier)
 			} else {
 				logger.Errorf("Bad exchange rate for %s, default to USD.", s.Currency)
+				yahooMisses.Inc()
 			}
 		}
 	}
@@ -185,13 +187,16 @@ func (s *Ticker) watchStockPrice() {
 				priceData, err := utils.GetStockPrice(s.Ticker)
 				if err != nil {
 					logger.Errorf("Unable to fetch yahoo stock price for %s", s.Name)
+					yahooMisses.Inc()
 					continue
 				}
 
 				if len(priceData.QuoteSummary.Results) == 0 {
 					logger.Errorf("Yahoo returned bad data for %s", s.Name)
+					yahooMisses.Inc()
 					continue
 				}
+				yahooHits.Inc()
 				fmtPrice = priceData.QuoteSummary.Results[0].Price.RegularMarketPrice.Fmt
 
 				// Check if conversion is needed
@@ -453,10 +458,11 @@ func (s *Ticker) watchCryptoPrice() {
 				if strings.Contains(err.Error(), "rate limited") {
 					rateLimited.Inc()
 				} else {
-					updateError.Inc()
+					coingeckoMisses.Inc()
 				}
 				continue
 			}
+			coingeckoHits.Inc()
 
 			// Check if conversion is needed
 			if s.Exrate > 1.0 {
