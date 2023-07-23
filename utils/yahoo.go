@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	YahooURL = "https://query1.finance.yahoo.com/v10/finance/quoteSummary/%s?modules=price"
+	YahooURL = "https://query1.finance.yahoo.com/v6/finance/quoteSummary/%s?modules=price"
 )
 
 // The following is the API response yahoo gives
