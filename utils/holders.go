@@ -2,7 +2,6 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -82,7 +81,7 @@ func GetHolders(chain, contract, apiKey string) (int, error) {
 	}
 
 	if holders.Error {
-		return result, errors.New(fmt.Sprintf("%v", holders.ErrorMessage))
+		return result, fmt.Errorf("%v", holders.ErrorMessage)
 	}
 
 	return holders.Data.Pagination.TotalCount, err
