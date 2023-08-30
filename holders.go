@@ -18,6 +18,7 @@ type Holders struct {
 	Activity  string   `json:"activity"`
 	Nickname  bool     `json:"nickname"`
 	Frequency int      `json:"frequency"`
+	APIToken  string   `json:"api_token"`
 	ClientID  string   `json:"client_id"`
 	Token     string   `json:"discord_bot_token"`
 	close     chan int `json:"-"`
@@ -99,29 +100,34 @@ func (h *Holders) watchHolders() {
 			return
 		case <-ticker.C:
 
-			nickname := utils.GetHolders(h.Network, h.Address)
+			holders, err := utils.GetHolders(h.Network, h.Address, h.APIToken)
+			if err != nil {
+				logger.Errorf("Error getting holders for %s/%s %s", h.Network, h.Address, err)
+				continue
+			}
+			displayName := fmt.Sprintf("%d", holders)
 
 			if h.Nickname {
 
 				for _, g := range guilds {
 
-					err = dg.GuildMemberNickname(g.ID, "@me", nickname)
+					err = dg.GuildMemberNickname(g.ID, "@me", displayName)
 					if err != nil {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					} else {
-						logger.Debugf("Set nickname in %s: %s\n", g.Name, nickname)
+						logger.Debugf("Set nickname in %s: %d\n", g.Name, holders)
 					}
 					lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(h.Frequency) * time.Second)
 				}
 			} else {
 
-				err = dg.UpdateWatchStatus(0, nickname)
+				err = dg.UpdateWatchStatus(0, displayName)
 				if err != nil {
 					logger.Errorf("Unable to set activity: %s\n", err)
 				} else {
-					logger.Debugf("Set activity: %s\n", nickname)
+					logger.Debugf("Set activity: %s\n", displayName)
 					lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": "None"}).SetToCurrentTime()
 				}
 			}
