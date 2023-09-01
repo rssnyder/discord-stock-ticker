@@ -79,7 +79,7 @@ func (h *Holders) watchHolders() {
 	// check for frequency override
 	// set to one hour to avoid lockout
 	if *frequency != 0 {
-		h.Frequency = 3600
+		h.Frequency = *frequency
 	}
 
 	// perform management operations
@@ -116,7 +116,7 @@ func (h *Holders) watchHolders() {
 						logger.Errorf("Error updating nickname: %s\n", err)
 						continue
 					} else {
-						logger.Debugf("Set nickname in %s: %d\n", g.Name, holders)
+						logger.Debugf("Set nickname in %s: %s\n", g.Name, displayName)
 					}
 					lastUpdate.With(prometheus.Labels{"type": "holders", "ticker": fmt.Sprintf("%s-%s", h.Network, h.Address), "guild": g.Name}).SetToCurrentTime()
 					time.Sleep(time.Duration(h.Frequency) * time.Second)
