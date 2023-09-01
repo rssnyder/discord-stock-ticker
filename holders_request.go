@@ -14,7 +14,7 @@ import (
 func (m *Manager) ImportHolder() {
 
 	// query
-	rows, err := m.DB.Query("SELECT clientID, token, nickname, activity, network, address, frequency FROM holders")
+	rows, err := m.DB.Query("SELECT clientID, token, nickname, activity, network, address, frequency, apiToken FROM holders")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -24,7 +24,7 @@ func (m *Manager) ImportHolder() {
 	for rows.Next() {
 		var importedHolders Holders
 
-		err = rows.Scan(&importedHolders.ClientID, &importedHolders.Token, &importedHolders.Nickname, &importedHolders.Activity, &importedHolders.Network, &importedHolders.Address, &importedHolders.Frequency)
+		err = rows.Scan(&importedHolders.ClientID, &importedHolders.Token, &importedHolders.Nickname, &importedHolders.Activity, &importedHolders.Network, &importedHolders.Address, &importedHolders.Frequency, &importedHolders.APIToken)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
@@ -163,13 +163,13 @@ func (m *Manager) WatchHolders(holders *Holders) {
 func (m *Manager) StoreHolders(holders *Holders) {
 
 	// store new entry in db
-	stmt, err := m.DB.Prepare("INSERT INTO holders(clientId, token, nickname, activity, network, address, frequency) values(?,?,?,?,?,?,?)")
+	stmt, err := m.DB.Prepare("INSERT INTO holders(clientId, token, nickname, activity, network, address, frequency, apiToken) values(?,?,?,?,?,?,?,?)")
 	if err != nil {
 		logger.Warningf("Unable to store holders in db %s: %s", holders.label(), err)
 		return
 	}
 
-	res, err := stmt.Exec(holders.ClientID, holders.Token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency)
+	res, err := stmt.Exec(holders.ClientID, holders.Token, holders.Nickname, holders.Activity, holders.Network, holders.Address, holders.Frequency, holders.APIToken)
 	if err != nil {
 		logger.Warningf("Unable to store holders in db %s: %s", holders.label(), err)
 		return
