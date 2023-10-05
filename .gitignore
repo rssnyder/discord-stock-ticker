@@ -17,7 +17,7 @@
 bin*
 test.sh
 load.py
-state.db
+*.db
 discord-stock-ticker
-test.state
+*.state
 dist/

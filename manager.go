@@ -83,6 +83,30 @@ var (
 			Help: "Number of times the cache lacked data",
 		},
 	)
+	yahooHits = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "yahoo_hits",
+			Help: "Number of times we got data from yahoo",
+		},
+	)
+	yahooMisses = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "yahoo_misses",
+			Help: "Number of times we failed to get data from yahoo",
+		},
+	)
+	coingeckoHits = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "coingecko_hits",
+			Help: "Number of times we got data from coingecko",
+		},
+	)
+	coingeckoMisses = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "coingecko_misses",
+			Help: "Number of times we failed to get data from coingecko",
+		},
+	)
 	rateLimited = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "ratelimited",
@@ -212,6 +236,10 @@ func NewManager(address string, dbFile string, count prometheus.Gauge, cache *re
 	prometheus.MustRegister(lastUpdate)
 	prometheus.MustRegister(cacheHits)
 	prometheus.MustRegister(cacheMisses)
+	prometheus.MustRegister(yahooHits)
+	prometheus.MustRegister(yahooMisses)
+	prometheus.MustRegister(coingeckoHits)
+	prometheus.MustRegister(coingeckoMisses)
 	prometheus.MustRegister(rateLimited)
 	prometheus.MustRegister(updateError)
 
@@ -352,7 +380,8 @@ func dbInit(fileName string) *sql.DB {
 		nickname bool,
 		activity string,
 		network string,
-		address string
+		address string,
+		apiToken string
 	);
 	CREATE TABLE IF NOT EXISTS gases (
 		id integer primary key autoincrement,
@@ -385,7 +414,8 @@ func dbInit(fileName string) *sql.DB {
 		nickname bool,
 		activity string,
 		marketplace string,
-		name string
+		name string,
+		decorator string
 	);`
 
 	_, err = db.Exec(bootstrap)
@@ -412,7 +442,7 @@ func dbInit(fileName string) *sql.DB {
 	// v3.11.0 - add gas API Token
 	_, err = db.Exec("alter table gases add column apiToken default \"\";")
 	if err == nil {
-		logger.Warnln("Added new column to tickers: apiToken (1)")
+		logger.Warnln("Added new column to gases: apiToken (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: apiToken (1)" {
 		logger.Debug("New column already exists in gases: apiToken (1)")
 	} else if err != nil {
@@ -425,7 +455,7 @@ func dbInit(fileName string) *sql.DB {
 	// v3.11.0 - add floor activity
 	_, err = db.Exec("alter table floors add column activity default \"\";")
 	if err == nil {
-		logger.Warnln("Added new column to tickers: activity (1)")
+		logger.Warnln("Added new column to floors: activity (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: activity (1)" {
 		logger.Debug("New column already exists in floors: activity (1)")
 	} else if err != nil {
@@ -438,7 +468,7 @@ func dbInit(fileName string) *sql.DB {
 	// v3.11.0 - add floor color
 	_, err = db.Exec("alter table floors add column color default false;")
 	if err == nil {
-		logger.Warnln("Added new column to tickers: color (1)")
+		logger.Warnln("Added new column to floors: color (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: color (1)" {
 		logger.Debug("New column already exists in floors: color (1)")
 	} else if err != nil {
@@ -451,7 +481,7 @@ func dbInit(fileName string) *sql.DB {
 	// v3.11.0 - add floor decorator
 	_, err = db.Exec("alter table floors add column decorator default \"\";")
 	if err == nil {
-		logger.Warnln("Added new column to tickers: decorator (1)")
+		logger.Warnln("Added new column to floors: decorator (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: decorator (1)" {
 		logger.Debug("New column already exists in floors: decorator (1)")
 	} else if err != nil {
@@ -464,7 +494,7 @@ func dbInit(fileName string) *sql.DB {
 	// v3.11.0 - add floor currency
 	_, err = db.Exec("alter table floors add column currency default \"\";")
 	if err == nil {
-		logger.Warnln("Added new column to tickers: currency (1)")
+		logger.Warnln("Added new column to floors: currency (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: currency (1)" {
 		logger.Debug("New column already exists in floors: currency (1)")
 	} else if err != nil {
@@ -474,7 +504,20 @@ func dbInit(fileName string) *sql.DB {
 		return dbNull
 	}
 
-	// v3.11.0 - add floor collectionStats
+	// v3.10.6
+	_, err = db.Exec("alter table holders add column apiToken default \"\";")
+	if err == nil {
+		logger.Warnln("Added new column to holders: apiToken (1)")
+	} else if err.Error() == "SQL logic error: duplicate column name: apiToken (1)" {
+		logger.Debug("New column already exists in floors: apiToken (1)")
+	} else if err != nil {
+		logger.Errorln(err)
+		logger.Warning("Will not be storing state.")
+		var dbNull *sql.DB
+		return dbNull
+	}
+    
+  // v3.10.7 - add floor collectionStats
 	_, err = db.Exec("alter table floors add column collectionStats default false;")
 	if err == nil {
 		logger.Warnln("Added new column to tickers: collectionStats (1)")
@@ -487,13 +530,13 @@ func dbInit(fileName string) *sql.DB {
 		return dbNull
 	}
 
-	// v3.11.0 - add floor collectionStatsAppend
+	// v3.10.7 - add floor collectionStatsAppend
 	_, err = db.Exec("alter table floors add column collectionStatsAppend default false;")
 	if err == nil {
 		logger.Warnln("Added new column to tickers: collectionStatsAppend (1)")
 	} else if err.Error() == "SQL logic error: duplicate column name: collectionStatsAppend (1)" {
 		logger.Debug("New column already exists in floors: collectionStatsAppend (1)")
-	} else if err != nil {
+  } else if err != nil {
 		logger.Errorln(err)
 		logger.Warning("Will not be storing state.")
 		var dbNull *sql.DB
