@@ -552,6 +552,8 @@ Track the floor price of an NFT collection on OpenSea, Solanart, Solsea or Magic
   "name": "ethereum",                               # string: collection name/id from source
   "color": true,                                    # bool/OPTIONAL: requires nickname
   "decorator": "@",                                 # string/OPTIONAL: what to show instead of arrows. Set to " " to disable arrows.
+  "collection_stats": true,                         # bool/OPTIONAL: show extra collection stats in activity section.
+  "collection_stats_append": true,                  # bool/OPTIONAL: append collection stats to other activities. Shown as own activity if `false`.
   "currency": "MATIC",                              # string/OPTIONAL: alternative curreny
   "nickname": true,                                 # bool/OPTIONAL: display information in nickname vs activity
   "activity": "Hello;Its;Me",                       # string/OPTIONAL: list of strings to show in activity section

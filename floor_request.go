@@ -16,7 +16,7 @@ func (m *Manager) ImportFloor() {
 	defer m.Unlock()
 
 	// query
-	rows, err := m.DB.Query("SELECT id, clientID, token, nickname, activity, color, decorator, currency, marketplace, name, frequency FROM floors")
+	rows, err := m.DB.Query("SELECT id, clientID, token, nickname, activity, color, decorator, collectionStats, collectionStatsAppend, currency, marketplace, name, frequency FROM floors")
 	if err != nil {
 		logger.Warningf("Unable to query tokens in db: %s", err)
 		return
@@ -27,7 +27,7 @@ func (m *Manager) ImportFloor() {
 		var importedFloor Floor
 		var importedID int
 
-		err = rows.Scan(&importedID, &importedFloor.ClientID, &importedFloor.Token, &importedFloor.Nickname, &importedFloor.Activity, &importedFloor.Color, &importedFloor.Decorator, &importedFloor.Currency, &importedFloor.Marketplace, &importedFloor.Name, &importedFloor.Frequency)
+		err = rows.Scan(&importedID, &importedFloor.ClientID, &importedFloor.Token, &importedFloor.Nickname, &importedFloor.Activity, &importedFloor.Color, &importedFloor.Decorator, &importedFloor.CollectionStats, &importedFloor.CollectionStatsAppend, &importedFloor.Currency, &importedFloor.Marketplace, &importedFloor.Name, &importedFloor.Frequency)
 		if err != nil {
 			logger.Errorf("Unable to load token from db: %s", err)
 			continue
@@ -166,13 +166,13 @@ func (m *Manager) WatchFloor(floor *Floor) {
 func (m *Manager) StoreFloor(floor *Floor) {
 
 	// store new entry in db
-	stmt, err := m.DB.Prepare("INSERT INTO floors(clientId, token, nickname, activity, color, decorator, currency, marketplace, name, frequency) values(?,?,?,?,?,?,?,?,?,?)")
+	stmt, err := m.DB.Prepare("INSERT INTO floors(clientId, token, nickname, activity, color, decorator, collectionStats, collectionStatsAppend, currency, marketplace, name, frequency) values(?,?,?,?,?,?,?,?,?,?,?,?)")
 	if err != nil {
 		logger.Warningf("Unable to store floor in db %s: %s", floor.label(), err)
 		return
 	}
 
-	res, err := stmt.Exec(floor.ClientID, floor.Token, floor.Nickname, floor.Activity, floor.Color, floor.Decorator, floor.Currency, floor.Marketplace, floor.Name, floor.Frequency)
+	res, err := stmt.Exec(floor.ClientID, floor.Token, floor.Nickname, floor.Activity, floor.Color, floor.Decorator, floor.CollectionStats, floor.CollectionStatsAppend, floor.Currency, floor.Marketplace, floor.Name, floor.Frequency)
 	if err != nil {
 		logger.Warningf("Unable to store floor in db %s: %s", floor.label(), err)
 		return
