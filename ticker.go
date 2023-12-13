@@ -254,15 +254,7 @@ func (s *Ticker) watchStockPrice() {
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": g.Name}).SetToCurrentTime()
 
-					if s.Color {
-						// change bot color
-						err = setRole(dg, s.ClientID, g.ID, increase)
-						if err != nil {
-							logger.Errorf("Color roles: %s", err)
-						}
-					}
-
-					time.Sleep(time.Duration(s.Frequency) * time.Second)
+					time.Sleep(time.Duration(s.Frequency) * time.Second / 4)
 				}
 
 				// Custom activity messages
@@ -300,6 +292,18 @@ func (s *Ticker) watchStockPrice() {
 					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Ticker, "guild": "None"}).SetToCurrentTime()
 				}
 
+			}
+
+			// change bot color
+			if s.Color {
+				for _, g := range guilds {
+					err = setRole(dg, s.ClientID, g.ID, increase)
+					if err != nil {
+						logger.Errorf("Color roles: %s", err)
+						s.Color = false
+					}
+					time.Sleep(time.Duration(s.Frequency) * time.Second / 4)
+				}
 			}
 
 		}
@@ -610,15 +614,7 @@ func (s *Ticker) watchCryptoPrice() {
 					logger.Debugf("Set nickname in %s: %s", g.Name, nickname)
 					lastUpdate.With(prometheus.Labels{"type": "ticker", "ticker": s.Name, "guild": g.Name}).SetToCurrentTime()
 
-					if s.Color {
-						// change bot color
-						err = setRole(dg, s.ClientID, g.ID, increase)
-						if err != nil {
-							logger.Errorf("Color roles: %s", err)
-						}
-					}
-
-					time.Sleep(time.Duration(s.Frequency) * time.Second)
+					time.Sleep(time.Duration(s.Frequency) * time.Second / 4)
 				}
 
 				// Custom activity messages
@@ -667,6 +663,18 @@ func (s *Ticker) watchCryptoPrice() {
 					}
 				}
 				wg.Wait()
+			}
+
+			// change bot color
+			if s.Color {
+				for _, g := range guilds {
+					err = setRole(dg, s.ClientID, g.ID, increase)
+					if err != nil {
+						logger.Errorf("Color roles: %s", err)
+						s.Color = false
+					}
+					time.Sleep(time.Duration(s.Frequency) * time.Second / 4)
+				}
 			}
 		}
 	}
